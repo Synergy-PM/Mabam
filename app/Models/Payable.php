@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
+
+class Payable extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'transaction_date',
+        'supplier_id',
+        'no_of_bags',
+        'amount_per_bag',
+        'total_amount',
+        'tons',
+        'bilti_no',
+    ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+}
