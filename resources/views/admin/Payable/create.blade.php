@@ -98,9 +98,10 @@
             </div>
           </div>
 
-          <small id="bagWarning" class="text-danger fw-bold" style="display:none;">
-            ⚠ Dealer bags ka total Bilti bags se zyada ho gaya hai!
-          </small>
+         <small id="bagWarning" class="text-danger fw-bold" style="display:none;">
+            ⚠ Dealer bags total has exceeded Bilti bags!
+         </small>
+
 
           <div class="mt-3">
             <button type="submit" class="btn btn-primary" id="saveBtn"><b>Save Receivable</b></button>
