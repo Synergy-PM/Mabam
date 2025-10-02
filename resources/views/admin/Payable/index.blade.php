@@ -33,7 +33,7 @@
                   <th>Rate</th>
                   <th>Total</th>
                   <th>Bilti</th>
-                  <th>Remaining</th>
+                  <th>Tons</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -50,18 +50,18 @@
                     <td class="text-end">{{ number_format($p->amount_per_bag,2) }}</td>
                     <td class="text-end">{{ number_format($p->total_amount,2) }}</td>
                     <td>{{ $p->bilti_no ?? '-' }}</td>
-                    <td class="text-end">{{ number_format($p->remaining,2) }}</td>
+                    <td class="text-end">{{ $p->tons }}</td>
                     <td class="text-center">{{ \Carbon\Carbon::parse($p->transaction_date)->format('d-m-Y') }}</td>
                     <td class="text-center">
                       <div class="d-flex justify-content-center gap-1">
                         <!-- Edit -->
-                        <a href="{{ route('payables.edit', $p->id) }}" 
-                           class="btn btn-sm btn-soft-warning" 
+                        <a href="{{ route('payables.edit', $p->id) }}"
+                           class="btn btn-sm btn-soft-warning"
                            title="Edit">
                           <i class="mdi mdi-pencil"></i>
                         </a>
                         <!-- Delete -->
-                        <form action="{{ route('payables.delete', $p->id) }}" method="POST" 
+                        <form action="{{ route('payables.delete', $p->id) }}" method="POST"
                               onsubmit="return confirm('Move to trash?');">
                           @csrf
                           @method('DELETE')
