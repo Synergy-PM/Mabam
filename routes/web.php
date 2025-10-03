@@ -78,7 +78,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('trash', 'trash')->name('dealers.trash');
         Route::get('restore/{id}', 'restore')->name('dealers.restore');
     });
-    
+
      Route::controller(SupplierController::class)->prefix('suppliers')->group(function () {
         Route::get('/', 'index')->name('suppliers.index');
         Route::get('create', 'create')->name('suppliers.create');
@@ -135,4 +135,3 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 });
 
 });
-    

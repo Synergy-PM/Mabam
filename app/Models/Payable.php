@@ -22,4 +22,9 @@ class Payable extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
+
+    public function receivables()
+    {
+        return $this->hasMany(Receivable::class);
+    }
 }
