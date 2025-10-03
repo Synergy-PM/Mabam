@@ -12,7 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PayableController;
 use App\Http\Controllers\ReceivableController;
 use App\Http\Controllers\PaymentController;
-
+use App\Http\Controllers\PayablePaymentController;
 
 
 Route::middleware('guest')->group(function () {
@@ -122,8 +122,17 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('trash', 'trash')->name('payments.trash');
         Route::put('restore/{id}', 'restore')->name('payments.restore');
     });
-Route::get('/suppliers/{id}/last-payable', [App\Http\Controllers\PayableController::class, 'getLastPayable']);
 
+    Route::controller(PayablePaymentController::class)->prefix('payable-payments')->group(function () {
+         Route::get('/', 'index')->name('payable-payments.index');
+         Route::get('create', 'create')->name('payable-payments.create');
+         Route::post('store', 'store')->name('payable-payments.store');
+         Route::get('edit/{id}', 'edit')->name('payable-payments.edit');
+         Route::put('update/{id}', 'update')->name('payable-payments.update');
+         Route::delete('delete/{id}', 'destroy')->name('payable-payments.delete');
+         Route::get('trash', 'trash')->name('payable-payments.trash');
+         Route::put('restore/{id}', 'restore')->name('payable-payments.restore');
+});
 
 });
     

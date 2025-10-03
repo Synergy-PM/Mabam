@@ -168,15 +168,15 @@
                                 <li><a href="{{ route('receivables.index') }}">Receivable</a></li>
                             </ul>
                         </li>
-                      {{-- <li> 
+                      <li> 
                         <a href="javascript:void(0);" class="has-arrow waves-effect">
                             <i class="ri-exchange-dollar-line"></i>
                             <span>Transactions</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="{{ route('payments.index', ['transactionId' => 1]) }}">Payment</a></li>
+                            <li><a href="{{ route('payable-payments.index')}}">Payable Payment</a></li>
                         </ul>
-                     </li> --}}
+                     </li>
                     </ul>
                 </div>
             </div>

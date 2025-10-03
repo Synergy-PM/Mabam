@@ -32,16 +32,13 @@
                   <label><b>Total Bags (From Bilti)</b></label>
                   <input type="number" id="total_bags" class="form-control" readonly>
               </div>
-
               <div class="col-md-4 mb-3">
                   <label><b>Remaining Bags</b></label>
                   <input type="number" id="remaining_bags" class="form-control" readonly>
               </div>
             </div>
-
             <!-- Dealers Forms -->
             <div id="dealersContainer"></div>
-
             <div class="mb-3">
               <button type="button" class="btn btn-success" id="addDealerForm">+ Add Dealer</button>
             </div>
@@ -153,6 +150,7 @@
                   <label>Payment Type</label>
                   <select name="payment_type[${dealerIndex}]" class="form-control" required>
                     <option value="">Select</option>
+                    <option value="Credit">Credit</option>
                     <option value="cash">Cash</option>
                     <option value="online">Online</option>
                     <option value="cheque">Cheque</option>
