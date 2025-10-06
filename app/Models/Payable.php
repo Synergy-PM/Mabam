@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,5 +27,16 @@ class Payable extends Model
     public function receivables()
     {
         return $this->hasMany(Receivable::class);
+    }
+
+        public function payments()
+    {
+        return $this->hasMany(PayablePayment::class, 'payable_id');
+    }
+
+
+    public function getRemainingBalanceAttribute()
+    {
+        return $this->total_amount - $this->payments->sum('amount_paid');
     }
 }

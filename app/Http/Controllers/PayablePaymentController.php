@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PayablePayment;
+use App\Models\Payable;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 
@@ -16,81 +17,103 @@ class PayablePaymentController extends Controller
 
     public function create()
     {
-        $suppliers = Supplier::all();
-        return view('admin.payable_payments.create', compact('suppliers'));
+        $payables = Payable::with('supplier')->get();
+        $supplier = Supplier::all();
+        return view('admin.payable_payments.create', compact('payables', 'supplier'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'transaction_date' => 'required|date',
-            'transaction_type' => 'required|in:debit,credit',
-            'amount' => 'required|numeric|min:0',
-            'payment_mode' => 'nullable|string',
-            'proof_of_payment' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-            'notes' => 'nullable|string',
-        ]);
+        // $validated = $request->validate([
+        //     'payments' => 'required|array|min:1',
+        //     'payments.*.payable_id' => 'required|exists:payables,id',
+        //     'payments.*.transaction_date' => 'required|date',
+        //     'payments.*.amount_paid' => 'required|numeric|min:0',
+        //     'payments.*.payment_mode' => 'required|in:cash,bank,cheque,online',
+        //     'payments.*.transaction_type' => 'required|in:credit,debit', // Added validation
+        //     'payments.*.proof_of_payment' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+        //     'payments.*.notes' => 'nullable|string',
+        // ]);
 
-        if ($request->hasFile('proof_of_payment')) {
-            $validated['proof_of_payment'] = $request->file('proof_of_payment')->store('proofs', 'public');
+        // Loop through each payment entry
+        foreach ($request->payments as $index => $paymentData) {
+            $payable = Payable::findOrFail($paymentData['payable_id']);
+
+            $payment = new PayablePayment();
+            $payment->payable_id = $payable->id;
+            $payment->supplier_id = $payable->supplier_id;
+            $payment->transaction_date = $paymentData['transaction_date'];
+            $payment->amount = $paymentData['amount_paid'];
+            $payment->payment_mode = $paymentData['payment_mode'];
+            $payment->transaction_type = $paymentData['transaction_type']; // Save transaction_type
+            $payment->notes = $paymentData['notes'] ?? null;
+
+            // Handle file upload for proof of payment
+            if (isset($paymentData['proof_of_payment']) && $request->hasFile("payments.{$index}.proof_of_payment")) {
+                $payment->proof_of_payment = $request->file("payments.{$index}.proof_of_payment")->store('proofs', 'public');
+            }
+
+            $payment->save();
         }
 
-        PayablePayment::create($validated);
-
-        return redirect()->route('payable-payments.index')->with('success', 'Payable Payment created successfully.');
-    }
-
-    public function edit($id)
-    {
-        $payment = PayablePayment::findOrFail($id);
-        $suppliers = Supplier::all();
-        return view('admin.payable_payments.edit', compact('payment', 'suppliers'));
-    }
-
-    public function update(Request $request, $id)
-    {
-        $payment = PayablePayment::findOrFail($id);
-
-        $validated = $request->validate([
-            'supplier_id' => 'required|exists:suppliers,id',
-            'transaction_date' => 'required|date',
-            'transaction_type' => 'required|in:debit,credit',
-            'amount' => 'required|numeric|min:0',
-            'payment_mode' => 'nullable|string',
-            'proof_of_payment' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-            'notes' => 'nullable|string',
-        ]);
-
-        if ($request->hasFile('proof_of_payment')) {
-            $validated['proof_of_payment'] = $request->file('proof_of_payment')->store('proofs', 'public');
-        }
-
-        $payment->update($validated);
-
-        return redirect()->route('payable-payments.index')->with('success', 'Payable Payment updated successfully.');
+        return redirect()->route('payable-payments.index')->with('success', 'Payments created successfully.');
     }
 
     public function destroy($id)
     {
         $payment = PayablePayment::findOrFail($id);
         $payment->delete();
-
-        return redirect()->route('payable-payments.index')->with('success', 'Payable Payment deleted successfully.');
+        return redirect()->route('payable-payments.index')->with('success', 'Payment deleted successfully.');
     }
 
-    public function trash()
+        public function getPayableDetails($id)
     {
-        $payments = PayablePayment::onlyTrashed()->get();
-        return view('admin.payable_payments.trash', compact('payments'));
-    }
+        $payable = Payable::with('supplier')->findOrFail($id);
 
-    public function restore($id)
+        return response()->json([
+            'bilti_no' => $payable->bilti_no,
+            'supplier_name' => $payable->supplier->supplier_name ?? '',
+            'total_amount' => $payable->total_amount,
+        ]);
+    }
+  
+    public function ledgerFilter()
     {
-        $payment = PayablePayment::onlyTrashed()->findOrFail($id);
-        $payment->restore();
-
-        return redirect()->route('payable-payments.index')->with('success', 'Payable Payment restored successfully.');
+        $suppliers = \App\Models\Supplier::all();
+        return view('admin.payable_payments.ledger-filter', compact('suppliers'));
     }
+
+    public function ledgerReport(Request $request)
+    {
+        $query = \App\Models\PayablePayment::with('payable.supplier', 'supplier');
+
+        if ($request->payable_id) {
+            $query->where('payable_id', $request->payable_id);
+        }
+
+        if ($request->supplier_id) {
+            $query->where('supplier_id', $request->supplier_id);
+        }
+
+        if ($request->start_date) {
+            $query->whereDate('transaction_date', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->whereDate('transaction_date', '<=', $request->end_date);
+        }
+
+        $payments = $query->orderBy('transaction_date')->get();
+        $selectedPayable = \App\Models\Payable::with('supplier')->find($request->payable_id);
+        $supplier = \App\Models\Supplier::where('id', $request->supplier_id)->first();
+
+        return view('admin.payable_payments.ledger-report', compact(
+            'payments',
+            'selectedPayable',
+            'supplier'
+        ))->with([
+            'startDate' => $request->start_date,
+            'endDate' => $request->end_date
+        ]);
+    }
+
 }
-

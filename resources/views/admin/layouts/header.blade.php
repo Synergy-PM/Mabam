@@ -165,7 +165,7 @@
                                 <li><a href="{{ route('suppliers.index') }}">Add Suppliers</a></li>
                                 <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
                                 <li><a href="{{ route('payables.index') }}">Payable</a></li>
-                                <li><a href="{{ route('receivables.index') }}">Receivable</a></li>
+                                {{-- <li><a href="{{ route('receivables.index') }}">Receivable</a></li> --}}
                             </ul>
                         </li>
                       <li> 
@@ -175,6 +175,9 @@
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
                             <li><a href="{{ route('payable-payments.index')}}">Payable Payment</a></li>
+                            {{-- <li><a href="#">Receivable Payment</a></li> --}}
+                            <li><a href="{{ route('payable-payments.ledger-filter') }}">Ledger Report</a></li> {{-- 🔹 Ledger link --}}
+
                         </ul>
                      </li>
                     </ul>
@@ -182,4 +185,4 @@
             </div>
         </div>
         <div class="main-content">
-            <div class="page-content">
+     <div class="page-content">

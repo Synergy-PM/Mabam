@@ -2,26 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PayablePayment extends Model
-{
-    use HasFactory, SoftDeletes;
+{ 
+    use SoftDeletes;
 
-    protected $fillable = [
-        'supplier_id',
-        'transaction_date',
-        'transaction_type',
-        'amount',
-        'payment_mode',
-        'proof_of_payment',
-        'notes',
-    ];
+   protected $fillable  = [
+    'payable_id',
+    'supplier_id',
+    'transaction_date',
+    'amount',   // yeh correct hoga
+    'transaction_type',
+    'payment_mode',
+    'proof_of_payment',
+    'notes'
+];
+
+
+        public function payable()
+    {
+        return $this->belongsTo(Payable::class);
+    }
+
 
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class,'supplier_id');
     }
 }

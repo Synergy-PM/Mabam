@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('supplier_name')->nullable();
             $table->string('company_name')->nullable();
             $table->unsignedBigInteger('city_id')->nullable();
-            $table->string('email')->nullable()->unique();
+            $table->string('email')->nullable();
             $table->string('whatsapp')->nullable();
             $table->text('address')->nullable();
             $table->string('contact_person')->nullable();

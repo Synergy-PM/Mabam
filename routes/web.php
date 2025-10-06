@@ -11,7 +11,6 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PayableController;
 use App\Http\Controllers\ReceivableController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayablePaymentController;
 
 
@@ -101,37 +100,21 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('restore/{id}', 'restore')->name('payables.restore');
     });
 
-      Route::controller(ReceivableController::class)->prefix('receivables')->group(function () {
-        Route::get('/', 'index')->name('receivables.index');
-        Route::get('create', 'create')->name('receivables.create');
-        Route::post('store', 'store')->name('receivables.store');
-        Route::get('edit/{id}', 'edit')->name('receivables.edit');
-        Route::put('update/{id}', 'update')->name('receivables.update');
-        Route::delete('delete/{id}', 'destroy')->name('receivables.delete');
-        Route::get('trash', 'trash')->name('receivables.trash');
-        Route::put('restore/{id}', 'restore')->name('receivables.restore');
+  Route::controller(PayablePaymentController::class)
+    ->prefix('payable-payments')
+    ->group(function () {
+        Route::get('/', 'index')->name('payable-payments.index');
+        Route::get('create', 'create')->name('payable-payments.create');
+        Route::post('store', 'store')->name('payable-payments.store');
+        Route::get('edit/{id}', 'edit')->name('payable-payments.edit');
+        Route::put('update/{id}', 'update')->name('payable-payments.update');
+        Route::delete('delete/{id}', 'destroy')->name('payable-payments.delete');
+        Route::get('trash', 'trash')->name('payable-payments.trash');
+        Route::put('restore/{id}', 'restore')->name('payable-payments.restore');
+        Route::get('ledger-filter', 'ledgerFilter')->name('payable-payments.ledger-filter');
+        Route::get('ledger-report', 'ledgerReport')->name('payable-payments.ledger-report');
     });
 
-    Route::controller(PaymentController::class)->prefix('payments')->group(function () {
-        Route::get('/', 'index')->name('payments.index');
-        Route::get('create', 'create')->name('payments.create');
-        Route::post('store', 'store')->name('payments.store');
-        Route::get('edit/{id}', 'edit')->name('payments.edit');
-        Route::put('update/{id}', 'update')->name('payments.update');
-        Route::delete('delete/{id}', 'destroy')->name('payments.delete');
-        Route::get('trash', 'trash')->name('payments.trash');
-        Route::put('restore/{id}', 'restore')->name('payments.restore');
-    });
-
-    Route::controller(PayablePaymentController::class)->prefix('payable-payments')->group(function () {
-         Route::get('/', 'index')->name('payable-payments.index');
-         Route::get('create', 'create')->name('payable-payments.create');
-         Route::post('store', 'store')->name('payable-payments.store');
-         Route::get('edit/{id}', 'edit')->name('payable-payments.edit');
-         Route::put('update/{id}', 'update')->name('payable-payments.update');
-         Route::delete('delete/{id}', 'destroy')->name('payable-payments.delete');
-         Route::get('trash', 'trash')->name('payable-payments.trash');
-         Route::put('restore/{id}', 'restore')->name('payable-payments.restore');
+Route::get('/payables/{id}/details', [App\Http\Controllers\PayablePaymentController::class, 'getPayableDetails']);
 });
-
-});
+ 

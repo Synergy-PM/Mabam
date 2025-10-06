@@ -8,21 +8,19 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('receivables', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('payable_id')->nullable()->constrained()->onDelete('cascade');
-
-            $table->foreignId('dealer_id')->constrained()->onDelete('cascade');
-            $table->string('bilti_no')->nullable(); 
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            $table->foreignId('payable_id')->constrained('payables')->onDelete('cascade');
+            $table->string('bilti_no')->nullable();
+            $table->foreignId('dealer_id')->constrained('dealers')->onDelete('cascade');
             $table->integer('bags')->default(0);
-            $table->decimal('rate', 10, 2)->default(0);
-            $table->decimal('freight', 10, 2)->default(0)->nullable();
-            $table->decimal('tons', 10, 3)->default(0);
-            $table->decimal('total', 15, 2)->default(0);
-            $table->enum('payment_type', ['Credit','cash', 'online', 'cheque']);
-            $table->string('proof_of_payment')->nullable();
-
-            $table->timestamps();
+            $table->decimal('rate', 12, 2)->default(0);
+            $table->decimal('freight', 12, 2)->default(0);
+            $table->decimal('tons', 12, 2)->default(0);
+            $table->decimal('total', 14, 2)->default(0);
+            $table->enum('payment_type', ['cash', 'credit'])->default('cash');
+            $table->string('code')->unique();
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 

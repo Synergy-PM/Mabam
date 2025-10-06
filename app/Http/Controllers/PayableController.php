@@ -6,6 +6,7 @@ use App\Models\Payable;
 use App\Models\Receivable;
 use App\Models\Dealer;
 use App\Models\Supplier;
+use App\Models\PayablePayment;
 use Illuminate\Http\Request;
 
 class PayableController extends Controller
@@ -57,7 +58,13 @@ class PayableController extends Controller
         'tons'             => $request->no_of_bags / 20,
         'bilti_no'         => $request->bilti_no,
     ]);
-
+    //  Create Payable payment
+    $payable = PayablePayment::create([
+        'transaction_date' => $request->transaction_date,
+        'supplier_id'      => $request->supplier_id,
+        'amount'     => $request->no_of_bags * $request->amount_per_bag,
+        'payment_mode'     => 'debit',
+    ]);
     // Create Receivables
     $dealerIds    = $request->dealer_id ?? [];
     $bags         = $request->bags ?? [];

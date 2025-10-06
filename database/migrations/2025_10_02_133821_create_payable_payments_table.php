@@ -10,16 +10,19 @@ return new class extends Migration
     {
         Schema::create('payable_payments', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('supplier_id')->constrained()->onDelete('cascade'); 
+            $table->foreignId('payable_id')
+                ->nullable()
+                ->constrained('payables')
+                ->onDelete('cascade');
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $table->date('transaction_date');
-            $table->enum('transaction_type', ['debit', 'credit']); // debit = payment given, credit = refund/adjustment
+            $table->enum('transaction_type', ['debit', 'credit']);
             $table->decimal('amount', 15, 2);
-            $table->string('payment_mode')->nullable(); // cash, bank, cheque, online
+            $table->enum('payment_mode', ['debit', 'cash', 'bank', 'cheque', 'online']);
             $table->string('proof_of_payment')->nullable();
             $table->text('notes')->nullable();
 
-            $table->softDeletes(); 
+            $table->softDeletes();
             $table->timestamps();
         });
     }
