@@ -17,23 +17,25 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label><b>Transaction Date</b><span class="text-danger">*</span></label>
-                            <input type="date" name="transaction_date" class="form-control" value="{{ old('transaction_date', $payable->transaction_date) }}" required>
+                            <input type="date" name="transaction_date" class="form-control"
+                                value="{{ old('transaction_date', $payable->transaction_date) }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label><b>Supplier</b><span class="text-danger">*</span></label>
                             <select name="supplier_id" class="form-control" required>
                                 <option value="">Select Supplier</option>
                                 @foreach($suppliers as $s)
-                                <option value="{{ $s->id }}" @selected(old('supplier_id', $payable->supplier_id) == $s->id)>
-                                    {{ $s->supplier_name }}
-                                </option>
+                                    <option value="{{ $s->id }}" @selected(old('supplier_id', $payable->supplier_id) == $s->id)>
+                                        {{ $s->supplier_name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label><b>Tons</b></label>
-                            <input type="text" id="tons" class="form-control" value="{{ old('tons', $payable->tons) }}">
+                            <input type="number" id="tons" class="form-control"
+                                value="{{ old('tons', $payable->tons) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label><b>No of Bags</b></label>
@@ -62,7 +64,7 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label><b>Bilti No</b></label>
-                            <input type="text" name="bilti_no" id="bilti_no" class="form-control" readonly>
+                            <input type="text" id="bilti_no" class="form-control" readonly>
                         </div>
                         <div class="col-md-4">
                             <label><b>Total Bags (From Bilti)</b></label>
@@ -79,17 +81,19 @@
                         @foreach($payable->receivables as $index => $rec)
                         <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="{{ $index }}">
                             <div class="row">
+
                                 <input type="hidden" name="supplier_id" value="{{ $payable->supplier_id }}">
 
+                                <input type="hidden" name="receivable_id[{{ $index }}]" value="{{ $rec->id }}">
                                 <div class="col-md-4 mb-3">
                                     <label>Dealer</label>
+
                                     <select name="dealer_id[{{ $index }}]" class="form-control dealerSelect" required>
                                         <option value="">Select Dealer</option>
                                         @foreach($dealers as $dealer)
-                                        <option value="{{ $dealer->id }}"
-                                            @selected(old('dealer_id.'.$index, $rec->dealer_id) == $dealer->id)>
-                                            {{ $dealer->dealer_name }}
-                                        </option>
+                                            <option value="{{ $dealer->id }}" @selected(old('dealer_id.'.$index, $rec->dealer_id) == $dealer->id)>
+                                                {{ $dealer->dealer_name }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -124,6 +128,12 @@
                                 </div>
 
                                 <div class="col-md-4 mb-3">
+                                    <label>Code Number</label>
+                                    <input type="text" name="code[{{ $index }}]" class="form-control dealercode"
+                                        value="{{ old('code.'.$index, $rec->code) }}">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
                                     <label>Payment Type</label>
                                     <select name="payment_type[{{ $index }}]" class="form-control" required>
                                         <option value="">Select</option>
@@ -138,7 +148,7 @@
                                     <label>Proof of Payment</label>
                                     <input type="file" name="proof_of_payment[{{ $index }}]" class="form-control">
                                     @if($rec->proof_of_payment)
-                                    <small class="text-muted">Current: {{ $rec->proof_of_payment }}</small>
+                                        <small class="text-muted">Current: {{ $rec->proof_of_payment }}</small>
                                     @endif
                                 </div>
 
@@ -223,12 +233,9 @@
     const bagWarning = document.getElementById('bagWarning');
     const saveBtn = document.getElementById('saveBtn');
 
-    let totalBags = 0;
-    let dealerIndex = {
-        {
-            count($payable - > receivables)
-        }
-    };
+     let totalBags = 0;
+    let dealerIndex = 0;
+
 
     function syncReceivableForm() {
         biltiInput.value = payableBiltiInput.value;
@@ -284,7 +291,7 @@
             </div>
                <div class="col-md-4 mb-3">
                   <label>Code Number</label>
-                  <input type="text" name="code[${dealerIndex}]" class="form-control dealerFreight" value="">
+                  <input type="text" name="code[${dealerIndex}]" class="form-control dealercode" value="">
               {{-- ✅ Validation error show karein --}}
 @if($errors->has('code'))
     @foreach($errors->get('code') as $i => $messages)
@@ -346,6 +353,7 @@
             let bags = parseFloat(form.querySelector('.bags').value) || 0;
             let rate = parseFloat(form.querySelector('.rate').value) || 0;
             let freight = parseFloat(form.querySelector('.dealerFreight').value) || 0;
+            let code = form.querySelector('.dealercode').value || "";
 
             let tonsInput = form.querySelector('.tonsInput');
             let tons = bags / 20;

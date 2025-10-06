@@ -10,6 +10,7 @@ class Receivable extends Model
 
     protected $fillable = [
         'receivable_id',
+        'supplier_id',
         'dealer_id',
         'code',
         'bilti_no',
