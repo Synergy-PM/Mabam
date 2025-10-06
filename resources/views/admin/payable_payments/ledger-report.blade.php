@@ -72,8 +72,8 @@
                                     <th>Credit</th>
                                     <th>Debit</th>
                                     <th>Payment Mode</th>
-                                    <th>Proof of Payment</th>
-                                    <th>Date</th>
+                                    {{-- <th>Proof of Payment</th> --}}
+                                    {{-- <th>Date</th> --}}
                                     <th>Notes</th>
                                     <th>Balance</th>
                                 </tr>
@@ -105,15 +105,15 @@
                                         </td>
 
                                         <td>{{ ucfirst($payment->payment_mode) }}</td>
-                                        <td>
+                                        {{-- <td>
                                             @if ($payment->proof_of_payment)
                                                 <a href="{{ Storage::url($payment->proof_of_payment) }}" target="_blank">View</a>
                                             @else
                                                 -
                                             @endif
-                                        </td>
+                                        </td> --}}
                                         <td>{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}</td>
-                                        <td>{{ $payment->notes ?? '-' }}</td>
+                                        {{-- <td>{{ $payment->notes ?? '-' }}</td> --}}
                                         <td>{{ number_format($balance, 2) }}</td>
                                     </tr>
                                 @empty

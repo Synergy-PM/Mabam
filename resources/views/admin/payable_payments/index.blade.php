@@ -31,9 +31,9 @@
                   <th>Supplier</th>
                   <th>Transaction Date</th>
                   <th>Amount</th>
-                  <th>Payment Mode</th>
+                  {{-- <th>Payment Mode</th> --}}
                   <th>Proof</th>
-                  <th>Notes</th>
+                  {{-- <th>Notes</th> --}}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -48,7 +48,7 @@
                     <td class="text-center">{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}</td>
                     <td class="text-end">{{ number_format($payment->amount, 2) }}</td>
                     <td class="text-center">{{ ucfirst($payment->payment_mode) ?? '-' }}</td>
-                    <td class="text-center">
+                    {{-- <td class="text-center">
                       @if($payment->proof_of_payment)
                         <a href="{{ Storage::url($payment->proof_of_payment) }}" 
                            target="_blank" 
@@ -58,8 +58,8 @@
                       @else
                         -
                       @endif
-                    </td>
-                    <td>{{ $payment->notes ?? '-' }}</td>
+                    </td> --}}
+                    {{-- <td>{{ $payment->notes ?? '-' }}</td> --}}
                     <td class="text-center">
                       <div class="d-flex justify-content-center gap-1">
                         <!-- Edit -->

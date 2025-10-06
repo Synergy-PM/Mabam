@@ -50,15 +50,15 @@
                 </select>
               </div>
 
-              <div class="col-md-6">
+              {{-- <div class="col-md-6">
                 <label class="form-label">Proof of Payment</label>
                 <input type="file" name="payments[0][proof_of_payment]" class="form-control">
-              </div>
+              </div> --}}
 
-              <div class="col-12">
+              {{-- <div class="col-12">
                 <label class="form-label">Notes</label>
                 <textarea name="payments[0][notes]" class="form-control"></textarea>
-              </div>
+              </div> --}}
 
               {{-- Hidden Transaction Type --}}
               <input type="hidden" name="payments[0][transaction_type]" value="credit">
