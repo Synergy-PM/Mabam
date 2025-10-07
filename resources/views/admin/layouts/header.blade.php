@@ -165,24 +165,37 @@
                                 <li><a href="{{ route('suppliers.index') }}">Add Suppliers</a></li>
                                 <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
                                 <li><a href="{{ route('payables.index') }}">Payable</a></li>
-                                {{-- <li><a href="{{ route('receivables.index') }}">Receivable</a></li> --}}
+                                <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li>
                             </ul>
                         </li>
-                      <li> 
-                        <a href="javascript:void(0);" class="has-arrow waves-effect">
-                            <i class="ri-exchange-dollar-line"></i>
-                            <span>Transactions</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            <li><a href="{{ route('payable-payments.index')}}">Payable Payment</a></li>
-                            {{-- <li><a href="#">Receivable Payment</a></li> --}}
-                            <li><a href="{{ route('payable-payments.ledger-filter') }}">Ledger Report</a></li> {{-- 🔹 Ledger link --}}
-
-                        </ul>
-                     </li>
+                        <li>
+                            <a href="javascript:void(0);" class="has-arrow waves-effect">
+                                <i class="ri-exchange-dollar-line"></i>
+                                <span>Transactions</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li>
+                            </ul>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#" class="waves-effect">
+                                <i class="uim uim-airplay"></i>
+                                <span>Report</span>
+                            </a>
+                            <ul class="submenu">
+                                <li>
+                                    <a href="{{ route('payable-payments.ledger-filter') }}">Ledger Report</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bilti.report.filter') }}">
+                                <i class="fas fa-file-invoice me-2"></i> Bilti Report
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
         <div class="main-content">
-     <div class="page-content">
+            <div class="page-content">

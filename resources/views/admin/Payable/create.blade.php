@@ -116,24 +116,22 @@
     </div>
 
     <script>
-        // ===== PAYABLE CALC =====
+        // ===== PAYABLE CALC ===== (UNCHANGED)
         const noBags = document.getElementById('no_of_bags');
         const rate = document.getElementById('amount_per_bag');
         const total = document.getElementById('total_amount');
         const tons = document.getElementById('tons');
         const payableBiltiInput = document.getElementById('payable_bilti_no');
 
-        // tons se bags calc
         function calcFromTons() {
             let t = parseFloat(tons.value) || 0;
             let r = parseFloat(rate.value) || 0;
             let b = t * 20; // 1 ton = 20 bags
             noBags.value = b.toFixed(0);
             total.value = (b * r).toFixed(2);
-            syncReceivableForm(); // receivable update
+            syncReceivableForm();
         }
 
-        // rate change par total calc
         function calcFromRate() {
             let b = parseFloat(noBags.value) || 0;
             let r = parseFloat(rate.value) || 0;
@@ -144,7 +142,6 @@
         rate.addEventListener('input', calcFromRate);
         window.addEventListener('load', calcFromTons);
 
-        // ===== RECEIVABLE CALC =====
         const biltiInput = document.getElementById('bilti_no');
         const totalBagsInput = document.getElementById('total_bags');
         const remainingBagsInput = document.getElementById('remaining_bags');
@@ -170,75 +167,70 @@
 
         window.addEventListener('load', syncReceivableForm);
         payableBiltiInput.addEventListener('input', syncReceivableForm);
-        // ab bags readonly hai, tons input par sync hoga
         tons.addEventListener('input', syncReceivableForm);
 
         document.getElementById('addDealerForm').addEventListener('click', function() {
             let newForm = `
         <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="${dealerIndex}">
           <div class="row">
-                <input type="hidden" name="supplier_id" value="${document.querySelector('[name="supplier_id"]').value}">
+              <input type="hidden" name="supplier_id" value="${document.querySelector('[name="supplier_id"]').value}">
 
-                            <div class="col-md-4 mb-3">
-                                <label>Dealer</label>
-                                <select name="dealer_id[${dealerIndex}]" class="form-control dealerSelect" required>
-                                    <option value="">Select Dealer</option>
-                                    @foreach ($dealers as $dealer)
-                                    <option value="{{ $dealer->id }}">{{ $dealer->dealer_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                                <div class="col-md-4 mb-3">
-                                <label>Tons</label>
-                                <input type="number"  class="form-control tonsInput">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label>Bags</label>
-                                <input type="number" name="bags[${dealerIndex}]" class="form-control bags" value="" readonly>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label>Rate</label>
-                                <input type="number" step="0.01" name="rate[${dealerIndex}]" class="form-control rate" value="">
-                            </div>
+              <div class="col-md-4 mb-3">
+                  <label>Dealer</label>
+                  <select name="dealer_id[${dealerIndex}]" class="form-control dealerSelect" required>
+                      <option value="">Select Dealer</option>
+                      @foreach ($dealers as $dealer)
+                          <option value="{{ $dealer->id }}">{{ $dealer->dealer_name }}</option>
+                      @endforeach
+                  </select>
+              </div>
 
+              <div class="col-md-4 mb-3">
+                  <label>Bags</label>
+                  <input type="number" name="bags[${dealerIndex}]" class="form-control bagsInput" value="">
+              </div>
 
-                            <div class="col-md-4 mb-3">
-                                <label>Total</label>
-                                <input type="text" class="form-control dealerTotal" readonly>
-                            </div>
-                                <div class="col-md-4 mb-3">
-                                <label>Freight</label>
-                                <input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight" value="">
-                            </div>
+              <div class="col-md-4 mb-3">
+                  <label>Tons</label>
+                  <input type="number" class="form-control tonsInput" readonly>
+              </div>
 
-                            <div class="col-md-4 mb-3">
-                                <label>Code Number</label>
-                                <input type="text" name="code[${dealerIndex}]" class="form-control dealerFreight" value="">
-                            {{-- ✅ Validation error show karein --}}
-                @if ($errors->has('code'))
-                    @foreach ($errors->get('code') as $i => $messages)
-                        @foreach ($messages as $message)
-                            <div class="text-danger small">
-                                {{ 'Row ' . ($i + 1) . ': ' . $message }}
-                            </div>
-                        @endforeach
-                    @endforeach
-                @endif
-                  </div>
+              <div class="col-md-4 mb-3">
+                  <label>Rate</label>
+                  <input type="number" step="0.01" name="rate[${dealerIndex}]" class="form-control rate" value="">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                  <label>Total</label>
+                  <input type="text" class="form-control dealerTotal" readonly>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                  <label>Freight</label>
+                  <input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight" value="">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                  <label>Code Number</label>
+                  <input type="text" name="code[${dealerIndex}]" class="form-control" value="">
+              </div>
+
               <div class="col-md-4 mb-3">
                   <label>Payment Type</label>
                   <select name="payment_type[${dealerIndex}]" class="form-control" required>
-                    <option value="">Select</option>
-                    <option value="credit">Credit</option>
-                    <option value="cash">Cash</option>
-                    <option value="online">Online</option>
-                    <option value="cheque">Cheque</option>
+                      <option value="">Select</option>
+                      <option value="credit">Credit</option>
+                      <option value="cash">Cash</option>
+                      <option value="online">Online</option>
+                      <option value="cheque">Cheque</option>
                   </select>
               </div>
+
               <div class="col-md-4 mb-3">
                   <label>Proof of Payment</label>
                   <input type="file" name="proof_of_payment[${dealerIndex}]" class="form-control">
               </div>
+
               <div class="col-md-4 mb-3 d-flex align-items-end">
                   <button type="button" class="btn btn-danger removeDealer">Remove</button>
               </div>
@@ -256,15 +248,20 @@
             }
         });
 
-        // dealers par tons input → bags calc
         dealersContainer.addEventListener('input', function(e) {
-            if (e.target.classList.contains('tonsInput')) {
+            if (e.target.classList.contains('bagsInput')) {
                 let form = e.target.closest('.dealer-form');
-                let tonsVal = parseFloat(e.target.value) || 0;
-                let bagsField = form.querySelector('.bags');
-                bagsField.value = (tonsVal * 20).toFixed(0);
+                let bagsVal = parseFloat(e.target.value) || 0;
+                let tonsField = form.querySelector('.tonsInput');
+                tonsField.value = (bagsVal / 20).toFixed(2);
             }
             calculateTotals();
+        });
+
+        dealersContainer.addEventListener('input', function(e) {
+            if (e.target.classList.contains('rate') || e.target.classList.contains('dealerFreight')) {
+                calculateTotals();
+            }
         });
 
         function calculateTotals() {
@@ -273,15 +270,12 @@
             let totalTons = 0;
 
             document.querySelectorAll('.dealer-form').forEach(form => {
-                let bags = parseFloat(form.querySelector('.bags').value) || 0;
+                let bags = parseFloat(form.querySelector('.bagsInput').value) || 0;
                 let rate = parseFloat(form.querySelector('.rate').value) || 0;
                 let freight = parseFloat(form.querySelector('.dealerFreight').value) || 0;
 
-                let tonsInput = form.querySelector('.tonsInput');
                 let tons = bags / 20;
-                if (tonsInput.value === "" || parseFloat(tonsInput.value) != tons) {
-                    tonsInput.value = tons.toFixed(2);
-                }
+                form.querySelector('.tonsInput').value = tons.toFixed(2);
 
                 let dealerTotal = (bags * rate) - freight;
                 form.querySelector('.dealerTotal').value = dealerTotal.toFixed(2);

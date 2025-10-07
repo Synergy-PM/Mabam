@@ -24,40 +24,36 @@ class PayablePaymentController extends Controller
 
     public function store(Request $request)
     {
-        // $validated = $request->validate([
-        //     'payments' => 'required|array|min:1',
-        //     'payments.*.payable_id' => 'required|exists:payables,id',
-        //     'payments.*.transaction_date' => 'required|date',
-        //     'payments.*.amount_paid' => 'required|numeric|min:0',
-        //     'payments.*.payment_mode' => 'required|in:cash,bank,cheque,online',
-        //     'payments.*.transaction_type' => 'required|in:credit,debit', // Added validation
-        //     'payments.*.proof_of_payment' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-        //     'payments.*.notes' => 'nullable|string',
-        // ]);
+        $validated = $request->validate([
+            'payments' => 'required|array|min:1',
+            'payments.*.supplier_id' => 'required|exists:suppliers,id',
+            'payments.*.transaction_date' => 'required|date',
+            'payments.*.amount_paid' => 'required|numeric|min:0',
+            'payments.*.payment_mode' => 'required|in:cash,bank,cheque,online',
+            'payments.*.transaction_type' => 'required|in:credit,debit',
+        ]);
 
-        // Loop through each payment entry
-        foreach ($request->payments as $index => $paymentData) {
-            $payable = Payable::findOrFail($paymentData['payable_id']);
+        try {
+            foreach ($validated['payments'] as $paymentData) {
+                $payable = Payable::where('supplier_id', $paymentData['supplier_id'])->latest()->first();
 
-            $payment = new PayablePayment();
-            $payment->payable_id = $payable->id;
-            $payment->supplier_id = $payable->supplier_id;
-            $payment->transaction_date = $paymentData['transaction_date'];
-            $payment->amount = $paymentData['amount_paid'];
-            $payment->payment_mode = $paymentData['payment_mode'];
-            $payment->transaction_type = $paymentData['transaction_type']; // Save transaction_type
-            $payment->notes = $paymentData['notes'] ?? null;
-
-            // Handle file upload for proof of payment
-            if (isset($paymentData['proof_of_payment']) && $request->hasFile("payments.{$index}.proof_of_payment")) {
-                $payment->proof_of_payment = $request->file("payments.{$index}.proof_of_payment")->store('proofs', 'public');
+                $payment = new PayablePayment();
+                $payment->payable_id = $payable?->id; // nullable allowed in migration
+                $payment->supplier_id = $paymentData['supplier_id'];
+                $payment->transaction_date = $paymentData['transaction_date'];
+                $payment->amount = $paymentData['amount_paid'];
+                $payment->payment_mode = $paymentData['payment_mode'];
+                $payment->transaction_type = $paymentData['transaction_type'];
+                $payment->save();
             }
 
-            $payment->save();
+            return redirect()->route('payable-payments.index')
+                ->with('success', 'Payments created successfully.');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
-
-        return redirect()->route('payable-payments.index')->with('success', 'Payments created successfully.');
     }
+
 
     public function destroy($id)
     {

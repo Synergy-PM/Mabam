@@ -29,7 +29,7 @@ class PayableController extends Controller
 
 
 
-  public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
         'transaction_date'   => 'required|date',
@@ -48,7 +48,7 @@ class PayableController extends Controller
         'code.*'             => 'required|distinct|unique:receivables,code',
     ]);
 
-    //  Create Payable
+    // ✅ Create Payable
     $payable = Payable::create([
         'transaction_date' => $request->transaction_date,
         'supplier_id'      => $request->supplier_id,
@@ -58,14 +58,16 @@ class PayableController extends Controller
         'tons'             => $request->no_of_bags / 20,
         'bilti_no'         => $request->bilti_no,
     ]);
-    //  Create Payable payment
-    $payable = PayablePayment::create([
+
+    // ✅ Create Payable Payment (different variable name)
+    PayablePayment::create([
         'transaction_date' => $request->transaction_date,
         'supplier_id'      => $request->supplier_id,
-        'amount'     => $request->no_of_bags * $request->amount_per_bag,
+        'amount'           => $request->no_of_bags * $request->amount_per_bag,
         'payment_mode'     => 'debit',
     ]);
-    // Create Receivables
+
+    // ✅ Create Receivables
     $dealerIds    = $request->dealer_id ?? [];
     $bags         = $request->bags ?? [];
     $rates        = $request->rate ?? [];
@@ -79,7 +81,7 @@ class PayableController extends Controller
 
         $payment = new Receivable();
         $payment->supplier_id   = $request->supplier_id;
-        $payment->payable_id    = $payable->id;
+        $payment->payable_id    = $payable->id; // ✅ ab ye sahi Payable ka ID lega
         $payment->bilti_no      = $request->bilti_no;
         $payment->dealer_id     = $dealerId;
         $payment->bags          = $bags[$index] ?? 0;
@@ -100,8 +102,9 @@ class PayableController extends Controller
         $payment->save();
     }
 
-    return redirect()->route('payables.index')->with('success', 'Payable Stored Successfully.');
+    return redirect()->route('payables.index')->with('success', 'Payable & Receivables stored successfully.');
 }
+
 
 
 

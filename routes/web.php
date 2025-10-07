@@ -11,7 +11,9 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PayableController;
 use App\Http\Controllers\ReceivableController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PayablePaymentController;
+use App\Http\Controllers\BiltiReportController;
 
 
 Route::middleware('guest')->group(function () {
@@ -100,21 +102,39 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('restore/{id}', 'restore')->name('payables.restore');
     });
 
-  Route::controller(PayablePaymentController::class)
+ Route::controller(PayablePaymentController::class)
     ->prefix('payable-payments')
     ->group(function () {
         Route::get('/', 'index')->name('payable-payments.index');
         Route::get('create', 'create')->name('payable-payments.create');
-        Route::post('store', 'store')->name('payable-payments.store');
+        Route::post('/', 'store')->name('payable-payments.store'); 
         Route::get('edit/{id}', 'edit')->name('payable-payments.edit');
-        Route::put('update/{id}', 'update')->name('payable-payments.update');
-        Route::delete('delete/{id}', 'destroy')->name('payable-payments.delete');
+        Route::put('{id}', 'update')->name('payable-payments.update');
+        Route::delete('{id}', 'destroy')->name('payable-payments.delete');
         Route::get('trash', 'trash')->name('payable-payments.trash');
         Route::put('restore/{id}', 'restore')->name('payable-payments.restore');
         Route::get('ledger-filter', 'ledgerFilter')->name('payable-payments.ledger-filter');
         Route::get('ledger-report', 'ledgerReport')->name('payable-payments.ledger-report');
     });
 
-Route::get('/payables/{id}/details', [App\Http\Controllers\PayablePaymentController::class, 'getPayableDetails']);
+
+    Route::controller(ExpenseController::class)->prefix('expenses')->group(function () {
+        Route::get('/', 'index')->name('expenses.index');
+        Route::get('create', 'create')->name('expenses.create');
+        Route::post('store', 'store')->name('expenses.store');
+        Route::get('edit/{id}', 'edit')->name('expenses.edit');
+        Route::put('update/{id}', 'update')->name('expenses.update');
+        Route::delete('delete/{id}', 'destroy')->name('expenses.delete');
+        Route::get('trash', 'trash')->name('expenses.trash');
+        Route::get('restore/{id}', 'restore')->name('expenses.restore');
+    });
+
+
+    Route::controller(BiltiReportController::class)->prefix('bilti')->group(function () {
+    Route::get('/report/filter', 'showFilter')->name('bilti.report.filter');
+    Route::get('/report', 'index')->name('bilti.report');
+    Route::get('/get-dealer-by-bilti/{biltiNo}', 'getDealerByBilti')->name('bilti.get-dealer');
+});
+
 });
  

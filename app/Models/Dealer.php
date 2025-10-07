@@ -30,5 +30,5 @@ class Dealer extends Model
     {
         return $this->hasMany(Payment::class, 'reference_id')->where('type', 'dealer');
     }
-
+    
 }
