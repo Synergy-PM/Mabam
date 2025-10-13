@@ -11,90 +11,128 @@
       {{-- Filter Form --}}
       <form method="GET" action="{{ route('bilti.report') }}">
         <div class="row">
-          {{-- Bilti Number --}}
-          <div class="col-md-4 mb-3">
-            <label for="bilti_no" class="form-label">Bilti Number</label>
-            <select name="bilti_no" id="bilti_no" class="form-select">
-              <option value="">Select Bilti No</option>
-              @foreach($biltiList as $bilti)
-                <option value="{{ $bilti->bilti_no }}">{{ $bilti->bilti_no }}</option>
-              @endforeach
-            </select>
-          </div>
 
-          {{-- Dealer Dropdown --}}
-          <div class="col-md-4 mb-3">
-            <label for="dealer_id" class="form-label">Dealer</label>
-            <select id="dealer_id" name="dealer_id" class="form-select">
-              <option value="">Select Dealer</option>
-            </select>
+          {{-- Dealer Search --}}
+          <div class="col-md-4 mb-3 position-relative">
+            <label for="dealer_search" class="form-label">Search Dealer</label>
+            <input type="text" id="dealer_search" class="form-control mb-1" placeholder="Type dealer name..." value="{{ $selectedDealerName ?? '' }}">
+            <ul id="dealer_suggestion_list"
+                class="list-group position-absolute w-100 shadow-sm"
+                style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
+              @foreach($dealers as $dealer)
+                <li class="list-group-item list-group-item-action" 
+                    data-id="{{ $dealer->id }}" 
+                    style="cursor: pointer;">
+                  {{ $dealer->dealer_name }}
+                </li>
+              @endforeach
+              {{-- 👇 Not found message placeholder --}}
+              <li id="no_result_item" class="list-group-item text-center text-muted" style="display: none;">
+                No dealer found
+              </li>
+            </ul>
+            <input type="hidden" name="dealer_id" id="dealer_id" value="{{ request('dealer_id') }}">
           </div>
 
           {{-- From Date --}}
           <div class="col-md-2 mb-3">
             <label class="form-label">From Date</label>
-            <input type="date" name="start_date" class="form-control">
+            <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control">
           </div>
 
           {{-- To Date --}}
           <div class="col-md-2 mb-3">
             <label class="form-label">To Date</label>
-            <input type="date" name="end_date" class="form-control">
+            <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control">
           </div>
 
           {{-- Button --}}
-          <div class="col-md-12 mb-3 d-flex align-items-end">
+          <div class="col-md-4 mb-3 d-flex align-items-end">
             <button class="btn btn-primary w-100">View Report</button>
           </div>
+
         </div>
       </form>
     </div>
   </div>
 </div>
 
-{{-- ===================== AJAX SCRIPT ===================== --}}
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const biltiSelect = document.getElementById('bilti_no');
-    const dealerSelect = document.getElementById('dealer_id');
+document.addEventListener('DOMContentLoaded', function () {
+    const dealerSearch = document.getElementById('dealer_search');
+    const dealerSuggestionList = document.getElementById('dealer_suggestion_list');
+    const dealerIdInput = document.getElementById('dealer_id');
+    const dealerItems = Array.from(dealerSuggestionList.querySelectorAll('li[data-id]'));
+    const noResultItem = document.getElementById('no_result_item');
+    let selectedIndex = -1;
 
-    biltiSelect.addEventListener('change', function () {
-      const biltiNo = this.value;
-      dealerSelect.innerHTML = '<option value="">Select Dealer</option>';
+    dealerSearch.addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
+        selectedIndex = -1;
+        let matchCount = 0;
 
-      if (!biltiNo) return;
-
-      fetch(`{{ route('bilti.get-dealer', ':biltiNo') }}`.replace(':biltiNo', biltiNo))
-        .then(res => {
-          console.log("Response status:", res.status);
-          if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-          return res.json();
-        })
-        .then(data => {
-          console.log("Dealer response:", data);
-
-          if (data.success && Array.isArray(data.dealers)) {
-            data.dealers.forEach(dealer => {
-              const option = document.createElement('option');
-              option.value = dealer.id;
-              option.textContent = dealer.dealer_name; 
-              dealerSelect.appendChild(option);
+        if (query) {
+            dealerSuggestionList.style.display = 'block';
+            dealerItems.forEach(li => {
+                const name = li.textContent.toLowerCase();
+                const match = name.includes(query);
+                li.style.display = match ? 'block' : 'none';
+                if (match) matchCount++;
             });
-          } else {
-            const option = document.createElement('option');
-            option.value = "";
-            option.textContent = data.message || "No dealers found";
-            dealerSelect.appendChild(option);
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching dealers:', err);
-          const option = document.createElement('option');
-          option.value = "";
-          option.textContent = "Error loading dealers";
-          dealerSelect.appendChild(option);
+
+            // 👇 Show "No dealer found" if no matches
+            noResultItem.style.display = matchCount === 0 ? 'block' : 'none';
+        } else {
+            dealerSuggestionList.style.display = 'none';
+        }
+    });
+
+    dealerItems.forEach(li => {
+        li.addEventListener('click', function () {
+            dealerSearch.value = this.textContent.trim();
+            dealerIdInput.value = this.getAttribute('data-id');
+            dealerSuggestionList.style.display = 'none';
         });
     });
-  });
+
+    dealerSearch.addEventListener('keydown', function (e) {
+        const visibleItems = dealerItems.filter(li => li.style.display !== 'none');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex + 1) % visibleItems.length;
+            highlightItem(visibleItems, selectedIndex);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + visibleItems.length) % visibleItems.length;
+            highlightItem(visibleItems, selectedIndex);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && visibleItems[selectedIndex]) {
+                dealerSearch.value = visibleItems[selectedIndex].textContent.trim();
+                dealerIdInput.value = visibleItems[selectedIndex].getAttribute('data-id');
+                dealerSuggestionList.style.display = 'none';
+            }
+        }
+    });
+
+    function highlightItem(list, index) {
+        list.forEach((li, i) => li.classList.toggle('active', i === index));
+    }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.position-relative')) {
+            dealerSuggestionList.style.display = 'none';
+        }
+    });
+
+    dealerSuggestionList.style.display = 'none';
+});
 </script>
+
+<style>
+  #dealer_suggestion_list li.active {
+      background-color: #007bff;
+      color: white;
+  }
+</style>
 @endsection

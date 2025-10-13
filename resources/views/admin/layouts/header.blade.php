@@ -175,24 +175,31 @@
                             </a>
                             <ul class="sub-menu" aria-expanded="false">
                                 <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li>
+                                <li><a href="{{route('receivable-payments.index')}}">Receivable Payment</a></li>
                             </ul>
                         </li>
                         <li class="menu-item">
                             <a href="#" class="waves-effect">
                                 <i class="uim uim-airplay"></i>
                                 <span>Report</span>
+                                <span class="menu-arrow"></span> 
                             </a>
                             <ul class="submenu">
                                 <li>
-                                    <a href="{{ route('payable-payments.ledger-filter') }}">Ledger Report</a>
+                                    <a href="{{ route('payable-payments.ledger-filter') }}">Ledger Payable</a>
+                                </li>
+                                <li>
+                                    <a href="{{route('receivable-payments.ledger-report-filter')}}">Ledger Receivable </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('bilti.report.filter') }}">Stock Report</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('daily.report.filter') }}">Daily Report</a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('bilti.report.filter') }}">
-                                <i class="fas fa-file-invoice me-2"></i> Bilti Report
-                            </a>
-                        </li>
+
                     </ul>
                 </div>
             </div>

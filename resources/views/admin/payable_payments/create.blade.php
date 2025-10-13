@@ -38,14 +38,24 @@
                         </div>
                         <hr>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-6 position-relative">
                                 <label class="form-label">Supplier</label>
-                                <select name="payments[0][supplier_id]" class="form-control payable-select" required>
-                                    <option value="">-- Select Supplier --</option>
+                                <input type="text" class="form-control mb-1 supplier-search" placeholder="Type supplier name..." data-row-index="0">
+                                <ul class="supplier-suggestion-list list-group position-absolute w-100 shadow-sm"
+                                    style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
                                     @foreach ($supplier as $suppliers)
-                                        <option value="{{ $suppliers->id }}">{{ $suppliers->supplier_name ?? 'N/A' }}</option>
+                                        <li class="list-group-item list-group-item-action"
+                                            data-id="{{ $suppliers->id }}"
+                                            data-row-index="0"
+                                            style="cursor: pointer;">
+                                            {{ $suppliers->supplier_name ?? 'N/A' }}
+                                        </li>
                                     @endforeach
-                                </select>
+                                    <li class="no-result-item list-group-item text-center text-muted" style="display: none;">
+                                        No supplier found
+                                    </li>
+                                </ul>
+                                <input type="hidden" name="payments[0][supplier_id]" class="supplier-id" required>
                             </div>
 
                             <div class="col-md-6">
@@ -90,16 +100,20 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let rowIndex = 1;
 
+    // Initialize supplier search for the first row
+    initializeSupplierSearch(0);
+
     // Add More Button
-    document.getElementById('addMoreBtn').addEventListener('click', function() {
+    document.getElementById('addMoreBtn').addEventListener('click', function () {
         const container = document.getElementById('paymentRows');
         const firstRow = document.querySelector('.payment-row');
         const newRow = firstRow.cloneNode(true);
 
-        newRow.querySelectorAll('input, select, textarea').forEach(function(element) {
+        // Update names and reset values
+        newRow.querySelectorAll('input, select, textarea').forEach(function (element) {
             const name = element.getAttribute('name');
             if (name) {
                 element.setAttribute('name', name.replace(/\[\d+\]/, '[' + rowIndex + ']'));
@@ -112,17 +126,104 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        // Update supplier search input and list
+        newRow.querySelector('.supplier-search').setAttribute('data-row-index', rowIndex);
+        newRow.querySelector('.supplier-id').value = '';
+        newRow.querySelectorAll('.supplier-suggestion-list li[data-id]').forEach(function (li) {
+            li.setAttribute('data-row-index', rowIndex);
+        });
+        newRow.querySelector('.no-result-item').style.display = 'none';
+        newRow.querySelector('.supplier-suggestion-list').style.display = 'none';
+
         newRow.querySelector('h5').textContent = 'Payment Entry ' + (rowIndex + 1);
-        newRow.querySelector('.removeRowBtn').style.display = 'inline-block'; // show remove button
+        newRow.querySelector('.removeRowBtn').style.display = 'inline-block';
         container.appendChild(newRow);
+
+        // Initialize supplier search for the new row
+        initializeSupplierSearch(rowIndex);
         rowIndex++;
     });
 
-    document.addEventListener('click', function(e) {
+    // Remove Row Button
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.removeRowBtn')) {
             e.target.closest('.payment-row').remove();
         }
     });
+
+    function initializeSupplierSearch(rowIndex) {
+        const supplierSearch = document.querySelector(`.supplier-search[data-row-index="${rowIndex}"]`);
+        const supplierSuggestionList = supplierSearch.nextElementSibling;
+        const supplierIdInput = supplierSearch.parentElement.querySelector('.supplier-id');
+        const supplierItems = Array.from(supplierSuggestionList.querySelectorAll('li[data-id]'));
+        const noResultItem = supplierSuggestionList.querySelector('.no-result-item');
+        let selectedIndex = -1;
+
+        supplierSearch.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+            selectedIndex = -1;
+            let matchCount = 0;
+
+            if (query) {
+                supplierSuggestionList.style.display = 'block';
+                supplierItems.forEach(li => {
+                    const name = li.textContent.toLowerCase();
+                    const match = name.includes(query);
+                    li.style.display = match ? 'block' : 'none';
+                    if (match) matchCount++;
+                });
+                noResultItem.style.display = matchCount === 0 ? 'block' : 'none';
+            } else {
+                supplierSuggestionList.style.display = 'none';
+            }
+        });
+
+        supplierItems.forEach(li => {
+            li.addEventListener('click', function () {
+                supplierSearch.value = this.textContent.trim();
+                supplierIdInput.value = this.getAttribute('data-id');
+                supplierSuggestionList.style.display = 'none';
+            });
+        });
+
+        supplierSearch.addEventListener('keydown', function (e) {
+            const visibleItems = supplierItems.filter(li => li.style.display !== 'none');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % visibleItems.length;
+                highlightItem(visibleItems, selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + visibleItems.length) % visibleItems.length;
+                highlightItem(visibleItems, selectedIndex);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && visibleItems[selectedIndex]) {
+                    supplierSearch.value = visibleItems[selectedIndex].textContent.trim();
+                    supplierIdInput.value = visibleItems[selectedIndex].getAttribute('data-id');
+                    supplierSuggestionList.style.display = 'none';
+                }
+            }
+        });
+
+        function highlightItem(list, index) {
+            list.forEach((li, i) => li.classList.toggle('active', i === index));
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest(`.supplier-search[data-row-index="${rowIndex}"]`) &&
+                !e.target.closest(`.supplier-suggestion-list`)) {
+                supplierSuggestionList.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
+
+<style>
+.supplier-suggestion-list li.active {
+    background-color: #007bff;
+    color: white;
+}
+</style>
 @endsection

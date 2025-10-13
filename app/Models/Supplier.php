@@ -31,5 +31,9 @@ class Supplier extends Model
     {
         return $this->hasMany(Payment::class, 'reference_id')->where('type', 'supplier');
     }
+        public function payablePayments()
+    {
+        return $this->hasMany(PayablePayment::class, 'supplier_id');
+    }
 
 }

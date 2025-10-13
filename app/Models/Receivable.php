@@ -32,4 +32,10 @@ class Receivable extends Model
     {
         return $this->belongsTo(Dealer::class);
     }
+
+    public function payment()
+{
+    return $this->belongsTo(ReceivablePayment::class, 'receivable_payment_id');
+}
+
 }

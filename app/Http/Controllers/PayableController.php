@@ -126,7 +126,6 @@ public function update(Request $request, $id)
         'amount_per_bag'     => 'required|numeric|min:0',
         'bilti_no'           => 'required|string',
 
-        // RECEIVABLE / PAYMENT VALIDATION
         'dealer_id.*'        => 'nullable|exists:dealers,id',
         'bags.*'             => 'nullable|integer|min:0',
         'rate.*'             => 'nullable|numeric|min:0',
@@ -135,10 +134,8 @@ public function update(Request $request, $id)
         'proof_of_payment.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
     ]);
 
-    // ✅ Find Payable
     $payable = Payable::findOrFail($id);
 
-    // ✅ Update Payable
     $payable->update([
         'transaction_date' => $request->transaction_date,
         'supplier_id'      => $request->supplier_id,
@@ -149,7 +146,6 @@ public function update(Request $request, $id)
         'bilti_no'         => $request->bilti_no,
     ]);
 
-    // ✅ Purane Receivables delete karke naya insert
     Receivable::where('payable_id', $payable->id)->delete();
 
     $dealerIds    = $request->dealer_id ?? [];
@@ -174,7 +170,6 @@ public function update(Request $request, $id)
         $payment->total         = (($bags[$index] ?? 0) * ($rates[$index] ?? 0)) - ($freights[$index] ?? 0);
         $payment->payment_type  = $paymentTypes[$index] ?? null;
 
-        // ✅ Proof of Payment Upload
         if (!empty($proofs) && isset($proofs[$index]) && $proofs[$index] instanceof \Illuminate\Http\UploadedFile) {
             $file = $proofs[$index];
             $fileName = time() . '_' . $index . '.' . $file->getClientOriginalExtension();

@@ -13,6 +13,7 @@ use App\Http\Controllers\PayableController;
 use App\Http\Controllers\ReceivableController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PayablePaymentController;
+use App\Http\Controllers\ReceivablePaymentController;
 use App\Http\Controllers\BiltiReportController;
 
 
@@ -130,11 +131,28 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     });
 
 
-    Route::controller(BiltiReportController::class)->prefix('bilti')->group(function () {
-    Route::get('/report/filter', 'showFilter')->name('bilti.report.filter');
-    Route::get('/report', 'index')->name('bilti.report');
-    Route::get('/get-dealer-by-bilti/{biltiNo}', 'getDealerByBilti')->name('bilti.get-dealer');
-});
 
+    Route::controller(BiltiReportController::class)->prefix('bilti')->group(function () {
+        Route::get('/report/filter', 'showFilter')->name('bilti.report.filter');
+        Route::get('/report', 'index')->name('bilti.report');
+    });
+
+    Route::controller(BiltiReportController::class)->prefix('daily')->group(function () {
+        Route::get('/report/filter', 'showDailyReportFilter')->name('daily.report.filter');
+        Route::get('/report', 'dailyReport')->name('daily.report');
+    });
+
+Route::controller(ReceivablePaymentController::class)->prefix('receivable-payments')->group(function () {
+    Route::get('/', 'index')->name('receivable-payments.index');
+    Route::get('create', 'create')->name('receivable-payments.create');
+    Route::post('store', 'store')->name('receivable-payments.store');
+    Route::get('edit/{id}', 'edit')->name('receivable-payments.edit');
+    Route::put('update/{id}', 'update')->name('receivable-payments.update');
+    Route::delete('delete/{id}', 'destroy')->name('receivable-payments.delete');
+    Route::get('trash', 'trash')->name('receivable-payments.trash');
+    Route::get('restore/{id}', 'restore')->name('receivable-payments.restore');
+    Route::get('ledger-report-filter', 'ledgerReportFilter')->name('receivable-payments.ledger-report-filter');
+    Route::get('ledger-report', 'ledgerReport')->name('receivable-payments.ledger-report');
+});
 });
  
