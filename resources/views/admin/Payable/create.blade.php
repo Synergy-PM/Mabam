@@ -322,18 +322,7 @@
           </div>
         </div>
       `;
-<<<<<<< HEAD
-            dealersContainer.insertAdjacentHTML('beforeend', newForm);
-            
-            const dealerSearch = dealersContainer.querySelector(`.dealer_search[data-index="${dealerIndex}"]`);
-            const dealerSuggestionList = dealersContainer.querySelector(`.dealer_suggestion_list[data-index="${dealerIndex}"]`);
-            const dealerIdInput = dealersContainer.querySelector(`.dealer_id[name="dealer_id[${dealerIndex}]"]`);
-            const dealerItems = Array.from(dealerSuggestionList.querySelectorAll('li:not(.not-found)'));
-            const dealerNotFoundItem = dealerSuggestionList.querySelector('.not-found');
-            let dealerSelectedIndex = -1;
-=======
         dealersContainer.insertAdjacentHTML('beforeend', newForm);
->>>>>>> 3461390c54247921f5d0132380e54ad41c0d4f35
 
         // Initialize dealer search for the new form
         const dealerSearch = dealersContainer.querySelector(`.dealer_search[data-index="${dealerIndex}"]`);
@@ -493,36 +482,10 @@
                     dealerSearch.insertAdjacentHTML('afterend', '<div class="invalid-feedback">Please select a valid dealer from the list.</div>');
                 }
             } else {
-<<<<<<< HEAD
-                bagWarning.style.display = 'none';
-                saveBtn.disabled = false;
-            }
-        }
-
-        document.getElementById('payableForm').addEventListener('submit', function(e) {
-            let isValid = true;
-            document.querySelectorAll('.dealer-form').forEach(form => {
-                const dealerIdInput = form.querySelector('.dealer_id');
-                const dealerSearch = form.querySelector('.dealer_search');
-                if (!dealerIdInput.value) {
-                    isValid = false;
-                    dealerSearch.classList.add('is-invalid');
-                    const existingFeedback = dealerSearch.nextElementSibling;
-                    if (!existingFeedback || !existingFeedback.classList.contains('invalid-feedback')) {
-                        dealerSearch.insertAdjacentHTML('afterend', '<div class="invalid-feedback">Please select a valid dealer from the list.</div>');
-                    }
-                } else {
-                    dealerSearch.classList.remove('is-invalid');
-                    const existingFeedback = dealerSearch.nextElementSibling;
-                    if (existingFeedback && existingFeedback.classList.contains('invalid-feedback')) {
-                        existingFeedback.remove();
-                    }
-=======
                 dealerSearch.classList.remove('is-invalid');
                 const existingFeedback = dealerSearch.nextElementSibling;
                 if (existingFeedback && existingFeedback.classList.contains('invalid-feedback')) {
                     existingFeedback.remove();
->>>>>>> 3461390c54247921f5d0132380e54ad41c0d4f35
                 }
             }
         });
