@@ -71,7 +71,7 @@
                                     <th>Credit (PKR)</th>
                                     <th>Debit (PKR)</th>
                                     <th>Transaction Date</th>
-                                    <th>Balance</th>
+                                    <!-- <th>Balance</th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -91,12 +91,12 @@
                                             {{ !$report['is_credit'] ? number_format($report['amount'], 2) : '-' }}
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($report['transaction_date'])->format('d M, Y') }}</td>
-                                        <td>
+                                        <!-- <td>
                                             @php
                                                 $runningBalance += $report['is_credit'] ? -$report['amount'] : $report['amount'];
                                             @endphp
                                             {{ number_format($runningBalance, 2) }}
-                                        </td>
+                                        </td> -->
                                     </tr>
                                 @empty
                                     <tr>
@@ -110,12 +110,12 @@
                                     <td>{{ number_format($totalPayable + $totalReceivablePayment, 2) }}</td>
                                     <td>{{ number_format($totalReceivable, 2) }}</td>
                                     <td></td>
-                                    <td>{{ number_format($runningBalance, 2) }}</td>
+                                    <!-- <td>{{ number_format($runningBalance, 2) }}</td> -->
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="row mt-4 g-3">
+                    <!-- <div class="row mt-4 g-3">
                         <div class="col-md-3">
                             <div class="card bg-success text-white">
                                 <div class="card-body text-center">
@@ -148,7 +148,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

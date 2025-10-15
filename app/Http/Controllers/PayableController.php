@@ -7,6 +7,7 @@ use App\Models\Receivable;
 use App\Models\Dealer;
 use App\Models\Supplier;
 use App\Models\PayablePayment;
+use App\Models\ReceivablePayment;
 use Illuminate\Http\Request;
 
 class PayableController extends Controller
@@ -61,8 +62,10 @@ public function store(Request $request)
         'supplier_id'      => $request->supplier_id,
         'amount'           => $request->no_of_bags * $request->amount_per_bag,
         'payment_mode'     => 'debit',
+        'transaction_type' => 'debit',
     ]);
 
+    // ✅ Create Receivables
     $dealerIds    = $request->dealer_id ?? [];
     $bags         = $request->bags ?? [];
     $rates        = $request->rate ?? [];
@@ -76,7 +79,7 @@ public function store(Request $request)
 
         $payment = new Receivable();
         $payment->supplier_id   = $request->supplier_id;
-        $payment->payable_id    = $payable->id; 
+        $payment->payable_id    = $payable->id; // ✅ ab ye sahi Payable ka ID lega
         $payment->bilti_no      = $request->bilti_no;
         $payment->dealer_id     = $dealerId;
         $payment->bags          = $bags[$index] ?? 0;
@@ -91,13 +94,24 @@ public function store(Request $request)
             $file = $proofs[$index];
             $fileName = time() . '_' . $index . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/payments'), $fileName);
-            $payment->proof_of_payment = $fileName;
+            $receivable->proof_of_payment = $fileName;
         }
 
-        $payment->save();
+        $receivable->save();
+
+        ReceivablePayment::create([
+            'payable_id'       => $payable->id,
+            'dealer_id'        => $dealerId,
+            'transaction_date' => $request->transaction_date,
+            'amount_received'  => $receivable->total,
+            'payment_mode'     => $receivable->payment_type,
+            'transaction_type' => 'credit',
+            'proof_of_payment' => $receivable->proof_of_payment ?? null,
+        ]);
+
     }
 
-    return redirect()->route('payables.index')->with('success', 'Payable & Receivables stored successfully.');
+    return redirect()->route('payables.index')->with('success', 'Payable, Receivable & ReceivablePayment stored successfully.');
 }
 
 
