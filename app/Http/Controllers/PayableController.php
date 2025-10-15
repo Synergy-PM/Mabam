@@ -7,6 +7,7 @@ use App\Models\Receivable;
 use App\Models\Dealer;
 use App\Models\Supplier;
 use App\Models\PayablePayment;
+use App\Models\ReceivablePayment;
 use Illuminate\Http\Request;
 
 class PayableController extends Controller
@@ -59,15 +60,16 @@ public function store(Request $request)
         'bilti_no'         => $request->bilti_no,
     ]);
 
-    // ✅ Create Payable Payment (different variable name)
+    // ✅ Create PayablePayment
     PayablePayment::create([
         'transaction_date' => $request->transaction_date,
         'supplier_id'      => $request->supplier_id,
         'amount'           => $request->no_of_bags * $request->amount_per_bag,
         'payment_mode'     => 'debit',
+        'transaction_type' => 'debit',
     ]);
 
-    // ✅ Create Receivables
+    // ✅ Create Receivables and ReceivablePayments
     $dealerIds    = $request->dealer_id ?? [];
     $bags         = $request->bags ?? [];
     $rates        = $request->rate ?? [];
@@ -79,30 +81,42 @@ public function store(Request $request)
     foreach ($dealerIds as $index => $dealerId) {
         if (empty($dealerId)) continue;
 
-        $payment = new Receivable();
-        $payment->supplier_id   = $request->supplier_id;
-        $payment->payable_id    = $payable->id; // ✅ ab ye sahi Payable ka ID lega
-        $payment->bilti_no      = $request->bilti_no;
-        $payment->dealer_id     = $dealerId;
-        $payment->bags          = $bags[$index] ?? 0;
-        $payment->rate          = $rates[$index] ?? 0;
-        $payment->freight       = $freights[$index] ?? 0;
-        $payment->tons          = ($bags[$index] ?? 0) / 20;
-        $payment->total         = (($bags[$index] ?? 0) * ($rates[$index] ?? 0)) - ($freights[$index] ?? 0);
-        $payment->payment_type  = $paymentTypes[$index] ?? null;
-        $payment->code          = $codes[$index];
+        // 1️⃣ Receivable
+        $receivable = new Receivable();
+        $receivable->supplier_id   = $request->supplier_id;
+        $receivable->payable_id    = $payable->id;
+        $receivable->bilti_no      = $request->bilti_no;
+        $receivable->dealer_id     = $dealerId;
+        $receivable->bags          = $bags[$index] ?? 0;
+        $receivable->rate          = $rates[$index] ?? 0;
+        $receivable->freight       = $freights[$index] ?? 0;
+        $receivable->tons          = ($bags[$index] ?? 0) / 20;
+        $receivable->total         = (($bags[$index] ?? 0) * ($rates[$index] ?? 0)) - ($freights[$index] ?? 0);
+        $receivable->payment_type  = $paymentTypes[$index] ?? null;
+        $receivable->code          = $codes[$index];
 
         if (!empty($proofs) && isset($proofs[$index]) && $proofs[$index] instanceof \Illuminate\Http\UploadedFile) {
             $file = $proofs[$index];
             $fileName = time() . '_' . $index . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/payments'), $fileName);
-            $payment->proof_of_payment = $fileName;
+            $receivable->proof_of_payment = $fileName;
         }
 
-        $payment->save();
+        $receivable->save();
+
+        ReceivablePayment::create([
+            'payable_id'       => $payable->id,
+            'dealer_id'        => $dealerId,
+            'transaction_date' => $request->transaction_date,
+            'amount_received'  => $receivable->total,
+            'payment_mode'     => $receivable->payment_type,
+            'transaction_type' => 'credit',
+            'proof_of_payment' => $receivable->proof_of_payment ?? null,
+        ]);
+
     }
 
-    return redirect()->route('payables.index')->with('success', 'Payable & Receivables stored successfully.');
+    return redirect()->route('payables.index')->with('success', 'Payable, Receivable & ReceivablePayment stored successfully.');
 }
 
 

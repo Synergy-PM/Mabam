@@ -27,10 +27,9 @@
                             <th>#</th>
                             <th>Dealer Name</th>
                             <th>Transaction Date</th>
-                            <th>Amount Received</th>
-                            <th>Payment Mode</th>
+                            <th>Amount</th>
                             <th>Transaction type</th>
-                            <th>Created At</th>
+
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -42,8 +41,6 @@
                                 <td>{{ $payment->transaction_date }}</td>
                                 <td>{{ number_format($payment->amount_received, 2) }}</td>
                                 <td>{{ ucfirst($payment->payment_mode) }}</td>
-                                <td>{{ ucfirst($payment->transaction_type) }}</td>
-                                <td>{{ $payment->created_at->format('Y-m-d') }}</td>
                                 <td>
                                     <form action="{{ route('receivable-payments.delete', $payment->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this?');">
                                         @csrf
