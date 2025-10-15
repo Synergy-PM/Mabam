@@ -37,8 +37,6 @@ public function store(Request $request)
         'no_of_bags'         => 'required|numeric|min:0',
         'amount_per_bag'     => 'required|numeric|min:0',
         'bilti_no'           => 'required|string',
-
-        // RECEIVABLE / VALIDATION
         'dealer_id.*'        => 'nullable|exists:dealers,id',
         'bags.*'             => 'nullable|integer|min:0',
         'rate.*'             => 'nullable|numeric|min:0',
@@ -48,7 +46,6 @@ public function store(Request $request)
         'code.*'             => 'required|distinct|unique:receivables,code',
     ]);
 
-    // ✅ Create Payable
     $payable = Payable::create([
         'transaction_date' => $request->transaction_date,
         'supplier_id'      => $request->supplier_id,
@@ -59,7 +56,6 @@ public function store(Request $request)
         'bilti_no'         => $request->bilti_no,
     ]);
 
-    // ✅ Create Payable Payment (different variable name)
     PayablePayment::create([
         'transaction_date' => $request->transaction_date,
         'supplier_id'      => $request->supplier_id,
@@ -67,7 +63,6 @@ public function store(Request $request)
         'payment_mode'     => 'debit',
     ]);
 
-    // ✅ Create Receivables
     $dealerIds    = $request->dealer_id ?? [];
     $bags         = $request->bags ?? [];
     $rates        = $request->rate ?? [];
@@ -81,7 +76,7 @@ public function store(Request $request)
 
         $payment = new Receivable();
         $payment->supplier_id   = $request->supplier_id;
-        $payment->payable_id    = $payable->id; // ✅ ab ye sahi Payable ka ID lega
+        $payment->payable_id    = $payable->id; 
         $payment->bilti_no      = $request->bilti_no;
         $payment->dealer_id     = $dealerId;
         $payment->bags          = $bags[$index] ?? 0;
@@ -108,13 +103,14 @@ public function store(Request $request)
 
 
 
-  public function edit($id)
+public function edit($id)
 {
-    $payable = Payable::with('receivables')->findOrFail($id);
+    $payable = Payable::with('supplier', 'receivables.dealer')->findOrFail($id);
     $suppliers = Supplier::all();
-    $dealers   = Dealer::all();
-
-    return view('admin.Payable.edit', compact('payable', 'suppliers', 'dealers'));
+    $dealers = Dealer::all();
+    $receivables = $payable->receivables ?? collect();
+    
+    return view('admin.Payable.edit', compact('payable', 'suppliers', 'dealers', 'receivables'));
 }
 
 public function update(Request $request, $id)
@@ -125,13 +121,13 @@ public function update(Request $request, $id)
         'no_of_bags'         => 'required|numeric|min:0',
         'amount_per_bag'     => 'required|numeric|min:0',
         'bilti_no'           => 'required|string',
-
         'dealer_id.*'        => 'nullable|exists:dealers,id',
         'bags.*'             => 'nullable|integer|min:0',
         'rate.*'             => 'nullable|numeric|min:0',
         'freight.*'          => 'nullable|numeric|min:0',
         'payment_type.*'     => 'nullable|string',
         'proof_of_payment.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+        'code.*'             => 'required|distinct|unique:receivables,code',
     ]);
 
     $payable = Payable::findOrFail($id);

@@ -1,381 +1,502 @@
 @extends('admin.layouts.shared')
 @section('title', 'Edit Payable & Receivable')
 @section('header-title', 'Edit Payable & Receivable')
-
 @section('content')
-<div class="row">
-    <div class="col-12">
-
-        <!-- PAYABLE FORM -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h4 class="mb-3">Edit Payable</h4>
-                <form action="{{ route('payables.update', $payable->id) }}" method="POST" id="payableForm" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label><b>Transaction Date</b><span class="text-danger">*</span></label>
-                            <input type="date" name="transaction_date" class="form-control" value="{{ old('transaction_date', $payable->transaction_date) }}" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label><b>Supplier</b><span class="text-danger">*</span></label>
-                            <select name="supplier_id" class="form-control" required>
-                                <option value="">Select Supplier</option>
-                                @foreach($suppliers as $s)
-                                <option value="{{ $s->id }}" @selected(old('supplier_id', $payable->supplier_id) == $s->id)>
-                                    {{ $s->supplier_name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label><b>Tons</b></label>
-                            <input type="text" id="tons" class="form-control" value="{{ old('tons', $payable->tons) }}">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label><b>No of Bags</b></label>
-                            <input type="number" name="no_of_bags" id="no_of_bags" class="form-control"
-                                value="{{ old('no_of_bags', $payable->no_of_bags) }}" readonly>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label><b>Amount per Bag</b></label>
-                            <input type="number" step="0.01" name="amount_per_bag" id="amount_per_bag" class="form-control"
-                                value="{{ old('amount_per_bag', $payable->amount_per_bag) }}" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label><b>Total Amount</b></label>
-                            <input type="text" id="total_amount" class="form-control"
-                                value="{{ old('total_amount', $payable->total_amount) }}" readonly>
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label><b>Bilti No</b></label>
-                            <input type="text" name="bilti_no" id="payable_bilti_no" class="form-control"
-                                value="{{ old('bilti_no', $payable->bilti_no) }}">
-                        </div>
-                    </div>
-
-                    <!-- RECEIVABLE FORM -->
-                    <h4 class="mb-3 mt-5">Edit Receivable</h4>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label><b>Bilti No</b></label>
-                            <input type="text" name="bilti_no" id="bilti_no" class="form-control" readonly>
-                        </div>
-                        <div class="col-md-4">
-                            <label><b>Total Bags (From Bilti)</b></label>
-                            <input type="number" id="total_bags" class="form-control" readonly>
-                        </div>
-                        <div class="col-md-4">
-                            <label><b>Remaining Bags</b></label>
-                            <input type="number" id="remaining_bags" class="form-control" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Dealers Forms -->
-                    <div id="dealersContainer">
-                        @foreach($payable->receivables as $index => $rec)
-                        <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="{{ $index }}">
-                            <div class="row">
-                                <input type="hidden" name="supplier_id" value="{{ $payable->supplier_id }}">
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Dealer</label>
-                                    <select name="dealer_id[{{ $index }}]" class="form-control dealerSelect" required>
-                                        <option value="">Select Dealer</option>
-                                        @foreach($dealers as $dealer)
-                                        <option value="{{ $dealer->id }}"
-                                            @selected(old('dealer_id.'.$index, $rec->dealer_id) == $dealer->id)>
-                                            {{ $dealer->dealer_name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Tons</label>
-                                    <input type="number" class="form-control tonsInput"
-                                        value="{{ old('tons.'.$index, $rec->tons) }}">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label>Bags</label>
-                                    <input type="number" name="bags[{{ $index }}]" class="form-control bags"
-                                        value="{{ old('bags.'.$index, $rec->bags) }}" readonly>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Rate</label>
-                                    <input type="number" step="0.01" name="rate[{{ $index }}]" class="form-control rate"
-                                        value="{{ old('rate.'.$index, $rec->rate) }}">
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Total</label>
-                                    <input type="text" class="form-control dealerTotal"
-                                        value="{{ old('total.'.$index, $rec->total) }}" readonly>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Freight</label>
-                                    <input type="number" step="0.01" name="freight[{{ $index }}]" class="form-control dealerFreight"
-                                        value="{{ old('freight.'.$index, $rec->freight) }}">
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Payment Type</label>
-                                    <select name="payment_type[{{ $index }}]" class="form-control" required>
-                                        <option value="">Select</option>
-                                        <option value="credit" @selected($rec->payment_type == 'credit')>Credit</option>
-                                        <option value="cash" @selected($rec->payment_type == 'cash')>Cash</option>
-                                        <option value="online" @selected($rec->payment_type == 'online')>Online</option>
-                                        <option value="cheque" @selected($rec->payment_type == 'cheque')>Cheque</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-4 mb-3">
-                                    <label>Proof of Payment</label>
-                                    <input type="file" name="proof_of_payment[{{ $index }}]" class="form-control">
-                                    @if($rec->proof_of_payment)
-                                    <small class="text-muted">Current: {{ $rec->proof_of_payment }}</small>
-                                    @endif
-                                </div>
-
-                                <div class="col-md-4 mb-3 d-flex align-items-end">
-                                    <button type="button" class="btn btn-danger removeDealer">Remove</button>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-success" id="addDealerForm">+ Add Dealer</button>
-                    </div>
-
-                    <!-- Summary -->
-                    <div class="mb-3">
-                        <label><b>Summary</b></label>
+    <div class="row">
+        <div class="col-12">
+            <!-- PAYABLE FORM -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="mb-3">Edit Payable</h4>
+                    <form action="{{ route('payables.update', $payable->id) }}" method="POST" id="payableForm" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
                         <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" id="summaryBags" class="form-control" placeholder="Total Allocated Bags" readonly>
+                            <div class="col-md-6 mb-3">
+                                <label><b>Transaction Date</b><span class="text-danger">*</span></label>
+                                <input type="date" name="transaction_date" class="form-control"
+                                    value="{{ old('transaction_date', $payable->transaction_date) }}" required>
                             </div>
-                            <div class="col-md-4">
-                                <input type="text" id="summaryTons" class="form-control" placeholder="Total Tons" readonly>
+                            <div class="col-md-6 mb-3 position-relative">
+                                <label><b>Supplier</b><span class="text-danger">*</span></label>
+                                <input type="text" id="supplier_search" class="form-control mb-1" 
+                                    placeholder="Type supplier name..." value="{{ old('supplier_name', $payable->supplier->supplier_name ?? '') }}">
+                                <ul id="supplier_suggestion_list"
+                                    class="list-group position-absolute w-100 shadow-sm"
+                                    style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
+                                    @foreach ($suppliers as $s)
+                                        <li class="list-group-item list-group-item-action"
+                                            data-id="{{ $s->id }}"
+                                            style="cursor: pointer;">
+                                            {{ $s->supplier_name }}
+                                        </li>
+                                    @endforeach
+                                    <li class="list-group-item list-group-item-action text-muted not-found" style="display: none;">
+                                        Not Found
+                                    </li>
+                                </ul>
+                                <input type="hidden" name="supplier_id" id="supplier_id" 
+                                    value="{{ old('supplier_id', $payable->supplier_id) }}" required>
                             </div>
-                            <div class="col-md-4">
-                                <input type="text" id="grandTotal" class="form-control" placeholder="Grand Total" readonly>
+                            <div class="col-md-6 mb-3">
+                                <label><b>Tons</b></label>
+                                <input type="text" id="tons" class="form-control" 
+                                    value="{{ old('tons', $payable->tons ?? '') }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label><b>No of Bags</b><span class="text-danger">*</span></label>
+                                <input type="number" name="no_of_bags" id="no_of_bags" class="form-control"
+                                    value="{{ old('no_of_bags', $payable->no_of_bags) }}" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label><b>Amount per Bag</b><span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" name="amount_per_bag" id="amount_per_bag"
+                                    class="form-control" value="{{ old('amount_per_bag', $payable->amount_per_bag) }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label><b>Total Amount</b></label>
+                                <input type="text" id="total_amount" class="form-control" readonly
+                                    value="{{ old('total_amount', $payable->total_amount) }}">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label><b>Bilti No</b></label>
+                                <input type="text" name="bilti_no" id="payable_bilti_no" class="form-control"
+                                    value="{{ old('bilti_no', $payable->bilti_no) }}">
                             </div>
                         </div>
-                    </div>
 
-                    <small id="bagWarning" class="text-danger fw-bold" style="display:none;">
-                        ⚠ The total dealer bags have exceeded the bilti bags!
-                    </small>
+                        <!-- RECEIVABLE FORM -->
+                        <h4 class="mb-3 mt-5">Edit Receivable</h4>
+                        <!-- Bilti Input (Readonly) -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label><b>Bilti No</b></label>
+                                <input type="text" name="bilti_no" id="bilti_no" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label><b>Total Bags (From Bilti)</b></label>
+                                <input type="number" id="total_bags" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label><b>Remaining Bags</b></label>
+                                <input type="number" id="remaining_bags" class="form-control" readonly>
+                            </div>
+                        </div>
 
-                    <div class="col-md-12 mt-4">
-                        <button type="submit" class="btn btn-primary" id="saveBtn"><b>Update</b></button>
-                    </div>
-                </form>
+                        <!-- Dealers Forms -->
+                        <div id="dealersContainer">
+                            @if(isset($receivables) && count($receivables) > 0)
+                                @foreach($receivables as $index => $receivable)
+                                <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="{{ $index }}">
+                                    <div class="row">
+                                        <input type="hidden" name="supplier_id" value="{{ $payable->supplier_id }}">
+                                        <div class="col-md-4 mb-3 position-relative">
+                                            <label>Dealer</label>
+                                            <input type="text" class="form-control dealer_search mb-1" 
+                                                placeholder="Type dealer name..." value="{{ $receivable->dealer->dealer_name ?? '' }}" 
+                                                data-index="{{ $index }}">
+                                            <ul class="list-group dealer_suggestion_list position-absolute w-100 shadow-sm"
+                                                style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"
+                                                data-index="{{ $index }}">
+                                                @foreach ($dealers as $dealer)
+                                                    <li class="list-group-item list-group-item-action"
+                                                        data-id="{{ $dealer->id }}"
+                                                        style="cursor: pointer;">
+                                                        {{ $dealer->dealer_name }}
+                                                    </li>
+                                                @endforeach
+                                                <li class="list-group-item list-group-item-action text-muted not-found" style="display: none;">
+                                                    Not Found
+                                                </li>
+                                            </ul>
+                                            <input type="hidden" name="dealer_id[{{ $index }}]" class="dealer_id" 
+                                                value="{{ $receivable->dealer_id }}" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Bags</label>
+                                            <input type="number" name="bags[{{ $index }}]" class="form-control bagsInput" 
+                                                value="{{ $receivable->bags }}" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Tons</label>
+                                            <input type="number" class="form-control tonsInput" readonly
+                                                value="{{ number_format($receivable->bags / 20, 2) }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Rate</label>
+                                            <input type="number" step="0.01" name="rate[{{ $index }}]" class="form-control rate" 
+                                                value="{{ $receivable->rate }}" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Total</label>
+                                            <input type="text" class="form-control dealerTotal" readonly
+                                                value="{{ number_format(($receivable->bags * $receivable->rate) - $receivable->freight, 2) }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Freight</label>
+                                            <input type="number" step="0.01" name="freight[{{ $index }}]" 
+                                                class="form-control dealerFreight" value="{{ $receivable->freight }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Code Number</label>
+                                            <input type="text" name="code[{{ $index }}]" class="form-control" 
+                                                value="{{ $receivable->code }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Payment Type</label>
+                                            <select name="payment_type[{{ $index }}]" class="form-control" required>
+                                                <option value="">Select</option>
+                                                <option value="credit" {{ $receivable->payment_type == 'credit' ? 'selected' : '' }}>Credit</option>
+                                                <option value="cash" {{ $receivable->payment_type == 'cash' ? 'selected' : '' }}>Cash</option>
+                                                <option value="online" {{ $receivable->payment_type == 'online' ? 'selected' : '' }}>Online</option>
+                                                <option value="cheque" {{ $receivable->payment_type == 'cheque' ? 'selected' : '' }}>Cheque</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Proof of Payment</label>
+                                            <input type="file" name="proof_of_payment[{{ $index }}]" class="form-control">
+                                            @if($receivable->proof_of_payment)
+                                                <small class="text-muted">Current: <a href="{{ asset('storage/' . $receivable->proof_of_payment) }}" target="_blank">View</a></small>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-4 mb-3 d-flex align-items-end">
+                                            <button type="button" class="btn btn-danger removeDealer">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            @endif
+                        </div>
+                        
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-success" id="addDealerForm">+ Add Dealer</button>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="mb-3">
+                            <label><b>Summary</b></label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" id="summaryBags" class="form-control"
+                                        placeholder="Total Allocated Bags" readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" id="summaryTons" class="form-control" placeholder="Total Tons"
+                                        readonly>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" id="grandTotal" class="form-control" placeholder="Grand Total"
+                                        readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <small id="bagWarning" class="text-danger fw-bold" style="display:none;">
+                            ⚠ The total dealer bags have exceeded the bilti bags!
+                        </small>
+                        
+                        <div class="col-md-12 mt-4">
+                            <button type="submit" class="btn btn-primary" id="saveBtn"><b>Update</b></button>
+                            <a href="{{ route('payables.index') }}" class="btn btn-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
     </div>
-</div>
 
-
-<script>
-    // ===== PAYABLE CALC =====
-    const noBags = document.getElementById('no_of_bags');
-    const rate = document.getElementById('amount_per_bag');
-    const total = document.getElementById('total_amount');
-    const tons = document.getElementById('tons');
-    const payableBiltiInput = document.getElementById('payable_bilti_no');
-
-    function calcFromTons() {
-        let t = parseFloat(tons.value) || 0;
-        let r = parseFloat(rate.value) || 0;
-        let b = t * 20;
-        noBags.value = b.toFixed(0);
-        total.value = (b * r).toFixed(2);
-        syncReceivableForm();
-    }
-
-    function calcFromRate() {
-        let b = parseFloat(noBags.value) || 0;
-        let r = parseFloat(rate.value) || 0;
-        total.value = (b * r).toFixed(2);
-    }
-
-    tons.addEventListener('input', calcFromTons);
-    rate.addEventListener('input', calcFromRate);
-    window.addEventListener('load', calcFromTons);
-
-    // ===== RECEIVABLE CALC =====
-    const biltiInput = document.getElementById('bilti_no');
-    const totalBagsInput = document.getElementById('total_bags');
-    const remainingBagsInput = document.getElementById('remaining_bags');
-    const dealersContainer = document.getElementById('dealersContainer');
-    const summaryBags = document.getElementById('summaryBags');
-    const summaryTons = document.getElementById('summaryTons');
-    const grandTotalInput = document.getElementById('grandTotal');
-    const bagWarning = document.getElementById('bagWarning');
-    const saveBtn = document.getElementById('saveBtn');
-
-    let totalBags = 0;
-    let dealerIndex = {
-        {
-            count($payable - > receivables)
-        }
-    };
-
-    function syncReceivableForm() {
-        biltiInput.value = payableBiltiInput.value;
-        totalBags = parseFloat(noBags.value) || 0;
-        totalBagsInput.value = totalBags;
-
-        let usedBags = 0;
-        document.querySelectorAll('.dealer-form .bags').forEach(b => {
-            usedBags += parseFloat(b.value) || 0;
-        });
-
-        remainingBagsInput.value = totalBags - usedBags;
-        calculateTotals();
-    }
-
-    window.addEventListener('load', syncReceivableForm);
-    payableBiltiInput.addEventListener('input', syncReceivableForm);
-    tons.addEventListener('input', syncReceivableForm);
-
-    document.getElementById('addDealerForm').addEventListener('click', function() {
-        let newForm = `
-        <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="${dealerIndex}">
-          <div class="row">
-            <input type="hidden" name="supplier_id" value="${document.querySelector('[name="supplier_id"]').value}">
-            <div class="col-md-4 mb-3">
-                <label>Dealer</label>
-                <select name="dealer_id[${dealerIndex}]" class="form-control dealerSelect" required>
-                  <option value="">Select Dealer</option>
-                  @foreach($dealers as $dealer)
-                    <option value="{{ $dealer->id }}">{{ $dealer->dealer_name }}</option>
-                  @endforeach
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label>Tons</label>
-                <input type="number" class="form-control tonsInput">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label>Bags</label>
-                <input type="number" name="bags[${dealerIndex}]" class="form-control bags" readonly>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label>Rate</label>
-                <input type="number" step="0.01" name="rate[${dealerIndex}]" class="form-control rate">
-            </div>
-            <div class="col-md-4 mb-3">
-                <label>Total</label>
-                <input type="text" class="form-control dealerTotal" readonly>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label>Freight</label>
-                <input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight">
-            </div>
-               <div class="col-md-4 mb-3">
-                  <label>Code Number</label>
-                  <input type="text" name="code[${dealerIndex}]" class="form-control dealerFreight" value="">
-              {{-- ✅ Validation error show karein --}}
-@if($errors->has('code'))
-    @foreach($errors->get('code') as $i => $messages)
-        @foreach($messages as $message)
-            <div class="text-danger small">
-                {{ "Row ".($i+1).": ".$message }}
-            </div>
-        @endforeach
-    @endforeach
-@endif
-                  </div>
-            <div class="col-md-4 mb-3">
-                <label>Payment Type</label>
-                <select name="payment_type[${dealerIndex}]" class="form-control" required>
-                  <option value="">Select</option>
-                  <option value="credit">Credit</option>
-                  <option value="cash">Cash</option>
-                  <option value="online">Online</option>
-                  <option value="cheque">Cheque</option>
-                </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label>Proof of Payment</label>
-                <input type="file" name="proof_of_payment[${dealerIndex}]" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3 d-flex align-items-end">
-                <button type="button" class="btn btn-danger removeDealer">Remove</button>
-            </div>
-          </div>
-        </div>
-      `;
-        dealersContainer.insertAdjacentHTML('beforeend', newForm);
-        dealerIndex++;
-    });
-
-    dealersContainer.addEventListener('click', function(e) {
-        if (e.target.classList.contains('removeDealer')) {
-            e.target.closest('.dealer-form').remove();
-            calculateTotals();
-        }
-    });
-
-    dealersContainer.addEventListener('input', function(e) {
-        if (e.target.classList.contains('tonsInput')) {
-            let form = e.target.closest('.dealer-form');
-            let tonsVal = parseFloat(e.target.value) || 0;
-            let bagsField = form.querySelector('.bags');
-            bagsField.value = (tonsVal * 20).toFixed(0);
-        }
-        calculateTotals();
-    });
-
-    function calculateTotals() {
-        let totalDealerBags = 0;
-        let grandTotal = 0;
-        let totalTons = 0;
-
-        document.querySelectorAll('.dealer-form').forEach(form => {
-            let bags = parseFloat(form.querySelector('.bags').value) || 0;
-            let rate = parseFloat(form.querySelector('.rate').value) || 0;
-            let freight = parseFloat(form.querySelector('.dealerFreight').value) || 0;
-
-            let tonsInput = form.querySelector('.tonsInput');
-            let tons = bags / 20;
-            if (tonsInput.value === "" || parseFloat(tonsInput.value) != tons) {
-                tonsInput.value = tons.toFixed(2);
+    <script>
+        // Initialize existing data
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set supplier if exists
+            const supplierIdInput = document.getElementById('supplier_id');
+            const supplierSearch = document.getElementById('supplier_search');
+            if (supplierIdInput.value && supplierSearch.value) {
+                // Supplier is already selected
             }
 
-            let dealerTotal = (bags * rate) - freight;
-            form.querySelector('.dealerTotal').value = dealerTotal.toFixed(2);
+            // Initialize calculations
+            calcFromTons();
+            syncReceivableForm();
+            calculateTotals();
 
-            totalDealerBags += bags;
-            grandTotal += dealerTotal;
-            totalTons += tons;
+            // Initialize dealer search for existing dealers
+            initializeExistingDealerSearches();
         });
 
-        let remaining = totalBags - totalDealerBags;
-        remainingBagsInput.value = remaining >= 0 ? remaining : 0;
+        // Supplier Search Functionality (same as create)
+        const supplierSearch = document.getElementById('supplier_search');
+        const supplierSuggestionList = document.getElementById('supplier_suggestion_list');
+        const supplierIdInput = document.getElementById('supplier_id');
+        const supplierItems = Array.from(supplierSuggestionList.querySelectorAll('li:not(.not-found)'));
+        const notFoundItem = supplierSuggestionList.querySelector('.not-found');
+        let supplierSelectedIndex = -1;
 
-        summaryBags.value = totalDealerBags;
-        summaryTons.value = totalTons.toFixed(2);
-        grandTotalInput.value = grandTotal.toFixed(2);
+        // ... (same supplier search code as create - copy the entire supplier search functionality)
 
-        if (totalDealerBags > totalBags) {
-            bagWarning.style.display = 'block';
-            saveBtn.disabled = true;
-        } else {
-            bagWarning.style.display = 'none';
-            saveBtn.disabled = false;
+        // Existing calculations (same as create)
+        const noBags = document.getElementById('no_of_bags');
+        const rate = document.getElementById('amount_per_bag');
+        const total = document.getElementById('total_amount');
+        const tons = document.getElementById('tons');
+        const payableBiltiInput = document.getElementById('payable_bilti_no');
+
+        function calcFromTons() {
+            let t = parseFloat(tons.value) || 0;
+            let r = parseFloat(rate.value) || 0;
+            let b = t * 20;
+            noBags.value = b > 0 ? b.toFixed(0) : '';
+            total.value = (b * r) > 0 ? (b * r).toFixed(2) : '';
+            syncReceivableForm();
         }
-    }
-</script>
 
+        function calcFromRate() {
+            let b = parseFloat(noBags.value) || 0;
+            let r = parseFloat(rate.value) || 0;
+            total.value = (b * r) > 0 ? (b * r).toFixed(2) : '';
+        }
+
+        tons.addEventListener('input', calcFromTons);
+        rate.addEventListener('input', calcFromRate);
+
+        // Receivable sync (same as create)
+        const biltiInput = document.getElementById('bilti_no');
+        const totalBagsInput = document.getElementById('total_bags');
+        const remainingBagsInput = document.getElementById('remaining_bags');
+        const dealersContainer = document.getElementById('dealersContainer');
+        const summaryBags = document.getElementById('summaryBags');
+        const summaryTons = document.getElementById('summaryTons');
+        const grandTotalInput = document.getElementById('grandTotal');
+        const bagWarning = document.getElementById('bagWarning');
+        const saveBtn = document.getElementById('saveBtn');
+        let totalBags = 0;
+        let dealerIndex = @if(isset($receivables)) {{ count($receivables) }} @else 0 @endif;
+
+        function syncReceivableForm() {
+            biltiInput.value = payableBiltiInput.value;
+            totalBags = parseFloat(noBags.value) || 0;
+            totalBagsInput.value = totalBags > 0 ? totalBags : '';
+            remainingBagsInput.value = totalBags > 0 ? totalBags : '';
+            calculateTotals();
+        }
+
+        payableBiltiInput.addEventListener('input', syncReceivableForm);
+        tons.addEventListener('input', syncReceivableForm);
+
+        // Initialize existing dealer searches
+        function initializeExistingDealerSearches() {
+            document.querySelectorAll('.dealer_search').forEach(dealerSearch => {
+                const index = dealerSearch.dataset.index;
+                const dealerSuggestionList = dealersContainer.querySelector(`.dealer_suggestion_list[data-index="${index}"]`);
+                const dealerIdInput = dealersContainer.querySelector(`.dealer_id[name="dealer_id[${index}]"]`);
+                const dealerItems = Array.from(dealerSuggestionList.querySelectorAll('li:not(.not-found)'));
+                const dealerNotFoundItem = dealerSuggestionList.querySelector('.not-found');
+                let dealerSelectedIndex = -1;
+
+                dealerSearch.addEventListener('input', function () {
+                    const query = this.value.toLowerCase().trim();
+                    dealerSelectedIndex = -1;
+                    dealerSuggestionList.style.display = query ? 'block' : 'none';
+                    let hasMatches = false;
+                    dealerItems.forEach(li => {
+                        const name = li.textContent.toLowerCase();
+                        li.style.display = name.includes(query) ? 'block' : 'none';
+                        if (name.includes(query)) hasMatches = true;
+                    });
+                    dealerNotFoundItem.style.display = query && !hasMatches ? 'block' : 'none';
+                    if (!dealerItems.some(li => li.textContent.toLowerCase().trim() === query)) {
+                        dealerIdInput.value = '';
+                    }
+                });
+
+                dealerItems.forEach((li) => {
+                    li.addEventListener('click', function () {
+                        dealerSearch.value = this.textContent.trim();
+                        dealerIdInput.value = this.getAttribute('data-id');
+                        dealerSuggestionList.style.display = 'none';
+                        dealerNotFoundItem.style.display = 'none';
+                    });
+                });
+
+                // Hide suggestions initially
+                dealerSuggestionList.style.display = 'none';
+                dealerNotFoundItem.style.display = 'none';
+            });
+        }
+
+        document.getElementById('addDealerForm').addEventListener('click', function() {
+            let newForm = `
+                <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="${dealerIndex}">
+                    <div class="row">
+                        <input type="hidden" name="supplier_id" value="${document.querySelector('[name="supplier_id"]').value}">
+                        <div class="col-md-4 mb-3 position-relative">
+                            <label>Dealer</label>
+                            <input type="text" class="form-control dealer_search mb-1" placeholder="Type dealer name..." data-index="${dealerIndex}">
+                            <ul class="list-group dealer_suggestion_list position-absolute w-100 shadow-sm"
+                                style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"
+                                data-index="${dealerIndex}">
+                                @foreach ($dealers as $dealer)
+                                    <li class="list-group-item list-group-item-action"
+                                        data-id="{{ $dealer->id }}"
+                                        style="cursor: pointer;">
+                                        {{ $dealer->dealer_name }}
+                                    </li>
+                                @endforeach
+                                <li class="list-group-item list-group-item-action text-muted not-found" style="display: none;">
+                                    Not Found
+                                </li>
+                            </ul>
+                            <input type="hidden" name="dealer_id[${dealerIndex}]" class="dealer_id" required>
+                        </div>
+                        <!-- ... rest of the form fields same as create ... -->
+                        <div class="col-md-4 mb-3">
+                            <label>Bags</label>
+                            <input type="number" name="bags[${dealerIndex}]" class="form-control bagsInput" value="">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Tons</label>
+                            <input type="number" class="form-control tonsInput" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Rate</label>
+                            <input type="number" step="0.01" name="rate[${dealerIndex}]" class="form-control rate" value="">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Total</label>
+                            <input type="text" class="form-control dealerTotal" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Freight</label>
+                            <input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight" value="">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Code Number</label>
+                            <input type="text" name="code[${dealerIndex}]" class="form-control" value="">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Payment Type</label>
+                            <select name="payment_type[${dealerIndex}]" class="form-control" required>
+                                <option value="">Select</option>
+                                <option value="credit">Credit</option>
+                                <option value="cash">Cash</option>
+                                <option value="online">Online</option>
+                                <option value="cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>Proof of Payment</label>
+                            <input type="file" name="proof_of_payment[${dealerIndex}]" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger removeDealer">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            dealersContainer.insertAdjacentHTML('beforeend', newForm);
+            
+            const newDealerSearch = dealersContainer.querySelector(`.dealer_search[data-index="${dealerIndex}"]`);
+            
+            dealerIndex++;
+            calculateTotals();
+        });
+
+        dealersContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('removeDealer')) {
+                e.target.closest('.dealer-form').remove();
+                calculateTotals();
+            }
+        });
+
+        dealersContainer.addEventListener('input', function(e) {
+            if (e.target.classList.contains('bagsInput')) {
+                let form = e.target.closest('.dealer-form');
+                let bagsVal = parseFloat(e.target.value) || 0;
+                let tonsField = form.querySelector('.tonsInput');
+                tonsField.value = bagsVal > 0 ? (bagsVal / 20).toFixed(2) : '';
+                calculateDealerTotal(form);
+            }
+            if (e.target.classList.contains('rate') || e.target.classList.contains('dealerFreight')) {
+                let form = e.target.closest('.dealer-form');
+                calculateDealerTotal(form);
+            }
+            calculateTotals();
+        });
+
+        function calculateDealerTotal(form) {
+            let bags = parseFloat(form.querySelector('.bagsInput').value) || 0;
+            let rate = parseFloat(form.querySelector('.rate').value) || 0;
+            let freight = parseFloat(form.querySelector('.dealerFreight').value) || 0;
+            let dealerTotal = (bags * rate) - freight;
+            form.querySelector('.dealerTotal').value = dealerTotal > 0 ? dealerTotal.toFixed(2) : '';
+        }
+
+        function calculateTotals() {
+            let totalDealerBags = 0;
+            let grandTotal = 0;
+            let totalTons = 0;
+            
+            document.querySelectorAll('.dealer-form').forEach(form => {
+                let bags = parseFloat(form.querySelector('.bagsInput').value) || 0;
+                let rate = parseFloat(form.querySelector('.rate').value) || 0;
+                let freight = parseFloat(form.querySelector('.dealerFreight').value) || 0;
+                let tons = bags / 20;
+                
+                form.querySelector('.tonsInput').value = bags > 0 ? tons.toFixed(2) : '';
+                let dealerTotal = (bags * rate) - freight;
+                form.querySelector('.dealerTotal').value = dealerTotal > 0 ? dealerTotal.toFixed(2) : '';
+                
+                totalDealerBags += bags;
+                grandTotal += dealerTotal;
+                totalTons += tons;
+            });
+            
+            let remaining = totalBags - totalDealerBags;
+            remainingBagsInput.value = remaining >= 0 ? remaining : '';
+            summaryBags.value = totalDealerBags > 0 ? totalDealerBags : '';
+            summaryTons.value = totalTons > 0 ? totalTons.toFixed(2) : '';
+            grandTotalInput.value = grandTotal > 0 ? grandTotal.toFixed(2) : '';
+            
+            if (totalDealerBags > totalBags && totalBags > 0) {
+                bagWarning.style.display = 'block';
+                saveBtn.disabled = true;
+            } else {
+                bagWarning.style.display = 'none';
+                saveBtn.disabled = false;
+            }
+        }
+
+        document.getElementById('payableForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            if (!supplierIdInput.value) {
+                e.preventDefault();
+                supplierSearch.classList.add('is-invalid');
+                isValid = false;
+            }
+            
+            document.querySelectorAll('.dealer-form').forEach(form => {
+                const dealerIdInput = form.querySelector('.dealer_id');
+                const dealerSearch = form.querySelector('.dealer_search');
+                if (!dealerIdInput.value) {
+                    isValid = false;
+                    dealerSearch.classList.add('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <style>
+        .list-group-item.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .list-group-item.not-found {
+            cursor: default;
+            font-style: italic;
+        }
+    </style>
 @endsection

@@ -403,7 +403,7 @@ public function dailyReport(Request $request)
     ]);
 
     if ($reports->isEmpty()) {
-        \Log::warning('⚠️ No transactions found for date range', [
+        \Log::warning('No transactions found for date range', [
             'start_date' => $startDate,
             'end_date' => $endDate,
         ]);

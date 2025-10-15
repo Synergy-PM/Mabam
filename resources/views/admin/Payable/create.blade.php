@@ -319,7 +319,6 @@
       `;
             dealersContainer.insertAdjacentHTML('beforeend', newForm);
             
-            // Initialize dealer search for the new form
             const dealerSearch = dealersContainer.querySelector(`.dealer_search[data-index="${dealerIndex}"]`);
             const dealerSuggestionList = dealersContainer.querySelector(`.dealer_suggestion_list[data-index="${dealerIndex}"]`);
             const dealerIdInput = dealersContainer.querySelector(`.dealer_id[name="dealer_id[${dealerIndex}]"]`);
@@ -442,7 +441,6 @@
             }
         }
 
-        // Dealer validation on form submit
         document.getElementById('payableForm').addEventListener('submit', function(e) {
             let isValid = true;
             document.querySelectorAll('.dealer-form').forEach(form => {
