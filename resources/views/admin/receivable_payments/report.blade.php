@@ -133,6 +133,7 @@
                                     <tr>
                                         <th>S.No</th>
                                         <th>Dealer Name</th>
+                                        <th>Tons</th>
                                         <th>Closing Balance</th>
                                     </tr>
                                 </thead>
@@ -142,6 +143,7 @@
                                         <tr>
                                             <td>{{ $count++ }}</td>
                                             <td>{{ $dealer['dealer_name'] ?? 'N/A' }}</td>
+                                            <td>{{ $dealer['tons'] ?? 'N/A' }}</td>
                                             <td>
                                                 <span class="fw-bold">
                                                     {{ number_format(($dealer['total_credit'] ?? 0) - ($dealer['total_debit'] ?? 0), 2) }}

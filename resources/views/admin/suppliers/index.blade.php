@@ -28,15 +28,15 @@
                           <thead class="table-light text-center">
                                 <tr>
                                     <th style="width:5%">#</th>
-                                    <th>Supplier Name</th>
-                                    <th>Company</th>
+                                    <th>Supplier Company Name</th>
+                                    {{-- <th>Company</th>
                                     <th>City</th>
                                     <th>Email</th>
                                     <th>WhatsApp</th>
                                     <th>Contact Person</th>
                                     <th>Contact No</th>
                                     <th>Contact Email</th>
-                                    <th>Address</th>
+                                    <th>Address</th> --}}
                                     <th style="width:10%">Actions</th>
                                 </tr>
                             </thead>
@@ -45,14 +45,14 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $supplier->supplier_name ?? '-' }}</td>
-                                        <td>{{ $supplier->company_name ?? '-' }}</td>
+                                        {{-- <td>{{ $supplier->company_name ?? '-' }}</td>
                                         <td>{{ $supplier->city->name ?? '-' }}</td>
                                         <td>{{ $supplier->email ?? '-' }}</td>
                                         <td>{{ $supplier->whatsapp ?? '-' }}</td>
                                         <td>{{ $supplier->contact_person ?? '-' }}</td>
                                         <td>{{ $supplier->contact_no ?? '-' }}</td>
                                         <td>{{ $supplier->contact_email ?? '-' }}</td>
-                                        <td>{{ $supplier->address ?? '-' }}</td>
+                                        <td>{{ $supplier->address ?? '-' }}</td> --}}
                                         <td>
                                             <div class="d-flex justify-content-center gap-1">
                                                 <a href="{{ route('suppliers.edit', $supplier->id) }}" class="btn btn-sm btn-soft-warning" title="Edit">

@@ -35,7 +35,7 @@
                                 </ul>
                                 <input type="hidden" name="supplier_id" id="supplier_id" value="{{ old('supplier_id') }}"
                                     required>
-                            </div>
+                              </div>
                             <div class="col-md-6 mb-3">
                                 <label><b>Tons</b></label>
                                 <input type="text" id="tons" class="form-control">
@@ -298,10 +298,6 @@
                   <input type="text" class="form-control dealerTotal" readonly>
               </div>
 
-              <div class="col-md-4 mb-3">
-                  <label>Code Number</label>
-                  <input type="text" name="code[${dealerIndex}]" class="form-control" value="">
-              </div>
               <div class="col-md-4 mb-3">
                   <label>Payment Type</label>
                   <select name="payment_type[${dealerIndex}]" class="form-control" required>

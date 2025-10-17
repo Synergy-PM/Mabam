@@ -24,19 +24,19 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="payablesTable" class="table table-hover table-striped table-bordered align-middle">
+                        <table id="DealerTable" class="table table-hover table-striped table-bordered align-middle">
                            <thead class="table-light text-center">
                                 <tr>
                                     <th style="width:5%">#</th>
                                     <th>Dealer Name</th>
                                     <th>Company</th>
-                                    <th>City</th>
-                                    <th>Email</th>
-                                    <th>WhatsApp</th>
-                                    <th>Contact Person</th>
                                     <th>Contact No</th>
-                                    <th>Contact Email</th>
-                                    <th>Address</th>
+                                    <th>City</th>
+                                    {{-- <th>Email</th>
+                                    <th>WhatsApp</th>
+                                    <th>Contact Person</th> --}}
+                                    {{-- <th>Contact Email</th> --}}
+                                    {{-- <th>Address</th> --}}
                                     <th style="width:10%">Actions</th>
                                 </tr>
                             </thead>
@@ -46,13 +46,13 @@
                                         <td class="text-center">{{ $index + 1 }}</td>
                                         <td>{{$dealer->dealer_name ?? '-'}}
                                         <td>{{ $dealer->company_name ?? '-' }}</td>
-                                        <td>{{ $dealer->city->name ?? '-' }}</td>
-                                        <td>{{ $dealer->email ?? '-' }}</td>
-                                        <td>{{ $dealer->whatsapp ?? '-' }}</td>
-                                        <td>{{ $dealer->contact_person ?? '-' }}</td>
                                         <td>{{ $dealer->contact_no ?? '-' }}</td>
-                                        <td>{{ $dealer->contact_email ?? '-' }}</td>
-                                        <td>{{ $dealer->address ?? '-' }}</td>
+                                        <td>{{ $dealer->city->name ?? '-' }}</td>
+                                        {{-- <td>{{ $dealer->email ?? '-' }}</td>
+                                        <td>{{ $dealer->whatsapp ?? '-' }}</td>
+                                        <td>{{ $dealer->contact_person ?? '-' }}</td> --}}
+                                        {{-- <td>{{ $dealer->contact_email ?? '-' }}</td> --}}
+                                        {{-- <td>{{ $dealer->address ?? '-' }}</td> --}}
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-1">
                                                 <a href="{{ route('dealers.edit', $dealer->id) }}" class="btn btn-sm btn-soft-warning" title="Edit">

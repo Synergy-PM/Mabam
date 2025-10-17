@@ -26,9 +26,9 @@ class DealerController extends Controller
         $request->validate([
             'company_name' => 'nullable|string|max:255',
             'city_id' => 'nullable|exists:cities,id',
-            'email' => 'nullable|email|unique:dealers,email',
-            'whatsapp' => 'nullable|string',
-            'address' => 'nullable|string',
+            // 'email' => 'nullable|email|unique:dealers,email',
+            // 'whatsapp' => 'nullable|string',
+            // 'address' => 'nullable|string',
         ]);
 
         Dealer::create($request->all());
@@ -49,9 +49,9 @@ class DealerController extends Controller
             'dealer_name' => 'required|string|max:255',
             'company_name' => 'nullable|string|max:255',
             'city_id' => 'nullable|exists:cities,id',
-            'email' => 'nullable|email|unique:dealers,email,' . $dealer->id,
-            'whatsapp' => 'nullable|string',
-            'address' => 'nullable|string',
+            // 'email' => 'nullable|email|unique:dealers,email,' . $dealer->id,
+            // 'whatsapp' => 'nullable|string',
+            // 'address' => 'nullable|string',
         ]);
 
         $dealer->update($request->all());

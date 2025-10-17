@@ -111,8 +111,8 @@ class ReceivablePaymentController extends Controller
     //     ));
     // }
 
-    public function ledgerReport(Request $request)
- {
+  public function ledgerReport(Request $request)
+{
     $request->validate([
         'dealer_id' => 'nullable|exists:dealers,id',
         'start_date' => 'nullable|date',
@@ -123,7 +123,8 @@ class ReceivablePaymentController extends Controller
     $startDate = $request->input('start_date');
     $endDate = $request->input('end_date');
 
-    $receivablePaymentsQuery = ReceivablePayment::with('dealer')
+    // MAIN QUERY (FILTERED)
+    $receivablePaymentsQuery = \App\Models\ReceivablePayment::with('dealer')
         ->when($dealerId, function ($q) use ($dealerId) {
             return $q->where('dealer_id', $dealerId);
         })
@@ -136,6 +137,7 @@ class ReceivablePaymentController extends Controller
 
     $receivablePayments = $receivablePaymentsQuery->get();
 
+    // Individual Transactions List
     $transactions = $receivablePayments->map(function ($payment) {
         return [
             'dealer' => $payment->dealer,
@@ -148,29 +150,32 @@ class ReceivablePaymentController extends Controller
     })->sortBy('transaction_date')->values();
 
     $totalAmount = $transactions->sum('amount');
-    $selectedDealer = $dealerId ? Dealer::find($dealerId) : null;
+    $selectedDealer = $dealerId ? \App\Models\Dealer::find($dealerId) : null;
 
-   $dealerSummaries = [];
-   if (!$dealerId) {
-    $dealerSummaries = ReceivablePayment::with('dealer')
-        ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
-        ->selectRaw('
-            receivable_payments.dealer_id,
-            dealers.dealer_name,
-            SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) as total_credit,
-            SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as total_debit
-        ')
-        ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name')
-        ->get()
-        ->map(function ($item) {
-            return [
-                'dealer_name'   => $item->dealer_name ?? 'N/A',
-                'total_credit'  => $item->total_credit,
-                'total_debit'   => $item->total_debit,
-            ];
-        });
-  }
-
+    // ✅ Dealer Summary (when no dealer selected)
+    $dealerSummaries = [];
+    if (!$dealerId) {
+        $dealerSummaries = \DB::table('receivable_payments')
+            ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
+            ->leftJoin('receivables', 'receivables.dealer_id', '=', 'dealers.id')
+            ->selectRaw('
+                receivable_payments.dealer_id,
+                dealers.dealer_name,
+                COALESCE(SUM(receivables.tons), 0) as tons,
+                SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) as total_credit,
+                SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as total_debit
+            ')
+            ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'dealer_name'   => $item->dealer_name ?? 'N/A',
+                    'tons'          => $item->tons ?? 0,
+                    'total_credit'  => $item->total_credit ?? 0,
+                    'total_debit'   => $item->total_debit ?? 0,
+                ];
+            });
+    }
 
     return view('admin.receivable_payments.report', compact(
         'transactions',
@@ -178,9 +183,10 @@ class ReceivablePaymentController extends Controller
         'startDate',
         'endDate',
         'totalAmount',
-        'dealerSummaries' 
+        'dealerSummaries'
     ));
- }
+}
+
 
 
 }

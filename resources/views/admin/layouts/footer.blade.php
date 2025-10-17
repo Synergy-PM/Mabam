@@ -55,7 +55,20 @@
       "autoWidth": false,
       "order": [[1, "desc"]], 
       "columnDefs": [
-        { "orderable": false, "targets": [0, 8] } 
+        { "orderable": false, "targets": [0, 2] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#DealerTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 5] } 
       ]
     });
   });

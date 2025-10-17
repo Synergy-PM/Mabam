@@ -24,13 +24,18 @@
                     <h5 class="mb-0 text-white">
                         <i class="fas fa-file-invoice-dollar me-2"></i> Payable Ledger Report
                     </h5>
-                    <button id="exportPDF" class="btn btn-light btn-sm shadow-sm">
-                        <i class="fas fa-file-pdf text-danger me-1"></i> Export PDF
-                    </button>
+                    <div>
+                        <button id="printLedger" class="btn btn-light btn-sm shadow-sm me-2">
+                            <i class="fas fa-print text-primary me-1"></i> Print
+                        </button>
+                        <button id="exportPDF" class="btn btn-light btn-sm shadow-sm">
+                            <i class="fas fa-file-pdf text-danger me-1"></i> Export PDF
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Card Body --}}
-                <div class="card-body bg-white">
+                <div class="card-body bg-white" id="ledger-section">
                     
                     {{-- Report Information --}}
                     <div class="border rounded-3 p-3 mb-4 bg-light shadow-sm">
@@ -72,8 +77,6 @@
                                     <th>Credit</th>
                                     <th>Debit</th>
                                     <th>Payment Mode</th>
-                                    {{-- <th>Proof of Payment</th> --}}
-                                    {{-- <th>Date</th> --}}
                                     <th>Date</th>
                                     <th>Balance</th>
                                 </tr>
@@ -105,15 +108,7 @@
                                         </td>
 
                                         <td>{{ ucfirst($payment->payment_mode) }}</td>
-                                        {{-- <td>
-                                            @if ($payment->proof_of_payment)
-                                                <a href="{{ Storage::url($payment->proof_of_payment) }}" target="_blank">View</a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td> --}}
                                         <td>{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}</td>
-                                        {{-- <td>{{ $payment->notes ?? '-' }}</td> --}}
                                         <td>{{ number_format($balance, 2) }}</td>
                                     </tr>
                                 @empty
@@ -129,7 +124,7 @@
                                     <td colspan="2"><strong>Total</strong></td>
                                     <td><strong>{{ number_format($totalCredit, 2) }}</strong></td>
                                     <td><strong>{{ number_format($totalDebit, 2) }}</strong></td>
-                                    <td colspan="5"></td>
+                                    <td colspan="3"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -141,15 +136,29 @@
                         <p><strong>Total Credit:</strong> {{ number_format($totalCredit, 2) }}</p>
                         <p><strong>Closing Balance:</strong> {{ number_format($balance, 2) }}</p>
                     </div>
-                   @if(!$selectedSupplier && count($supplierSummaries))
+
+                    {{-- Supplier-wise Closing Balances --}}
+                    @if(!$selectedSupplier && count($supplierSummaries))
                         <div class="mt-5">
-                            <h5 class="fw-semibold mb-3">Supplier-wise Closing Balances</h5>
-                            <div class="table-responsive">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-semibold mb-0">Supplier-wise Closing Balances</h5>
+                                <div>
+                                    <button id="printSupplierSummary" class="btn btn-outline-primary btn-sm me-2">
+                                        <i class="fas fa-print me-1"></i> Print
+                                    </button>
+                                    <button id="exportSupplierPDF" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-file-pdf me-1"></i> PDF
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="supplier-summary" class="table-responsive">
                                 <table class="table table-bordered table-striped text-center align-middle">
                                     <thead class="table-primary">
                                         <tr>
                                             <th>S.No</th>
                                             <th>Supplier Name</th>
+                                            <th>Tons</th>
                                             <th>Closing Balance</th>
                                         </tr>
                                     </thead>
@@ -158,6 +167,7 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>{{ $supplier['supplier_name'] }}</td>
+                                                <td>{{ $supplier['tons'] ?? '-' }}</td>
                                                 <td><strong>{{ number_format($supplier['closing_balance'], 2) }}</strong></td>
                                             </tr>
                                         @endforeach
@@ -177,46 +187,45 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
     <script>
+        // ================= Ledger Table Export =================
         document.getElementById('exportPDF').addEventListener('click', function () {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const printedOnDateTime = "{{ \Carbon\Carbon::now()->format('d M, Y h:i A') }}";
-            const pageWidth = doc.internal.pageSize.width;
-            const textWidth = doc.getTextWidth(`PRINTED ON: ${printedOnDateTime}`);
-            doc.setFontSize(10);
-            doc.setTextColor(128, 128, 128);
-            doc.text(`PRINTED ON: ${printedOnDateTime}`, pageWidth - textWidth - 14, 10);
-
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(16);
-            doc.text("Payable Ledger Report", 14, 20);
-
-            doc.setFontSize(11);
-            doc.text(`Supplier: {{ $selectedPayable->supplier->supplier_name ?? 'N/A' }}`, 14, 30);
-            doc.text(`Period: {{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d M, Y') : '---' }} - {{ $endDate ? \Carbon\Carbon::parse($endDate)->format('d M, Y') : '---' }}`, 14, 36);
-            doc.text(`Opening Balance: {{ number_format($openingBalance, 2) }}`, 14, 42);
-
-            const table = document.querySelector("#ledgerTable");
-            doc.autoTable({ 
-                html: table, 
-                startY: 50, 
-                theme: 'grid', 
-                headStyles: { fillColor: [41, 128, 185] }, 
-                styles: { fontSize: 8 },
-                columnStyles: {
-                    5: { cellWidth: 30 }, 
-                    7: { cellWidth: 40 }  
-                }
-            });
-
-            const finalY = doc.lastAutoTable.finalY || 50;
-            doc.text(`Total Debit: {{ number_format($totalDebit, 2) }}`, 14, finalY + 10);
-            doc.text(`Total Credit: {{ number_format($totalCredit, 2) }}`, 14, finalY + 16);
-            doc.text(`Closing Balance: {{ number_format($balance, 2) }}`, 14, finalY + 22);
-
-            doc.save(`Ledger_Report_{{ \Carbon\Carbon::now()->format('d_M_Y') }}.pdf`);
+            const doc = new jsPDF('landscape');
+            doc.text("Payable Ledger Report", 14, 15);
+            doc.autoTable({ html: '#ledgerTable', startY: 25, theme: 'grid' });
+            doc.save('Ledger_Report.pdf');
         });
+
+        document.getElementById('printLedger').addEventListener('click', function () {
+            const content = document.getElementById('ledger-section').innerHTML;
+            const printWin = window.open('', '_blank');
+            printWin.document.write(`<html><head><title>Ledger Report</title></head><body>${content}</body></html>`);
+            printWin.document.close();
+            printWin.print();
+        });
+
+        // ================= Supplier Summary Export =================
+        const supplierPDFBtn = document.getElementById('exportSupplierPDF');
+        if (supplierPDFBtn) {
+            supplierPDFBtn.addEventListener('click', function () {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape');
+                doc.text("Supplier-wise Closing Balances", 14, 15);
+                doc.autoTable({ html: '#supplier-summary table', startY: 25, theme: 'grid' });
+                doc.save('Supplier_Summary.pdf');
+            });
+        }
+
+        const supplierPrintBtn = document.getElementById('printSupplierSummary');
+        if (supplierPrintBtn) {
+            supplierPrintBtn.addEventListener('click', function () {
+                const content = document.getElementById('supplier-summary').innerHTML;
+                const printWin = window.open('', '_blank');
+                printWin.document.write(`<html><head><title>Supplier Summary</title></head><body>${content}</body></html>`);
+                printWin.document.close();
+                printWin.print();
+            });
+        }
     </script>
 </div>
 @endsection

@@ -138,11 +138,11 @@
                                             <input type="text" class="form-control dealerTotal" readonly
                                                 value="{{ number_format(($receivable->bags * $receivable->rate) - ($receivable->freight ?? 0), 2) }}">
                                         </div>
-                                        <div class="col-md-4 mb-3">
+                                        {{-- <div class="col-md-4 mb-3">
                                             <label>Code Number <span class="text-danger">*</span></label>
                                             <input type="text" name="code[{{ $index }}]" class="form-control" 
                                                 value="{{ old('code.' . $index, $receivable->code) }}" required>
-                                        </div>
+                                        </div> --}}
                                         <div class="col-md-4 mb-3">
                                             <label>Payment Type <span class="text-danger">*</span></label>
                                             <select name="payment_type[{{ $index }}]" class="form-control" required>
@@ -410,10 +410,6 @@
                             <input type="text" class="form-control dealerTotal" readonly>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label>Code Number <span class="text-danger">*</span></label>
-                            <input type="text" name="code[${dealerIndex}]" class="form-control" placeholder="Unique code" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
                             <label>Payment Type <span class="text-danger">*</span></label>
                             <select name="payment_type[${dealerIndex}]" class="form-control" required>
                                 <option value="">Select</option>
@@ -520,7 +516,7 @@
                 const bagsInput = form.querySelector('.bagsInput');
                 const rateInput = form.querySelector('.rate');
                 const paymentType = form.querySelector('select[name*="payment_type"]');
-                const codeInput = form.querySelector('input[name*="code"]');
+                // const codeInput = form.querySelector('input[name*="code"]');
                 
                 if (!dealerIdInput.value) {
                     isValid = false;
@@ -545,10 +541,10 @@
                     paymentType.classList.add('is-invalid');
                 }
                 
-                if (!codeInput.value) {
-                    isValid = false;
-                    codeInput.classList.add('is-invalid');
-                }
+                // if (!codeInput.value) {
+                //     isValid = false;
+                //     codeInput.classList.add('is-invalid');
+                // }
             });
             
             if (!isValid) {

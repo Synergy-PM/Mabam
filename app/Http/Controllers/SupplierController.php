@@ -25,14 +25,14 @@ class SupplierController extends Controller
     {
         $request->validate([
             'supplier_name' => 'required|string|max:255',
-            'company_name'  => 'required|string|max:255',
-            'city_id'       => 'nullable|exists:cities,id',
-            'email'         => 'nullable|email',
-            'whatsapp'      => 'nullable|string',
-            'address'       => 'nullable|string',
-            'contact_person'=> 'nullable|string',
-            'contact_no'    => 'nullable|string',
-            'contact_email' => 'nullable|email',
+            // 'company_name'  => 'required|string|max:255',
+            // 'city_id'       => 'nullable|exists:cities,id',
+            // 'email'         => 'nullable|email',
+            // 'whatsapp'      => 'nullable|string',
+            // 'address'       => 'nullable|string',
+            // 'contact_person'=> 'nullable|string',
+            // 'contact_no'    => 'nullable|string',
+            // 'contact_email' => 'nullable|email',
         ]);
 
         Supplier::create($request->all());
@@ -53,14 +53,14 @@ class SupplierController extends Controller
         
         $request->validate([
             'supplier_name' => 'required|string|max:255',
-            'company_name'  => 'required|string|max:255',
-            'city_id'       => 'nullable|exists:cities,id',
-            'email'         => 'nullable|email',
-            'whatsapp'      => 'nullable|string',
-            'address'       => 'nullable|string',
-            'contact_person'=> 'nullable|string',
-            'contact_no'    => 'nullable|string',
-            'contact_email' => 'nullable|email',
+            // 'company_name'  => 'required|string|max:255',
+            // 'city_id'       => 'nullable|exists:cities,id',
+            // 'email'         => 'nullable|email',
+            // 'whatsapp'      => 'nullable|string',
+            // 'address'       => 'nullable|string',
+            // 'contact_person'=> 'nullable|string',
+            // 'contact_no'    => 'nullable|string',
+            // 'contact_email' => 'nullable|email',
         ]);
 
         $supplier->update($request->all());

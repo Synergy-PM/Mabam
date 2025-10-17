@@ -164,8 +164,7 @@
                                 <li><a href="{{ route('cities.index') }}">Add Cities</a></li>
                                 <li><a href="{{ route('suppliers.index') }}">Add Suppliers</a></li>
                                 <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
-                                <li><a href="{{ route('payables.index') }}">Payable</a></li>
-                                <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li>
+                                <li><a href="{{ route('payables.index') }}">Bilti Entry</a></li>
                             </ul>
                         </li>
                         <li>
@@ -176,6 +175,7 @@
                             <ul class="sub-menu" aria-expanded="false">
                                 <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li>
                                 <li><a href="{{route('receivable-payments.index')}}">Receivable Payment</a></li>
+                                 <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li>
                             </ul>
                         </li>
                         <li class="menu-item">

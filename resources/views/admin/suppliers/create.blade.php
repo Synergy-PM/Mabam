@@ -12,12 +12,12 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label><b>Supplier Name</b></label>
+                <label><b>Supplier Company Name</b></label>
                 <input type="text" name="supplier_name" class="form-control" placeholder="Enter Supplier Name" 
                     value="{{ $supplier->supplier_name ?? old('supplier_name') }}">
             </div>
 
-            <div class="col-md-6 mb-3">
+            {{-- <div class="col-md-6 mb-3">
                 <label><b>Company Name</b></label>
                 <input type="text" name="company_name" class="form-control" placeholder="Enter Company Name"
                     value="{{ $supplier->company_name ?? old('company_name') }}">
@@ -68,7 +68,7 @@
             <div class="col-md-12 mb-3">
                 <label><b>Address</b></label>
                 <textarea name="address" class="form-control" rows="3" placeholder="Enter Address">{{ $supplier->address ?? old('address') }}</textarea>
-            </div>
+            </div> --}}
         </div>
 
         <button type="submit" class="btn btn-success">{{ isset($supplier) ? 'Update Supplier' : 'Save Supplier' }}</button>

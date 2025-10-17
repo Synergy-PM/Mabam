@@ -37,13 +37,13 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            {{-- <div class="col-md-6 mb-3">
                                 <label><b>Email</b></label>
                                 <input type="email" name="email" class="form-control" 
                                     value="{{ old('email') }}">
-                            </div>
+                            </div> --}}
 
-                            <div class="col-md-6 mb-3">
+                            {{-- <div class="col-md-6 mb-3">
                                 <label><b>WhatsApp</b></label>
                                 <input type="text" name="whatsapp" class="form-control" 
                                     value="{{ old('whatsapp') }}">
@@ -53,7 +53,7 @@
                                 <label><b>Contact Person</b></label>
                                 <input type="text" name="contact_person" class="form-control" 
                                     value="{{ old('contact_person') }}">
-                            </div>
+                            </div> --}}
 
                             <div class="col-md-6 mb-3">
                                 <label><b>Contact No</b></label>
@@ -61,16 +61,16 @@
                                     value="{{ old('contact_no') }}">
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            {{-- <div class="col-md-6 mb-3">
                                 <label><b>Contact Email</b></label>
                                 <input type="email" name="contact_email" class="form-control" 
                                     value="{{ old('contact_email') }}">
-                            </div>
+                            </div> --}}
 
-                            <div class="col-md-12 mb-3">
+                            {{-- <div class="col-md-12 mb-3">
                                 <label><b>Address</b></label>
                                 <textarea name="address" class="form-control" rows="3">{{ old('address') }}</textarea>
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="d-flex gap-2">

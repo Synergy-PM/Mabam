@@ -10,30 +10,37 @@
             <form method="GET" action="{{ route('receivable-payments.ledger-report') }}">
                 <div class="row">
                     {{-- Dealer Filter --}}
-                    <div class="col-md-6 position-relative">
+                    <div class="col-md-6 mb-3">
                         <label class="form-label">Dealer (Optional)</label>
-                        <input type="text" class="form-control mb-1 dealer-search" id="dealer_search" placeholder="Type dealer name or leave blank for all dealers..." data-row-index="0">
-                        <ul class="dealer-suggestion-list list-group position-absolute w-100 shadow-sm" id="suggestion_list"
-                            style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
-                            <li class="list-group-item list-group-item-action"
-                                data-id=""
-                                data-row-index="0"
-                                style="cursor: pointer;">
-                                All Dealers
-                            </li>
-                            @foreach($dealers as $dealer)
-                                <li class="list-group-item list-group-item-action"
-                                    data-id="{{ $dealer->id }}"
-                                    data-row-index="0"
-                                    style="cursor: pointer;">
-                                    {{ $dealer->dealer_name ?? 'N/A' }}
-                                </li>
-                            @endforeach
-                            <li class="no-result-item list-group-item text-center text-muted" id="no_result" style="display: none;">
-                                No dealer found
-                            </li>
-                        </ul>
-                        <input type="hidden" name="dealer_id" id="dealer_id" class="dealer-id">
+
+                        <div class="dropdown w-100">
+                            <button class="btn btn-light border dropdown-toggle w-100 text-start" type="button"
+                                id="dealerDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ old('dealer_name', 'All Dealers') }}
+                            </button>
+
+                            <div class="dropdown-menu p-2 w-100 shadow" aria-labelledby="dealerDropdownBtn"
+                                style="max-height: 250px; overflow-y: auto;">
+
+                                <!-- Search Box -->
+                                <input type="text" class="form-control mb-2" id="dealerSearchInput" placeholder="Search dealer...">
+
+                                <!-- Dealer List -->
+                                <a class="dropdown-item dealer-option" data-id="">All Dealers</a>
+                                @foreach($dealers as $dealer)
+                                    <a class="dropdown-item dealer-option" data-id="{{ $dealer->id }}">
+                                        {{ $dealer->dealer_name ?? 'N/A' }}
+                                    </a>
+                                @endforeach
+
+                                <!-- No result -->
+                                <div class="dropdown-item text-muted text-center no-result" style="display:none;">
+                                    No dealer found
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="dealer_id" id="dealer_id">
                     </div>
 
                     {{-- From Date --}}
@@ -59,89 +66,36 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('dealer_search');
-    const suggestionList = document.getElementById('suggestion_list');
-    const dealerIdInput = document.getElementById('dealer_id');
-    const items = Array.from(suggestionList.querySelectorAll('li[data-id]'));
-    const noResult = document.getElementById('no_result');
-    let selectedIndex = -1;
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("dealerSearchInput");
+    const items = document.querySelectorAll(".dealer-option");
+    const dropdownBtn = document.getElementById("dealerDropdownBtn");
+    const dealerIdInput = document.getElementById("dealer_id");
+    const noResult = document.querySelector(".no-result");
 
-    if (!dealerIdInput.value) {
-        searchInput.value = 'All Dealers';
-    }
-
-    searchInput.addEventListener('input', function () {
-        const query = this.value.toLowerCase().trim();
-        selectedIndex = -1;
-        let visibleCount = 0;
-
-        if (query) {
-            suggestionList.style.display = 'block';
-            items.forEach(li => {
-                const name = li.textContent.toLowerCase();
-                const match = name.includes(query);
-                li.style.display = match ? 'block' : 'none';
-                if (match) visibleCount++;
-            });
-            noResult.style.display = visibleCount === 0 ? 'block' : 'none';
-        } else {
-            suggestionList.style.display = 'block';
-            items.forEach(li => li.style.display = 'block');
-            noResult.style.display = 'none';
-        }
-    });
-
-    items.forEach(li => {
-        li.addEventListener('click', function () {
-            searchInput.value = this.textContent.trim();
-            dealerIdInput.value = this.getAttribute('data-id');
-            suggestionList.style.display = 'none';
-        });
-    });
-
-    searchInput.addEventListener('keydown', function(e) {
-        const visibleItems = items.filter(li => li.style.display !== 'none');
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex + 1) % visibleItems.length;
-            highlightItem(visibleItems, selectedIndex);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            selectedIndex = (selectedIndex - 1 + visibleItems.length) % visibleItems.length;
-            highlightItem(visibleItems, selectedIndex);
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (selectedIndex >= 0 && visibleItems[selectedIndex]) {
-                searchInput.value = visibleItems[selectedIndex].textContent.trim();
-                dealerIdInput.value = visibleItems[selectedIndex].getAttribute('data-id');
-                suggestionList.style.display = 'none';
+    searchInput.addEventListener("keyup", function () {
+        const filter = this.value.toLowerCase();
+        let found = false;
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                item.style.display = "";
+                found = true;
+            } else {
+                item.style.display = "none";
             }
-        }
+        });
+        noResult.style.display = found ? "none" : "block";
     });
 
-    function highlightItem(list, index) {
-        list.forEach((li, i) => li.classList.toggle('active', i === index));
-    }
-
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.position-relative')) {
-            suggestionList.style.display = 'none';
-        }
-    });
-
-    searchInput.addEventListener('click', function() {
-        suggestionList.style.display = 'block';
-        items.forEach(li => li.style.display = 'block');
-        noResult.style.display = 'none';
+    items.forEach(item => {
+        item.addEventListener("click", function () {
+            const name = this.textContent.trim();
+            const id = this.getAttribute("data-id");
+            dropdownBtn.textContent = name;
+            dealerIdInput.value = id;
+        });
     });
 });
 </script>
-
-<style>
-    #suggestion_list li.active {
-        background-color: #007bff;
-        color: white;
-    }
-</style>
 @endsection

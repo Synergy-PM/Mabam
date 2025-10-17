@@ -159,13 +159,66 @@ class PayablePaymentController extends Controller
     //     ]);
     // }
 
-    public function ledgerReport(Request $request)
+//     public function ledgerReport(Request $request)
+// {
+//     $request->validate([
+//         'supplier_id' => 'nullable|exists:suppliers,id',
+//         'payable_id' => 'nullable|exists:payables,id',
+//         'start_date' => 'nullable|date',
+//         'end_date' => 'nullable|date|after_or_equal:start_date',
+//     ]);
+
+//     $query = \App\Models\PayablePayment::with('payable.supplier', 'supplier')
+//         ->when($request->supplier_id, fn($q) => $q->where('supplier_id', $request->supplier_id))
+//         ->when($request->payable_id, fn($q) => $q->where('payable_id', $request->payable_id))
+//         ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
+//         ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
+//         ->orderBy('transaction_date', 'asc');
+
+//     $payments = $query->get();
+
+//     $selectedSupplier = \App\Models\Supplier::find($request->supplier_id);
+//     $selectedPayable = \App\Models\Payable::with('supplier')->find($request->payable_id);
+
+//     $supplierSummaries = [];
+//     if (!$selectedSupplier) {
+//         $suppliers = \App\Models\Supplier::with(['payablePayments' => function ($q) {
+//             $q->orderBy('transaction_date', 'asc');
+//         }])->get();
+
+//         foreach ($suppliers as $supplier) {
+//             $totalCredit = $supplier->payablePayments->where('transaction_type', 'credit')->sum('amount');
+//             $totalDebit = $supplier->payablePayments->where('transaction_type', 'debit')->sum('amount');
+//             $supplierSummaries[] = [
+//                 'supplier_name' => $supplier->supplier_name,
+//                 'tons' => $payables->sum('tons') ?? 0,
+//                 'total_credit' => $totalCredit,
+//                 'total_debit' => $totalDebit,
+//                 'closing_balance' => $totalCredit - $totalDebit,
+//             ];
+//         }
+//     }
+
+//     $openBalance = 0;
+
+//     return view('admin.payable_payments.ledger-report', compact(
+//         'payments',
+//         'selectedSupplier',
+//         'selectedPayable',
+//         'supplierSummaries',
+//         'openBalance'
+//     ))->with([
+//         'startDate' => $request->start_date,
+//         'endDate' => $request->end_date,
+//     ]);
+// }
+public function ledgerReport(Request $request)
 {
     $request->validate([
         'supplier_id' => 'nullable|exists:suppliers,id',
-        'payable_id' => 'nullable|exists:payables,id',
-        'start_date' => 'nullable|date',
-        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'payable_id'  => 'nullable|exists:payables,id',
+        'start_date'  => 'nullable|date',
+        'end_date'    => 'nullable|date|after_or_equal:start_date',
     ]);
 
     $query = \App\Models\PayablePayment::with('payable.supplier', 'supplier')
@@ -178,7 +231,7 @@ class PayablePaymentController extends Controller
     $payments = $query->get();
 
     $selectedSupplier = \App\Models\Supplier::find($request->supplier_id);
-    $selectedPayable = \App\Models\Payable::with('supplier')->find($request->payable_id);
+    $selectedPayable  = \App\Models\Payable::with('supplier')->find($request->payable_id);
 
     $supplierSummaries = [];
     if (!$selectedSupplier) {
@@ -187,13 +240,18 @@ class PayablePaymentController extends Controller
         }])->get();
 
         foreach ($suppliers as $supplier) {
+            // ✅ Get all payables for this supplier
+            $payables = \App\Models\Payable::where('supplier_id', $supplier->id)->get();
+
             $totalCredit = $supplier->payablePayments->where('transaction_type', 'credit')->sum('amount');
-            $totalDebit = $supplier->payablePayments->where('transaction_type', 'debit')->sum('amount');
+            $totalDebit  = $supplier->payablePayments->where('transaction_type', 'debit')->sum('amount');
+
             $supplierSummaries[] = [
-                'supplier_name' => $supplier->supplier_name,
-                'total_credit' => $totalCredit,
-                'total_debit' => $totalDebit,
-                'closing_balance' => $totalCredit - $totalDebit,
+                'supplier_name'    => $supplier->supplier_name,
+                'tons'             => $payables->sum('tons') ?? 0,  // ✅ fixed line
+                'total_credit'     => $totalCredit,
+                'total_debit'      => $totalDebit,
+                'closing_balance'  => $totalCredit - $totalDebit,
             ];
         }
     }
@@ -208,9 +266,10 @@ class PayablePaymentController extends Controller
         'openBalance'
     ))->with([
         'startDate' => $request->start_date,
-        'endDate' => $request->end_date,
+        'endDate'   => $request->end_date,
     ]);
 }
+
 
 
 }

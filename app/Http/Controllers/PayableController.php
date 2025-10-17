@@ -44,7 +44,7 @@ class PayableController extends Controller
             'freight.*'          => 'nullable|numeric|min:0',
             'payment_type.*'     => 'nullable|string',
             'proof_of_payment.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
-            'code.*'             => 'required|distinct|unique:receivables,code',
+            // 'code.*'             => 'required|distinct|unique:receivables,code',
         ]);
 
         $tons = $request->no_of_bags / 20;
@@ -72,7 +72,7 @@ class PayableController extends Controller
         $rates        = $request->rate ?? [];
         $freights     = $request->freight ?? [];
         $paymentTypes = $request->payment_type ?? [];
-        $codes        = $request->code ?? [];
+        // $codes        = $request->code ?? [];
         $proofs       = $request->file('proof_of_payment') ?? [];
 
         foreach ($dealerIds as $index => $dealerId) {
@@ -95,7 +95,7 @@ class PayableController extends Controller
             $receivable->total         = ($bagsCount * ($rateValue - $freightAmt));
 
             $receivable->payment_type  = $paymentTypes[$index] ?? null;
-            $receivable->code          = $codes[$index];
+            // $receivable->code          = $codes[$index];
 
             if (!empty($proofs) && isset($proofs[$index]) && $proofs[$index] instanceof \Illuminate\Http\UploadedFile) {
                 $file = $proofs[$index];
@@ -178,10 +178,6 @@ class PayableController extends Controller
         $rateValue = (float) ($rates[$index] ?? 0);
         $freightAmt = (float) ($freights[$index] ?? 0);
 
-        do {
-            $code = mt_rand(100000, 999999); 
-        } while (Receivable::where('code', $code)->exists());
-
         $receivable = new Receivable();
         $receivable->supplier_id = $request->supplier_id;
         $receivable->payable_id = $payable->id;
@@ -193,7 +189,6 @@ class PayableController extends Controller
         $receivable->tons = $bagsCount / 20;
         $receivable->total = $bagsCount * ($rateValue - $freightAmt);
         $receivable->payment_type = $paymentTypes[$index] ?? null;
-        $receivable->code = $code;
 
         if (isset($proofFiles[$index]) && $proofFiles[$index]->isValid()) {
             $file = $proofFiles[$index];
