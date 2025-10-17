@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Payable extends Model
 {
     use SoftDeletes;
+    
+    protected $casts = [
+        'transaction_date' => 'datetime',
+    ];
 
     protected $fillable = [
         'transaction_date',

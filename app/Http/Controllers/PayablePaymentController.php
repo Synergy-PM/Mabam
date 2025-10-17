@@ -38,7 +38,7 @@ class PayablePaymentController extends Controller
                 $payable = Payable::where('supplier_id', $paymentData['supplier_id'])->latest()->first();
 
                 $payment = new PayablePayment();
-                $payment->payable_id = $payable?->id; // nullable allowed in migration
+                $payment->payable_id = $payable?->id; 
                 $payment->supplier_id = $paymentData['supplier_id'];
                 $payment->transaction_date = $paymentData['transaction_date'];
                 $payment->amount = $paymentData['amount_paid'];
@@ -53,6 +53,53 @@ class PayablePaymentController extends Controller
             return back()->withInput()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+
+    //  public function show($id)
+    // {
+    //     $payment = PayablePayment::with('supplier', 'payable')->findOrFail($id);
+    //     return view('admin.payable_payments.show', compact('payment'));
+    // }
+
+   public function edit($id)
+{
+    $payment = PayablePayment::with('payable.supplier')->findOrFail($id);
+    $payables = Payable::with('supplier')->get();
+    $suppliers = Supplier::all();
+    
+    return view('admin.payable_payments.edit', compact('payment', 'payables', 'suppliers'));
+}
+
+ public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'supplier_id' => 'required|exists:suppliers,id',
+        'transaction_date' => 'required|date',
+        'amount_paid' => 'required|numeric|min:0',
+        'payment_mode' => 'required|in:cash,bank,cheque,online',
+        'transaction_type' => 'required|in:credit,debit',
+    ]);
+
+    try {
+        $payment = PayablePayment::findOrFail($id);
+        
+        // Check if payable exists for this supplier
+        $payable = Payable::where('supplier_id', $validated['supplier_id'])->latest()->first();
+        
+        $payment->update([
+            'payable_id' => $payable?->id,
+            'supplier_id' => $validated['supplier_id'],
+            'transaction_date' => $validated['transaction_date'],
+            'amount' => $validated['amount_paid'],
+            'payment_mode' => $validated['payment_mode'],
+            'transaction_type' => $validated['transaction_type'],
+        ]);
+
+        return redirect()->route('payable-payments.index')
+            ->with('success', 'Payment updated successfully.');
+    } catch (\Exception $e) {
+        return back()->withInput()->with('error', 'Something went wrong: ' . $e->getMessage());
+    }
+}
 
 
     public function destroy($id)
@@ -79,37 +126,91 @@ class PayablePaymentController extends Controller
         return view('admin.payable_payments.ledger-filter', compact('suppliers'));
     }
 
+    // public function ledgerReport(Request $request)
+    // {
+    //     $query = \App\Models\PayablePayment::with('payable.supplier', 'supplier');
+
+    //     if ($request->payable_id) {
+    //         $query->where('payable_id', $request->payable_id);
+    //     }
+
+    //     if ($request->supplier_id) {
+    //         $query->where('supplier_id', $request->supplier_id);
+    //     }
+
+    //     if ($request->start_date) {
+    //         $query->whereDate('transaction_date', '>=', $request->start_date);
+    //     }
+    //     if ($request->end_date) {
+    //         $query->whereDate('transaction_date', '<=', $request->end_date);
+    //     }
+
+    //     $payments = $query->orderBy('transaction_date')->get();
+    //     $selectedPayable = \App\Models\Payable::with('supplier')->find($request->payable_id);
+    //     $supplier = \App\Models\Supplier::where('id', $request->supplier_id)->first();
+
+    //     return view('admin.payable_payments.ledger-report', compact(
+    //         'payments',
+    //         'selectedPayable',
+    //         'supplier'
+    //     ))->with([
+    //         'startDate' => $request->start_date,
+    //         'endDate' => $request->end_date
+    //     ]);
+    // }
+
     public function ledgerReport(Request $request)
-    {
-        $query = \App\Models\PayablePayment::with('payable.supplier', 'supplier');
+{
+    $request->validate([
+        'supplier_id' => 'nullable|exists:suppliers,id',
+        'payable_id' => 'nullable|exists:payables,id',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+    ]);
 
-        if ($request->payable_id) {
-            $query->where('payable_id', $request->payable_id);
+    $query = \App\Models\PayablePayment::with('payable.supplier', 'supplier')
+        ->when($request->supplier_id, fn($q) => $q->where('supplier_id', $request->supplier_id))
+        ->when($request->payable_id, fn($q) => $q->where('payable_id', $request->payable_id))
+        ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
+        ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
+        ->orderBy('transaction_date', 'asc');
+
+    $payments = $query->get();
+
+    $selectedSupplier = \App\Models\Supplier::find($request->supplier_id);
+    $selectedPayable = \App\Models\Payable::with('supplier')->find($request->payable_id);
+
+    $supplierSummaries = [];
+    if (!$selectedSupplier) {
+        $suppliers = \App\Models\Supplier::with(['payablePayments' => function ($q) {
+            $q->orderBy('transaction_date', 'asc');
+        }])->get();
+
+        foreach ($suppliers as $supplier) {
+            $totalCredit = $supplier->payablePayments->where('transaction_type', 'credit')->sum('amount');
+            $totalDebit = $supplier->payablePayments->where('transaction_type', 'debit')->sum('amount');
+            $supplierSummaries[] = [
+                'supplier_name' => $supplier->supplier_name,
+                'total_credit' => $totalCredit,
+                'total_debit' => $totalDebit,
+                'closing_balance' => $totalCredit - $totalDebit,
+            ];
         }
-
-        if ($request->supplier_id) {
-            $query->where('supplier_id', $request->supplier_id);
-        }
-
-        if ($request->start_date) {
-            $query->whereDate('transaction_date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $query->whereDate('transaction_date', '<=', $request->end_date);
-        }
-
-        $payments = $query->orderBy('transaction_date')->get();
-        $selectedPayable = \App\Models\Payable::with('supplier')->find($request->payable_id);
-        $supplier = \App\Models\Supplier::where('id', $request->supplier_id)->first();
-
-        return view('admin.payable_payments.ledger-report', compact(
-            'payments',
-            'selectedPayable',
-            'supplier'
-        ))->with([
-            'startDate' => $request->start_date,
-            'endDate' => $request->end_date
-        ]);
     }
+
+    $openBalance = 0;
+
+    return view('admin.payable_payments.ledger-report', compact(
+        'payments',
+        'selectedSupplier',
+        'selectedPayable',
+        'supplierSummaries',
+        'openBalance'
+    ))->with([
+        'startDate' => $request->start_date,
+        'endDate' => $request->end_date,
+    ]);
+}
+
 
 }

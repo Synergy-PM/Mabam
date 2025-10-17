@@ -270,6 +270,7 @@ public function dailyReport(Request $request)
         'start_date' => 'nullable|date',
         'end_date' => 'nullable|date|after_or_equal:start_date',
     ]);
+    
     $startDate = $request->input('start_date');
     $endDate = $request->input('end_date');
 
@@ -292,6 +293,7 @@ public function dailyReport(Request $request)
     $totalReceivablePayment = 0;
     $totalAmount = 0;
 
+    // Payables (Supplier payments - DEBIT)
     $payables = Payable::with('supplier')
         ->when($supplierId, fn($q) => $q->where('supplier_id', $supplierId))
         ->whereNotNull('transaction_date')
@@ -303,11 +305,12 @@ public function dailyReport(Request $request)
                 'name' => $payable->supplier->supplier_name ?? 'N/A',
                 'amount' => ($payable->no_of_bags ?? 0) * ($payable->amount_per_bag ?? 0),
                 'transaction_date' => $payable->transaction_date,
-                'is_credit' => true,
+                'is_credit' => false, // DEBIT - money going out to supplier
                 'payment_mode' => 'N/A',
             ];
         });
 
+    // Receivables (Dealer sales - CREDIT)
     $receivables = Receivable::with(['dealer', 'payable'])
         ->when($dealerId, fn($q) => $q->where('dealer_id', $dealerId))
         ->where(function ($q) use ($startDate, $endDate) {
@@ -323,11 +326,12 @@ public function dailyReport(Request $request)
                 'name' => $receivable->dealer->dealer_name ?? 'N/A',
                 'amount' => (($receivable->bags ?? 0) * ($receivable->rate ?? 0)) - ($receivable->freight ?? 0),
                 'transaction_date' => $transactionDate,
-                'is_credit' => false,
+                'is_credit' => true, // CREDIT - money coming in from dealer
                 'payment_mode' => $receivable->payment_type ?? 'N/A',
             ];
         });
 
+    // Receivable Payments (Dealer payments received - CREDIT)
     $receivablePayments = ReceivablePayment::with('dealer')
         ->when($dealerId, fn($q) => $q->where('dealer_id', $dealerId))
         ->whereNotNull('transaction_date')
@@ -339,11 +343,12 @@ public function dailyReport(Request $request)
                 'name' => $payment->dealer->dealer_name ?? 'N/A',
                 'amount' => $payment->amount_received ?? 0,
                 'transaction_date' => $payment->transaction_date,
-                'is_credit' => true,
+                'is_credit' => true, // CREDIT - money received from dealer
                 'payment_mode' => $payment->transaction_type ?? 'N/A',
             ];
         });
 
+    // Expenses (Business expenses - DEBIT)
     $expenses = Expense::whereNotNull('expense_date')
         ->whereBetween('expense_date', [$startDate, $endDate])
         ->get()
@@ -353,11 +358,12 @@ public function dailyReport(Request $request)
                 'name' => $expense->expense_description ?? 'N/A',
                 'amount' => $expense->amount ?? 0,
                 'transaction_date' => $expense->expense_date,
-                'is_credit' => true,
+                'is_credit' => false, // DEBIT - money going out for expenses
                 'payment_mode' => 'N/A',
             ];
         });
 
+    // Combine all transactions
     $reports = $payables
         ->concat($receivables)
         ->concat($receivablePayments)
@@ -365,14 +371,16 @@ public function dailyReport(Request $request)
         ->filter(fn($t) => !is_null($t['transaction_date']))
         ->sortBy('transaction_date')
         ->map(function ($item) {
-            $type = 'expense';
+            $type = $item['type'];
             $supplierExists = \App\Models\Supplier::where('supplier_name', $item['name'])->exists();
             $dealerExists = \App\Models\Dealer::where('dealer_name', $item['name'])->exists();
 
-            if ($supplierExists) {
+            if ($supplierExists && in_array($item['type'], ['payable'])) {
                 $type = 'Supplier';
-            } elseif ($dealerExists) {
+            } elseif ($dealerExists && in_array($item['type'], ['receivable', 'receivable_payment'])) {
                 $type = 'Dealer';
+            } elseif ($item['type'] === 'expense') {
+                $type = 'Expense';
             }
 
             $item['detected_type'] = $type;
@@ -380,17 +388,19 @@ public function dailyReport(Request $request)
         })
         ->values();
 
+    // Calculate totals
     $totalPayable = $payables->sum('amount');
     $totalReceivable = $receivables->sum('amount');
     $totalReceivablePayment = $receivablePayments->sum('amount');
     $totalExpense = $expenses->sum('amount');
-    $totalAmount = $totalReceivable + $totalReceivablePayment;
-    $netBalance = ($totalReceivable + $totalReceivablePayment) - ($totalPayable + $totalExpense);
+    $totalDebit = $totalPayable + $totalExpense; // Total DEBIT
+    $totalCredit = $totalReceivable + $totalReceivablePayment; // Total CREDIT
+    $netBalance = $totalCredit - $totalDebit;
 
     $selectedSupplier = $supplierId ? Supplier::find($supplierId) : null;
     $selectedDealer = $dealerId ? Dealer::find($dealerId) : null;
 
-    \Log::info(' Daily Transaction Report Generated', [
+    \Log::info('Daily Transaction Report Generated', [
         'supplier_id' => $supplierId,
         'dealer_id' => $dealerId,
         'start_date' => $startDate,
@@ -400,10 +410,13 @@ public function dailyReport(Request $request)
         'receivable_payments' => $receivablePayments->count(),
         'expenses' => $expenses->count(),
         'reports' => $reports->count(),
+        'total_debit' => $totalDebit,
+        'total_credit' => $totalCredit,
+        'net_balance' => $netBalance,
     ]);
 
     if ($reports->isEmpty()) {
-        \Log::warning('No transactions found for date range', [
+        \Log::warning(' No transactions found for date range', [
             'start_date' => $startDate,
             'end_date' => $endDate,
         ]);
@@ -415,7 +428,8 @@ public function dailyReport(Request $request)
         'totalReceivable',
         'totalReceivablePayment',
         'totalExpense',
-        'totalAmount',
+        'totalDebit',
+        'totalCredit',
         'netBalance',
         'selectedSupplier',
         'selectedDealer',

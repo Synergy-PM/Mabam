@@ -198,13 +198,13 @@
                 styles: { fontSize: 8, cellPadding: 4 },
                 margin: { left: 40, right: 40 },
                 columnStyles: {
-                    0: { cellWidth: 30 }, // S.No
-                    1: { cellWidth: 60 }, // Type
-                    2: { cellWidth: 100 }, // Name/Description
-                    3: { cellWidth: 60 }, // Credit
-                    4: { cellWidth: 60 }, // Debit
-                    5: { cellWidth: 60 }, // Transaction Date
-                    6: { cellWidth: 60 }, // Balance
+                    0: { cellWidth: 30 }, 
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 100 }, 
+                    3: { cellWidth: 60 }, 
+                    4: { cellWidth: 60 }, 
+                    5: { cellWidth: 60 }, 
+                    6: { cellWidth: 60 }, 
                 },
                 didDrawPage: function (data) {
                     const pageHeight = doc.internal.pageSize.getHeight();

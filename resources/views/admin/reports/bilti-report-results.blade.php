@@ -60,7 +60,7 @@
                                         <th>Tons</th>
                                         <th>Rate</th>
                                         <th>Total Amount</th>
-                                        <th>Freight</th>
+                                        {{-- <th>Freight</th> --}}
                                         <th>Payment Type</th>
                                         <th>Proof of Payment</th>
                                     </tr>
@@ -81,7 +81,7 @@
                                             <td>{{ number_format($receivable->bags / 20, 2) }}</td>
                                             <td>{{ number_format($receivable->rate, 2) }}</td>
                                             <td>{{ number_format($receivable->bags * $receivable->rate, 2) }}</td>
-                                            <td>{{ number_format($receivable->freight, 2) }}</td>
+                                            {{-- <td>{{ number_format($receivable->freight, 2) }}</td> --}}
                                             <td>{{ ucfirst($receivable->payment_type ?? 'N/A') }}</td>
                                             <td>
                                                 @if ($receivable->proof_of_payment)

@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const noResult = document.getElementById('no_result');
     let selectedIndex = -1;
 
-    // Initialize with "All Dealers" if no dealer is selected
     if (!dealerIdInput.value) {
         searchInput.value = 'All Dealers';
     }
@@ -131,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Show suggestions when clicking the input
     searchInput.addEventListener('click', function() {
         suggestionList.style.display = 'block';
         items.forEach(li => li.style.display = 'block');

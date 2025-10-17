@@ -25,7 +25,7 @@
             @forelse($payables as $p)
               <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $p->transaction_date->format('d-m-Y') }}</td>
+                 <td>{{ \Carbon\Carbon::parse($p->transaction_date)->format('d-m-Y') }}</td>
                 <td>{{ $p->supplier->supplier_name ?? '-' }}</td>
                 <td class="text-end">{{ number_format($p->total_amount,2) }}</td>
                 <td>

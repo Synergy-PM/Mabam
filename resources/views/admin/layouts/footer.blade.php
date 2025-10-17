@@ -55,7 +55,7 @@
       "autoWidth": false,
       "order": [[1, "desc"]], 
       "columnDefs": [
-        { "orderable": false, "targets": [0, 8] } // disable sort on # and Actions column
+        { "orderable": false, "targets": [0, 8] } 
       ]
     });
   });

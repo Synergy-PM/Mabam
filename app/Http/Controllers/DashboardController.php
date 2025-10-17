@@ -16,6 +16,9 @@ class DashboardController extends Controller
         $totalCity = City::count();
         $totalSupplier = Supplier::count();
         $totalDealer = Dealer::count();
-        return view('admin.dashboard', compact('totalUsers', 'totalCity', 'totalSupplier', 'totalDealer'));
+        $pageTitle = 'Dashboard';
+
+        return view('admin.dashboard', compact('totalUsers', 'totalCity', 'totalSupplier', 'totalDealer', 'pageTitle'));
     }
 }
+

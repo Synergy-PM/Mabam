@@ -102,7 +102,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     let rowIndex = 1;
 
-    // Initialize dealer search for the first row
     initializeDealerSearch(0);
 
     // Add More Button
@@ -125,7 +124,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Update dealer search input and list
         newRow.querySelector('.dealer-search').setAttribute('data-row-index', rowIndex);
         newRow.querySelector('.dealer-id').value = '';
         newRow.querySelectorAll('.dealer-suggestion-list li[data-id]').forEach(function (li) {
@@ -138,12 +136,10 @@ document.addEventListener('DOMContentLoaded', function () {
         newRow.querySelector('.removeRowBtn').style.display = 'inline-block';
         container.appendChild(newRow);
 
-        // Initialize dealer search for the new row
         initializeDealerSearch(rowIndex);
         rowIndex++;
     });
 
-    // Remove Row Button
     document.addEventListener('click', function (e) {
         if (e.target.closest('.removeRowBtn')) {
             e.target.closest('.payment-row').remove();

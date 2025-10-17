@@ -61,99 +61,126 @@ class ReceivablePaymentController extends Controller
         return view('admin.receivable_payments.filter', compact('dealers'));
     }
 
-public function ledgerReport(Request $request)
-{
-    // Validate the request
+    // public function ledgerReport(Request $request)
+    // {
+    //     $request->validate([
+    //         'dealer_id' => 'nullable|exists:dealers,id',
+    //         'start_date' => 'nullable|date',
+    //         'end_date'   => 'nullable|date|after_or_equal:start_date',
+    //     ]);
+
+    //     $dealerId = $request->input('dealer_id');
+    //     $startDate = $request->input('start_date');
+    //     $endDate = $request->input('end_date');
+
+    //     $receivablePaymentsQuery = ReceivablePayment::with('dealer')
+    //         ->when($dealerId, function ($q) use ($dealerId) {
+    //             return $q->where('dealer_id', $dealerId);
+    //         })
+    //         ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+    //             return $q->whereBetween('transaction_date', [$startDate, $endDate]);
+    //         })
+    //         ->when($startDate && !$endDate, function ($q) use ($startDate) {
+    //             return $q->whereDate('transaction_date', $startDate);
+    //         });
+
+    //     $receivablePayments = $receivablePaymentsQuery->get();
+
+    //     // dd($receivablePayments);
+
+    //     $transactions = $receivablePayments->map(function ($payment) {
+    //         return [
+    //             'dealer' => $payment->dealer,
+    //             'transaction_date' => $payment->transaction_date,
+    //             'amount' => $payment->amount_received ?? 0,
+    //             'payment_mode' => $payment->payment_mode ?? 'N/A',
+    //             'transaction_type' => $payment->transaction_type ?? 'N/A',
+    //             'freight' => 0, // if not used, can remove from view too
+    //         ];
+    //     })->sortBy('transaction_date')->values();
+
+    //     $totalAmount = $transactions->sum('amount');
+    //     $selectedDealer = $dealerId ? Dealer::find($dealerId) : null;
+
+    //     return view('admin.receivable_payments.report', compact(
+    //         'transactions',
+    //         'selectedDealer',
+    //         'startDate',
+    //         'endDate',
+    //         'totalAmount'
+    //     ));
+    // }
+
+    public function ledgerReport(Request $request)
+ {
     $request->validate([
         'dealer_id' => 'nullable|exists:dealers,id',
         'start_date' => 'nullable|date',
-        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'end_date'   => 'nullable|date|after_or_equal:start_date',
     ]);
 
     $dealerId = $request->input('dealer_id');
     $startDate = $request->input('start_date');
     $endDate = $request->input('end_date');
 
-    // Fetch Receivables
-    $receivablesQuery = Receivable::with(['payable.supplier', 'dealer'])
-        ->when($dealerId, function ($q) use ($dealerId) {
-            return $q->where('dealer_id', $dealerId);
-        })
-        ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
-            return $q->whereHas('payable', function ($subQuery) use ($startDate, $endDate) {
-                $subQuery->whereBetween('transaction_date', [$startDate, $endDate]);
-            });
-        });
-
-    // Fetch Receivable Payments
     $receivablePaymentsQuery = ReceivablePayment::with('dealer')
         ->when($dealerId, function ($q) use ($dealerId) {
             return $q->where('dealer_id', $dealerId);
         })
         ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
             return $q->whereBetween('transaction_date', [$startDate, $endDate]);
+        })
+        ->when($startDate && !$endDate, function ($q) use ($startDate) {
+            return $q->whereDate('transaction_date', $startDate);
         });
 
-    // Get the data
-    $receivables = $receivablesQuery->get()->map(function ($receivable) {
-        return [
-            'type' => 'receivable',
-            'dealer' => $receivable->dealer,
-            'transaction_date' => $receivable->payable ? $receivable->payable->transaction_date : null,
-            'bags' => $receivable->bags ?? 0,
-            'rate' => $receivable->rate ?? 0,
-            'freight' => $receivable->freight ?? 0,
-            'payment_type' => $receivable->payment_type ?? 'N/A',
-            'amount' => ($receivable->bags ?? 0) * ($receivable->rate ?? 0),
-            'is_receivable' => true,
-        ];
-    });
+    $receivablePayments = $receivablePaymentsQuery->get();
 
-    $receivablePayments = $receivablePaymentsQuery->get()->map(function ($payment) {
+    $transactions = $receivablePayments->map(function ($payment) {
         return [
-            'type' => 'payment',
             'dealer' => $payment->dealer,
             'transaction_date' => $payment->transaction_date,
-            'bags' => 0,
-            'rate' => 0,
-            'freight' => 0,
-            'payment_type' => $payment->transaction_type ?? 'N/A',
             'amount' => $payment->amount_received ?? 0,
-            'is_receivable' => false,
+            'payment_mode' => $payment->payment_mode ?? 'N/A',
+            'transaction_type' => $payment->transaction_type ?? 'N/A',
+            'freight' => 0,
         ];
-    });
+    })->sortBy('transaction_date')->values();
 
-    // Merge and sort transactions
-    $transactions = $receivables->concat($receivablePayments)
-        ->sortBy(function ($transaction) {
-            return $transaction['transaction_date'] ?? '9999-12-31'; // Handle null dates
-        })
-        ->values();
-
-    // Calculate totals
-    $totalCreditAmount = $receivablePayments->sum('amount');
-    $totalDebitAmount = $receivables->sum('amount');
-    $totalFreight = $receivables->sum('freight');
-
+    $totalAmount = $transactions->sum('amount');
     $selectedDealer = $dealerId ? Dealer::find($dealerId) : null;
 
-    \Log::info('Ledger Report Data', [
-        'dealer_id' => $dealerId,
-        'start_date' => $startDate,
-        'end_date' => $endDate,
-        'receivables_count' => $receivables->count(),
-        'payments_count' => $receivablePayments->count(),
-        'transactions_count' => $transactions->count(),
-    ]);
+   $dealerSummaries = [];
+   if (!$dealerId) {
+    $dealerSummaries = ReceivablePayment::with('dealer')
+        ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
+        ->selectRaw('
+            receivable_payments.dealer_id,
+            dealers.dealer_name,
+            SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) as total_credit,
+            SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as total_debit
+        ')
+        ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'dealer_name'   => $item->dealer_name ?? 'N/A',
+                'total_credit'  => $item->total_credit,
+                'total_debit'   => $item->total_debit,
+            ];
+        });
+  }
+
 
     return view('admin.receivable_payments.report', compact(
         'transactions',
         'selectedDealer',
         'startDate',
         'endDate',
-        'totalCreditAmount',
-        'totalDebitAmount',
-        'totalFreight'
+        'totalAmount',
+        'dealerSummaries' 
     ));
-}
+ }
+
+
 }

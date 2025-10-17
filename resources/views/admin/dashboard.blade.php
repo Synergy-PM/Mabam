@@ -37,7 +37,6 @@
 </style>
 
 <div class="container-fluid">
-    <!-- Page Title -->
     <div class="page-title-box">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -49,15 +48,12 @@
         </div>
     </div>
 
-    <!-- Metrics Cards -->
     <div class="row">
-        <!-- Users Card -->
         <div class="col-xl-3 col-md-6">
             <a href="{{ route('user.index') }}" style="text-decoration: none;">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <!-- Profile Image -->
                             <div class="flex-shrink-0">
                                 <img src="{{ asset('assets/images/users/avatar-3.jpg') }}" alt="profile"
                                      class="rounded-circle avatar-md border shadow">
@@ -79,13 +75,11 @@
             </a>
         </div>
 
-        <!-- City Card -->
         <div class="col-xl-3 col-md-6">
             <a href="{{ route('cities.index') }}" style="text-decoration: none;">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <!-- Profile Image -->
                             <div class="flex-shrink-0">
                                 <img src="{{ asset('assets/images/city1.jpg') }}" alt="city"
                                      class="rounded-circle avatar-md border shadow">
@@ -107,13 +101,11 @@
             </a>
         </div>
 
-        <!-- Supplier Card -->
         <div class="col-xl-3 col-md-6">
             <a href="{{ route('suppliers.index') }}" style="text-decoration: none;">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <!-- Profile Image -->
                             <div class="flex-shrink-0">
                                 <img src="{{ asset('assets/images/users/avatar-8.jpg') }}" alt="supplier"
                                      class="rounded-circle avatar-md border shadow">
@@ -135,13 +127,11 @@
             </a>
         </div>
 
-        <!-- Dealer Card -->
         <div class="col-xl-3 col-md-6">
             <a href="{{route('dealers.index')}}" style="text-decoration: none;">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <!-- Profile Image -->
                             <div class="flex-shrink-0">
                                 <img src="{{ asset('assets/images/users/avatar-7.jpg') }}" alt="dealer"
                                      class="rounded-circle avatar-md border shadow">
@@ -163,9 +153,7 @@
             </a>
         </div>
     </div>
-    <!-- END ROW -->
 
-    <!-- Charts Section -->
     <div class="row">
         <div class="col-xl-8">
             <div class="card">

@@ -103,16 +103,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     let rowIndex = 1;
 
-    // Initialize supplier search for the first row
     initializeSupplierSearch(0);
-
-    // Add More Button
     document.getElementById('addMoreBtn').addEventListener('click', function () {
         const container = document.getElementById('paymentRows');
         const firstRow = document.querySelector('.payment-row');
         const newRow = firstRow.cloneNode(true);
 
-        // Update names and reset values
         newRow.querySelectorAll('input, select, textarea').forEach(function (element) {
             const name = element.getAttribute('name');
             if (name) {
@@ -126,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Update supplier search input and list
         newRow.querySelector('.supplier-search').setAttribute('data-row-index', rowIndex);
         newRow.querySelector('.supplier-id').value = '';
         newRow.querySelectorAll('.supplier-suggestion-list li[data-id]').forEach(function (li) {
@@ -139,12 +134,10 @@ document.addEventListener('DOMContentLoaded', function () {
         newRow.querySelector('.removeRowBtn').style.display = 'inline-block';
         container.appendChild(newRow);
 
-        // Initialize supplier search for the new row
         initializeSupplierSearch(rowIndex);
         rowIndex++;
     });
 
-    // Remove Row Button
     document.addEventListener('click', function (e) {
         if (e.target.closest('.removeRowBtn')) {
             e.target.closest('.payment-row').remove();

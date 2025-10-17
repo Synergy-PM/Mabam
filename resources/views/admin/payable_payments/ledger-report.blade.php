@@ -74,7 +74,7 @@
                                     <th>Payment Mode</th>
                                     {{-- <th>Proof of Payment</th> --}}
                                     {{-- <th>Date</th> --}}
-                                    <th>Notes</th>
+                                    <th>Date</th>
                                     <th>Balance</th>
                                 </tr>
                             </thead>
@@ -141,6 +141,31 @@
                         <p><strong>Total Credit:</strong> {{ number_format($totalCredit, 2) }}</p>
                         <p><strong>Closing Balance:</strong> {{ number_format($balance, 2) }}</p>
                     </div>
+                   @if(!$selectedSupplier && count($supplierSummaries))
+                        <div class="mt-5">
+                            <h5 class="fw-semibold mb-3">Supplier-wise Closing Balances</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped text-center align-middle">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th>S.No</th>
+                                            <th>Supplier Name</th>
+                                            <th>Closing Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($supplierSummaries as $index => $supplier)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $supplier['supplier_name'] }}</td>
+                                                <td><strong>{{ number_format($supplier['closing_balance'], 2) }}</strong></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
 
                 </div> {{-- End Card Body --}}
             </div>
@@ -180,8 +205,8 @@
                 headStyles: { fillColor: [41, 128, 185] }, 
                 styles: { fontSize: 8 },
                 columnStyles: {
-                    5: { cellWidth: 30 }, // Proof of Payment
-                    7: { cellWidth: 40 }  // Notes
+                    5: { cellWidth: 30 }, 
+                    7: { cellWidth: 40 }  
                 }
             });
 
