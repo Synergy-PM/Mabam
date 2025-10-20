@@ -29,6 +29,7 @@
                                 <tr>
                                     <th style="width:5%">#</th>
                                     <th>Supplier Company Name</th>
+                                    <th>Opening balance</th>
                                     {{-- <th>Company</th>
                                     <th>City</th>
                                     <th>Email</th>
@@ -45,6 +46,7 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $supplier->supplier_name ?? '-' }}</td>
+                                        <td>{{ $supplier->opening_balance ?? '-' }}</td>
                                         {{-- <td>{{ $supplier->company_name ?? '-' }}</td>
                                         <td>{{ $supplier->city->name ?? '-' }}</td>
                                         <td>{{ $supplier->email ?? '-' }}</td>

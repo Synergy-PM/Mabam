@@ -9,10 +9,9 @@ class Receivable extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'receivable_id',
+        'payable_id',
         'supplier_id',
         'dealer_id',
-        'code',
         'bilti_no',
         'bags',
         'rate',

@@ -11,6 +11,7 @@ class ReceivablePayment extends Model
 
     protected $fillable = [
         'dealer_id',
+        'payable_id',
         'transaction_date',
         'amount_received',
         'payment_mode',

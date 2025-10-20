@@ -55,7 +55,7 @@
       "autoWidth": false,
       "order": [[1, "desc"]], 
       "columnDefs": [
-        { "orderable": false, "targets": [0, 2] } 
+        { "orderable": false, "targets": [0, 3] } 
       ]
     });
   });
@@ -63,6 +63,19 @@
 <script>
   $(document).ready(function () {
     $('#DealerTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 5] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#receivablePaymentsTable').DataTable({
       "pageLength": 10,
       "responsive": true,
       "autoWidth": false,

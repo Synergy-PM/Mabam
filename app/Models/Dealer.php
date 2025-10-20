@@ -13,7 +13,7 @@ class Dealer extends Model
         'dealer_name',
         'company_name',
         'city_id',
-        'email',
+        'opening_balance',
         'whatsapp',
         'contact_person',
         'contact_no',

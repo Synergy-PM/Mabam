@@ -55,12 +55,18 @@
                                     value="{{ old('contact_person') }}">
                             </div> --}}
 
-                            <div class="col-md-6 mb-3">
+                            {{-- <div class="col-md-6 mb-3">
                                 <label><b>Contact No</b></label>
                                 <input type="text" name="contact_no" class="form-control" 
                                     value="{{ old('contact_no') }}">
+                            </div> --}}
+                            
+                            <div class="col-md-6 mb-3">
+                                <label><b>Opening Balance</b></label>
+                                <input type="number" step="0.01" name="opening_balance" class="form-control" 
+                                    placeholder="Enter Opening Balance"
+                                    value="{{ old('opening_balance') }}">
                             </div>
-
                             {{-- <div class="col-md-6 mb-3">
                                 <label><b>Contact Email</b></label>
                                 <input type="email" name="contact_email" class="form-control" 

@@ -24,8 +24,9 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'supplier_name' => 'required|string|max:255',
-            // 'company_name'  => 'required|string|max:255',
+            'supplier_name'    => 'required|string|max:255',
+            'opening_balance'  => 'nullable|numeric|min:0',
+            // 'company_name'  => 'nullable|string|max:255',
             // 'city_id'       => 'nullable|exists:cities,id',
             // 'email'         => 'nullable|email',
             // 'whatsapp'      => 'nullable|string',
@@ -35,10 +36,22 @@ class SupplierController extends Controller
             // 'contact_email' => 'nullable|email',
         ]);
 
-        Supplier::create($request->all());
+        $supplier = new Supplier();
+        $supplier->supplier_name = $request->supplier_name;
+        $supplier->opening_balance = $request->opening_balance ?? 0;
+        // $supplier->company_name = $request->company_name;
+        // $supplier->city_id = $request->city_id;
+        // $supplier->email = $request->email;
+        // $supplier->whatsapp = $request->whatsapp;
+        // $supplier->address = $request->address;
+        // $supplier->contact_person = $request->contact_person;
+        // $supplier->contact_no = $request->contact_no;
+        // $supplier->contact_email = $request->contact_email;
+        $supplier->save();
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier added successfully!');
     }
+
 
     public function edit($id)
     {
@@ -47,26 +60,38 @@ class SupplierController extends Controller
         return view('admin.suppliers.edit', compact('supplier', 'cities'));
     }
 
-    public function update(Request $request,$id)
-    {
-        $supplier = Supplier::findOrFail($id);
-        
-        $request->validate([
-            'supplier_name' => 'required|string|max:255',
-            // 'company_name'  => 'required|string|max:255',
-            // 'city_id'       => 'nullable|exists:cities,id',
-            // 'email'         => 'nullable|email',
-            // 'whatsapp'      => 'nullable|string',
-            // 'address'       => 'nullable|string',
-            // 'contact_person'=> 'nullable|string',
-            // 'contact_no'    => 'nullable|string',
-            // 'contact_email' => 'nullable|email',
-        ]);
+   public function update(Request $request, $id)
+{
+    $supplier = Supplier::findOrFail($id);
 
-        $supplier->update($request->all());
+    $request->validate([
+        'supplier_name'    => 'required|string|max:255',
+        'opening_balance'  => 'nullable|numeric|min:0',
+        // 'company_name'  => 'nullable|string|max:255',
+        // 'city_id'       => 'nullable|exists:cities,id',
+        // 'email'         => 'nullable|email',
+        // 'whatsapp'      => 'nullable|string',
+        // 'address'       => 'nullable|string',
+        // 'contact_person'=> 'nullable|string',
+        // 'contact_no'    => 'nullable|string',
+        // 'contact_email' => 'nullable|email',
+    ]);
 
-        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully!');
-    }
+    $supplier->supplier_name   = $request->supplier_name;
+    $supplier->opening_balance = $request->opening_balance ?? 0;
+    // $supplier->company_name = $request->company_name;
+    // $supplier->city_id = $request->city_id;
+    // $supplier->email = $request->email;
+    // $supplier->whatsapp = $request->whatsapp;
+    // $supplier->address = $request->address;
+    // $supplier->contact_person = $request->contact_person;
+    // $supplier->contact_no = $request->contact_no;
+    // $supplier->contact_email = $request->contact_email;
+    $supplier->save();
+
+    return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully!');
+}
+
 
     public function destroy($id)
     {

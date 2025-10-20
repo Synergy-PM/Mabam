@@ -1,24 +1,19 @@
 @extends('admin.layouts.shared')
-@section('title', 'Receivable Payments')
-@section('header-title', 'Receivable Payments')
+@section('title', 'Receivable Payments Trash')
+@section('header-title', 'Receivable Payments Trash')
 
 @section('content')
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
       <div class="card shadow-sm border-0">
+
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center bg-light">
-          <h4 class="card-title mb-0">Receivable Payments</h4>
-          <div class="d-flex gap-2">
-            <a href="{{ route('receivable-payments.create') }}" class="btn btn-sm btn-primary">
-              <i class="mdi mdi-plus"></i> Add
-            </a>
-            <a href="{{ route('receivable-payments.trash') }}" class="btn btn-sm btn-danger d-flex align-items-center gap-2">
-              <i class="bi bi-trash-fill"></i> Trash
-              <span class="badge bg-light text-dark ms-1">{{ $trashCount ?? 0 }}</span>
-            </a>
-          </div>
+          <h4 class="card-title mb-0">Receivable Payments - Trash</h4>
+          <a href="{{ route('receivable-payments.index') }}" class="btn btn-sm btn-secondary">
+            <i class="mdi mdi-arrow-left"></i> Back
+          </a>
         </div>
 
         <!-- Body -->
@@ -38,7 +33,7 @@
           @endif
 
           <div class="table-responsive">
-            <table id="receivablePaymentsTable" class="table table-hover table-striped table-bordered align-middle">
+            <table id="trashTable" class="table table-hover table-striped table-bordered align-middle">
               <thead class="table-light text-center">
                 <tr>
                   <th>#</th>
@@ -46,13 +41,13 @@
                   <th>Transaction Date</th>
                   <th>Amount</th>
                   <th>Transaction Type</th>
+                  <th>Deleted At</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 @forelse($payments as $payment)
                   <tr>
-                    <!-- Pagination-wise numbering -->
                     <td class="text-center">
                       {{ $loop->iteration + ($payments->currentPage() - 1) * $payments->perPage() }}
                     </td>
@@ -60,37 +55,47 @@
                     <td class="text-center">{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}</td>
                     <td class="text-end">{{ number_format($payment->amount_received, 2) }}</td>
                     <td class="text-center">{{ ucfirst($payment->payment_mode) ?? '-' }}</td>
+                    <td class="text-center">{{ $payment->deleted_at ? $payment->deleted_at->format('d M, Y H:i') : '-' }}</td>
                     <td class="text-center">
                       <div class="d-flex justify-content-center gap-1">
-                        <!-- Edit -->
-                        <a href="{{ route('receivable-payments.edit', $payment->id) }}" 
-                           class="btn btn-sm btn-soft-warning" 
-                           title="Edit">
-                          <i class="mdi mdi-pencil"></i>
-                        </a>
-                        <!-- Delete -->
-                        <form action="{{ route('receivable-payments.delete', $payment->id) }}" method="POST" 
-                              onsubmit="return confirm('Move to trash?');">
+                        <!-- Restore -->
+                        <form action="{{ route('receivable-payments.restore', $payment->id) }}" method="POST" 
+                              onsubmit="return confirm('Restore this payment?');">
+                          @csrf
+                          <button class="btn btn-sm btn-soft-success" title="Restore">
+                            <i class="mdi mdi-restore"></i>
+                          </button>
+                        </form>
+                        <!-- Permanent Delete -->
+                        <form action="{{ route('receivable-payments.forceDelete', $payment->id) }}" method="POST" 
+                              onsubmit="return confirm('Permanently delete this payment? This action cannot be undone.');">
                           @csrf
                           @method('DELETE')
-                          <button class="btn btn-sm btn-soft-danger" title="Delete">
-                            <i class="mdi mdi-trash-can"></i>
+                          <button class="btn btn-sm btn-soft-danger" title="Delete Permanently">
+                            <i class="mdi mdi-delete-forever"></i>
                           </button>
                         </form>
                       </div>
                     </td>
                   </tr>
                 @empty
-                  {{-- <tr>
-                    <td colspan="6" class="text-center text-muted">No records found.</td>
-                  </tr> --}}
+                  <tr>
+                    <td colspan="7" class="text-center text-muted">No trashed records found.</td>
+                  </tr>
                 @endforelse
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination -->
+          <div class="mt-3">
+            {{ $payments->links() }}
+          </div>
         </div>
+
       </div>
     </div>
   </div>
 </div>
 @endsection
+

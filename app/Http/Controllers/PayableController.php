@@ -132,84 +132,168 @@ class PayableController extends Controller
         return view('admin.Payable.edit', compact('payable', 'suppliers', 'dealers', 'receivables'));
     }
 
-   public function update(Request $request, $id)
-{
-    $payable = Payable::findOrFail($id);
-    
-    $request->validate([
-        'transaction_date'   => 'required|date',
-        'supplier_id'        => 'required|exists:suppliers,id',
-        'no_of_bags'         => 'required|numeric|min:0',
-        'amount_per_bag'     => 'required|numeric|min:0',
-        'bilti_no'           => 'required|string',
-        'dealer_id.*'        => 'nullable|exists:dealers,id',
-        'bags.*'             => 'nullable|integer|min:0',
-        'rate.*'             => 'nullable|numeric|min:0',
-        'freight.*'          => 'nullable|numeric|min:0',
-        'payment_type.*'     => 'nullable|string',
-        'proof_of_payment.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-    ]);
+    public function update(Request $request, $id)
+    {
+        $payable = Payable::findOrFail($id);
 
-    $tons = $request->no_of_bags / 20;
+        $request->validate([
+            'transaction_date'   => 'required|date',
+            'supplier_id'        => 'required|exists:suppliers,id',
+            'no_of_bags'         => 'required|numeric|min:0',
+            'amount_per_bag'     => 'required|numeric|min:0',
+            'bilti_no'           => 'required|string',
+            'dealer_id.*'        => 'nullable|exists:dealers,id',
+            'bags.*'             => 'nullable|integer|min:0',
+            'rate.*'             => 'nullable|numeric|min:0',
+            'freight.*'          => 'nullable|numeric|min:0',
+            'payment_type.*'     => 'nullable|string',
+            'proof_of_payment.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
 
-    $payable->update([
-        'transaction_date' => $request->transaction_date,
-        'supplier_id'      => $request->supplier_id,
-        'no_of_bags'       => $request->no_of_bags,
-        'amount_per_bag'   => $request->amount_per_bag,
-        'total_amount'     => $tons * $request->amount_per_bag,
-        'tons'             => $tons,
-        'bilti_no'         => $request->bilti_no,
-    ]);
+        $transactionDate = \Carbon\Carbon::parse($request->transaction_date)->format('Y-m-d');
 
-    Receivable::where('payable_id', $payable->id)->delete();
+        \Log::info('Update Request Data', [
+            'payable_id' => $id,
+            'request' => $request->all(),
+        ]);
 
-    $dealerIds = $request->input('dealer_id', []);
-    $bags = $request->input('bags', []);
-    $rates = $request->input('rate', []);
-    $freights = $request->input('freight', []);
-    $paymentTypes = $request->input('payment_type', []);
-    $proofFiles = $request->file('proof_of_payment', []);
+        $tons = $request->no_of_bags / 20;
 
-    foreach ($dealerIds as $index => $dealerId) {
-        if (empty($dealerId)) continue;
+        $payable->update([
+            'transaction_date' => $transactionDate,
+            'supplier_id'      => $request->supplier_id,
+            'no_of_bags'       => $request->no_of_bags,
+            'amount_per_bag'   => $request->amount_per_bag,
+            'total_amount'     => $tons * $request->amount_per_bag,
+            'tons'             => $tons,
+            'bilti_no'         => $request->bilti_no,
+        ]);
 
-        $bagsCount = (float) ($bags[$index] ?? 0);
-        $rateValue = (float) ($rates[$index] ?? 0);
-        $freightAmt = (float) ($freights[$index] ?? 0);
+        PayablePayment::updateOrCreate(
+            ['payable_id' => $payable->id],
+            [
+                'transaction_date' => $transactionDate,
+                'supplier_id'      => $request->supplier_id,
+                'amount'           => $tons * $request->amount_per_bag,
+                'payment_mode'     => 'debit',
+                'transaction_type' => 'debit',
+            ]
+        );
 
-        $receivable = new Receivable();
-        $receivable->supplier_id = $request->supplier_id;
-        $receivable->payable_id = $payable->id;
-        $receivable->bilti_no = $request->bilti_no;
-        $receivable->dealer_id = $dealerId;
-        $receivable->bags = $bagsCount;
-        $receivable->rate = $rateValue;
-        $receivable->freight = $freightAmt;
-        $receivable->tons = $bagsCount / 20;
-        $receivable->total = $bagsCount * ($rateValue - $freightAmt);
-        $receivable->payment_type = $paymentTypes[$index] ?? null;
+        $dealerIds    = $request->input('dealer_id', []);
+        $bags         = $request->input('bags', []);
+        $rates        = $request->input('rate', []);
+        $freights     = $request->input('freight', []);
+        $paymentTypes = $request->input('payment_type', []);
+        $proofFiles   = $request->file('proof_of_payment', []);
 
-        if (isset($proofFiles[$index]) && $proofFiles[$index]->isValid()) {
-            $file = $proofFiles[$index];
-            $fileName = time() . '_' . $index . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/payments'), $fileName);
-            $receivable->proof_of_payment = $fileName;
+        $existingReceivables = Receivable::where('payable_id', $payable->id)->get()->keyBy('dealer_id');
+        $existingReceivablePayments = ReceivablePayment::where('payable_id', $payable->id)
+            ->whereDate('transaction_date', $transactionDate)
+            ->get()
+            ->keyBy('dealer_id');
+
+        \Log::info('Existing Receivables', $existingReceivables->toArray());
+        \Log::info('Existing ReceivablePayments', $existingReceivablePayments->toArray());
+
+        foreach ($dealerIds as $index => $dealerId) {
+            if (empty($dealerId)) continue;
+
+            $bagsCount = (float) ($bags[$index] ?? 0);
+            $rateValue = (float) ($rates[$index] ?? 0);
+            $freightAmt = (float) ($freights[$index] ?? 0);
+            $total = $bagsCount * ($rateValue - $freightAmt);
+            $paymentType = $paymentTypes[$index] ?? null;
+
+            $receivable = Receivable::updateOrCreate(
+                [
+                    'payable_id' => $payable->id,
+                    'dealer_id'  => $dealerId,
+                ],
+                [
+                    'supplier_id'   => $request->supplier_id,
+                    'bilti_no'      => $request->bilti_no,
+                    'bags'          => $bagsCount,
+                    'rate'          => $rateValue,
+                    'freight'       => $freightAmt,
+                    'tons'          => $bagsCount / 20,
+                    'total'         => $total,
+                    'payment_type'  => $paymentType,
+                ]
+            );
+
+            if (isset($proofFiles[$index]) && $proofFiles[$index]->isValid()) {
+                if ($receivable->proof_of_payment && file_exists(public_path('uploads/payments/' . $receivable->proof_of_payment))) {
+                    unlink(public_path('uploads/payments/' . $receivable->proof_of_payment));
+                }
+                $file = $proofFiles[$index];
+                $fileName = time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/payments'), $fileName);
+                $receivable->proof_of_payment = $fileName;
+                $receivable->save();
+            }
+
+            $receivablePayment = ReceivablePayment::updateOrCreate(
+                [
+                    'payable_id'       => $payable->id,
+                    'dealer_id'        => $dealerId,
+                    'transaction_date' => $transactionDate,
+                ],
+                [
+                    'amount_received'  => $total,
+                    'payment_mode'     => $paymentType,
+                    'transaction_type' => 'credit',
+                    'proof_of_payment' => $receivable->proof_of_payment ?? null,
+                ]
+            );
+
+            \Log::info('ReceivablePayment Operation', [
+                'payable_id' => $payable->id,
+                'dealer_id' => $dealerId,
+                'transaction_date' => $transactionDate,
+                'action' => $receivablePayment->wasRecentlyCreated ? 'Created' : 'Updated',
+                'record_id' => $receivablePayment->id,
+                'amount_received' => $total,
+            ]);
+
+            $existingReceivables->forget($dealerId);
+            $existingReceivablePayments->forget($dealerId);
         }
 
-        $receivable->save();
+        foreach ($existingReceivables as $receivable) {
+            ReceivablePayment::where('payable_id', $payable->id)
+                ->where('dealer_id', $receivable->dealer_id)
+                ->whereDate('transaction_date', $transactionDate)
+                ->delete();
+            if ($receivable->proof_of_payment && file_exists(public_path('uploads/payments/' . $receivable->proof_of_payment))) {
+                unlink(public_path('uploads/payments/' . $receivable->proof_of_payment));
+            }
+            $receivable->delete();
+        }
+
+        // Delete any orphaned ReceivablePayment records
+        foreach ($existingReceivablePayments as $payment) {
+            if (!$existingReceivables->has($payment->dealer_id)) {
+                ReceivablePayment::where('payable_id', $payable->id)
+                    ->where('dealer_id', $payment->dealer_id)
+                    ->whereDate('transaction_date', $transactionDate)
+                    ->delete();
+            }
+        }
+
+        return redirect()->route('payables.index')
+                        ->with('success', 'Payable, Receivable & ReceivablePayment updated successfully.');
     }
-
-    return redirect()->route('payables.index')->with('success', 'Payable Updated Successfully.');
-}
-
-
 
     public function destroy($id)
     {
         $payable = Payable::findOrFail($id);
+        ReceivablePayment::where('payable_id', $payable->id)->delete();
+        Receivable::where('payable_id', $payable->id)->delete();
+        PayablePayment::where('payable_id', $payable->id)->delete();
         $payable->delete();
-        return redirect()->route('payables.index')->with('success', 'Moved to trash.');
+
+        return redirect()->route('payables.index')->with('success', 'Payable and all related records moved to trash successfully.');
     }
 
     public function trash()

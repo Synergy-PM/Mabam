@@ -16,7 +16,6 @@ return new class extends Migration {
             $table->string('transaction_type')->nullable(); 
             $table->timestamps();
             $table->softDeletes();
-
             $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('set null');
         });
     }

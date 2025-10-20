@@ -11,7 +11,7 @@ class Supplier extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'company_name',
+        'opening_balance',
         'supplier_name',
         'city_id',
         'email',

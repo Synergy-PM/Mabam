@@ -30,8 +30,8 @@
                                     <th style="width:5%">#</th>
                                     <th>Dealer Name</th>
                                     <th>Company</th>
-                                    <th>Contact No</th>
                                     <th>City</th>
+                                    <th>Opening balance</th>
                                     {{-- <th>Email</th>
                                     <th>WhatsApp</th>
                                     <th>Contact Person</th> --}}
@@ -46,8 +46,8 @@
                                         <td class="text-center">{{ $index + 1 }}</td>
                                         <td>{{$dealer->dealer_name ?? '-'}}
                                         <td>{{ $dealer->company_name ?? '-' }}</td>
-                                        <td>{{ $dealer->contact_no ?? '-' }}</td>
                                         <td>{{ $dealer->city->name ?? '-' }}</td>
+                                        <td>{{ $dealer->opening_balance ?? '-' }}</td>
                                         {{-- <td>{{ $dealer->email ?? '-' }}</td>
                                         <td>{{ $dealer->whatsapp ?? '-' }}</td>
                                         <td>{{ $dealer->contact_person ?? '-' }}</td> --}}

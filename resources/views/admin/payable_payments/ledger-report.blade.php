@@ -44,7 +44,7 @@
                         </h6>
                         <div class="row">
                             <div class="col-md-6">
-                                <p class="mb-1"><strong>Supplier:</strong> {{ $supplier->supplier_name ?? 'N/A' }}</p>
+                                <p class="mb-1"><strong>Supplier:</strong> {{ $selectedSupplier->supplier_name ?? 'N/A' }}</p>
                             </div>
                             <div class="col-md-6">
                                 <p class="mb-1">
@@ -58,13 +58,13 @@
 
                     {{-- Opening Balance --}}
                     @php
-                        $openingBalance = $openBalance ?? 0; // Original opening balance
-                        $balance = $openingBalance; // Running balance
-                        $totalDebit = 0;
+                        $openingBalance = $openBalance ?? 0; 
+                        $balance = $openingBalance; 
+                        $totalDebit = $openingBalance;
                         $totalCredit = 0;
                     @endphp
                     <p class="d-flex justify-content-between align-items-center mb-3" style="font-size: 16px;">
-                        <strong>Opening Balance:</strong> {{ number_format($openingBalance, 2) }}
+                        <strong>Opening Balance (Debit):</strong> {{ number_format($openingBalance, 2) }}
                     </p>
 
                     {{-- Results Table --}}
@@ -109,7 +109,7 @@
 
                                         <td>{{ ucfirst($payment->payment_mode) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}</td>
-                                        <td>{{ number_format($balance, 2) }}</td>
+                                        <td>{{ number_format($totalCredit - $totalDebit, 2) }}</td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -134,7 +134,7 @@
                     <div class="mt-3">
                         <p><strong>Total Debit:</strong> {{ number_format($totalDebit, 2) }}</p>
                         <p><strong>Total Credit:</strong> {{ number_format($totalCredit, 2) }}</p>
-                        <p><strong>Closing Balance:</strong> {{ number_format($balance, 2) }}</p>
+                        <p><strong>Closing Balance:</strong> {{ number_format($totalCredit - $totalDebit, 2) }}</p>
                     </div>
 
                     {{-- Supplier-wise Closing Balances --}}
@@ -187,7 +187,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        // ================= Ledger Table Export =================
         document.getElementById('exportPDF').addEventListener('click', function () {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('landscape');
@@ -204,7 +203,6 @@
             printWin.print();
         });
 
-        // ================= Supplier Summary Export =================
         const supplierPDFBtn = document.getElementById('exportSupplierPDF');
         if (supplierPDFBtn) {
             supplierPDFBtn.addEventListener('click', function () {

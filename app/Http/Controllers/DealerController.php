@@ -20,20 +20,30 @@ class DealerController extends Controller
         $cities = City::all();
         return view('admin.dealers.create', compact('cities'));
     }
-
     public function store(Request $request)
     {
         $request->validate([
-            'company_name' => 'nullable|string|max:255',
-            'city_id' => 'nullable|exists:cities,id',
-            // 'email' => 'nullable|email|unique:dealers,email',
-            // 'whatsapp' => 'nullable|string',
-            // 'address' => 'nullable|string',
+            'company_name'     => 'nullable|string|max:255',
+            'city_id'          => 'nullable|exists:cities,id',
+            'opening_balance'  => 'nullable|numeric|min:0',
+            // 'email'         => 'nullable|email|unique:dealers,email',
+            // 'whatsapp'      => 'nullable|string',
+            // 'address'       => 'nullable|string',
         ]);
 
-        Dealer::create($request->all());
+        $dealer = new Dealer();
+        $dealer->dealer_name     = $request->dealer_name;
+        $dealer->company_name    = $request->company_name;
+        $dealer->city_id         = $request->city_id;
+        $dealer->opening_balance = $request->opening_balance ?? 0;
+        // $dealer->email = $request->email;
+        // $dealer->whatsapp = $request->whatsapp;
+        // $dealer->address = $request->address;
+        $dealer->save();
+
         return redirect()->route('dealers.index')->with('success', 'Dealer created successfully.');
     }
+
 
     public function edit($id)
     {
@@ -42,21 +52,33 @@ class DealerController extends Controller
         return view('admin.dealers.edit', compact('dealer','cities'));
     }
 
-    public function update(Request $request, $id)
+     public function update(Request $request, $id)
     {
-         $dealer = Dealer::findOrFail($id);
-         $request->validate([
-            'dealer_name' => 'required|string|max:255',
-            'company_name' => 'nullable|string|max:255',
-            'city_id' => 'nullable|exists:cities,id',
-            // 'email' => 'nullable|email|unique:dealers,email,' . $dealer->id,
-            // 'whatsapp' => 'nullable|string',
-            // 'address' => 'nullable|string',
+        $dealer = Dealer::findOrFail($id);
+
+        $request->validate([
+            'dealer_name'     => 'required|string|max:255',
+            'company_name'    => 'nullable|string|max:255',
+            'city_id'         => 'nullable|exists:cities,id',
+            'opening_balance' => 'nullable|numeric|min:0',
+            // 'email'         => 'nullable|email|unique:dealers,email,' . $dealer->id,
+            // 'whatsapp'      => 'nullable|string',
+            // 'address'       => 'nullable|string',
         ]);
 
-        $dealer->update($request->all());
+        $dealer->dealer_name     = $request->dealer_name;
+        $dealer->company_name    = $request->company_name;
+        $dealer->city_id         = $request->city_id;
+        $dealer->contact_no      = $request->contact_no; 
+        $dealer->opening_balance = $request->opening_balance ?? 0;
+        // $dealer->email = $request->email;
+        // $dealer->whatsapp = $request->whatsapp;
+        // $dealer->address = $request->address;
+        $dealer->save();
+
         return redirect()->route('dealers.index')->with('success', 'Dealer updated successfully.');
     }
+
 
     public function destroy($id)
     {
