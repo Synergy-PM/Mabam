@@ -11,7 +11,7 @@ class SupplierController extends Controller
    public function index()
 {
     $trashSuppliers = Supplier::onlyTrashed()->count();
-    $suppliers = Supplier::with('city')->latest()->get(); 
+    $suppliers = Supplier::latest()->get(); 
     return view('admin.suppliers.index', compact('suppliers','trashSuppliers'));
 }
 
@@ -27,6 +27,7 @@ class SupplierController extends Controller
         $request->validate([
             'supplier_name'    => 'required|string|max:255',
             'opening_balance'  => 'nullable|numeric|min:0',
+            'transaction_type' => 'required|in:debit,credit',
             // 'company_name'  => 'nullable|string|max:255',
             // 'city_id'       => 'nullable|exists:cities,id',
             // 'email'         => 'nullable|email',
@@ -40,6 +41,7 @@ class SupplierController extends Controller
         $supplier = new Supplier();
         $supplier->supplier_name = $request->supplier_name;
         $supplier->opening_balance = $request->opening_balance ?? 0;
+        $supplier->transaction_type = $request->transaction_type;
         // $supplier->company_name = $request->company_name;
         // $supplier->city_id = $request->city_id;
         // $supplier->email = $request->email;
@@ -57,41 +59,25 @@ class SupplierController extends Controller
     public function edit($id)
     {
         $supplier = Supplier::findOrFail($id);
-        $cities = City::all();
-        return view('admin.suppliers.edit', compact('supplier', 'cities'));
+        return view('admin.suppliers.edit', compact('supplier'));
     }
 
-   public function update(Request $request, $id)
-{
-    $supplier = Supplier::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'supplier_name'    => 'required|string|max:255',
+            'opening_balance'  => 'nullable|numeric|min:0',
+            'transaction_type' => 'required|in:debit,credit',
+        ]);
 
-    $request->validate([
-        'supplier_name'    => 'required|string|max:255',
-        'opening_balance'  => 'nullable|numeric|min:0',
-        // 'company_name'  => 'nullable|string|max:255',
-        // 'city_id'       => 'nullable|exists:cities,id',
-        // 'email'         => 'nullable|email',
-        // 'whatsapp'      => 'nullable|string',
-        // 'address'       => 'nullable|string',
-        // 'contact_person'=> 'nullable|string',
-        // 'contact_no'    => 'nullable|string',
-        // 'contact_email' => 'nullable|email',
-    ]);
+        $supplier = Supplier::findOrFail($id);
+        $supplier->supplier_name = $request->supplier_name;
+        $supplier->opening_balance = $request->opening_balance ?? 0;
+        $supplier->transaction_type = $request->transaction_type;
+        $supplier->save();
 
-    $supplier->supplier_name   = $request->supplier_name;
-    $supplier->opening_balance = $request->opening_balance ?? 0;
-    // $supplier->company_name = $request->company_name;
-    // $supplier->city_id = $request->city_id;
-    // $supplier->email = $request->email;
-    // $supplier->whatsapp = $request->whatsapp;
-    // $supplier->address = $request->address;
-    // $supplier->contact_person = $request->contact_person;
-    // $supplier->contact_no = $request->contact_no;
-    // $supplier->contact_email = $request->contact_email;
-    $supplier->save();
-
-    return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully!');
-}
+        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully!');
+    }
 
 
     public function destroy($id)

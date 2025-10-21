@@ -67,6 +67,14 @@
                                     placeholder="Enter Opening Balance"
                                     value="{{ old('opening_balance') }}">
                             </div>
+
+                             <div class="col-md-6 mb-3">
+                                <label><b>Transaction Type</b></label>
+                                <select name="transaction_type" class="form-control">
+                                    <option value="debit" {{ old('transaction_type') == 'debit' ? 'selected' : '' }}>Debit</option>
+                                    <option value="credit" {{ old('transaction_type') == 'credit' ? 'selected' : '' }}>Credit</option>
+                                </select>
+                            </div>
                             {{-- <div class="col-md-6 mb-3">
                                 <label><b>Contact Email</b></label>
                                 <input type="email" name="contact_email" class="form-control" 

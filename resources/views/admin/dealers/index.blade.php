@@ -36,6 +36,7 @@
                                     <th>Company</th>
                                     <th>City</th>
                                     <th>Opening balance</th>
+                                    <th>Transaction Type</th>
                                     {{-- <th>Email</th>
                                     <th>WhatsApp</th>
                                     <th>Contact Person</th> --}}
@@ -52,6 +53,7 @@
                                         <td>{{ $dealer->company_name ?? '-' }}</td>
                                         <td>{{ $dealer->city->name ?? '-' }}</td>
                                         <td>{{ $dealer->opening_balance ?? '-' }}</td>
+                                        <td>{{ $dealer->transaction_type ?? '-' }}</td>
                                         {{-- <td>{{ $dealer->email ?? '-' }}</td>
                                         <td>{{ $dealer->whatsapp ?? '-' }}</td>
                                         <td>{{ $dealer->contact_person ?? '-' }}</td> --}}

@@ -69,6 +69,20 @@
                                     placeholder="Enter Opening Balance"
                                     value="{{ $dealer->opening_balance ?? old('opening_balance') }}">
                             </div>
+                            
+                            <div class="col-md-3 mb-3">
+                                <label><b>Transaction Type</b></label>
+                                <select name="transaction_type" class="form-control">
+                                    <option value="debit" 
+                                        {{ (isset($dealer) && $dealer->transaction_type == 'debit') || old('transaction_type') == 'debit' ? 'selected' : '' }}>
+                                        Debit
+                                    </option>
+                                    <option value="credit" 
+                                        {{ (isset($dealer) && $dealer->transaction_type == 'credit') || old('transaction_type') == 'credit' ? 'selected' : '' }}>
+                                        Credit
+                                    </option>
+                                </select>
+                            </div>
 
 
                             {{-- <div class="col-md-3 mb-3">

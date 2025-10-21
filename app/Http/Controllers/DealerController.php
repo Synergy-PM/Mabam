@@ -26,6 +26,7 @@ class DealerController extends Controller
             'company_name'     => 'nullable|string|max:255',
             'city_id'          => 'nullable|exists:cities,id',
             'opening_balance'  => 'nullable|numeric|min:0',
+            'transaction_type' => 'required|in:debit,credit',
             // 'email'         => 'nullable|email|unique:dealers,email',
             // 'whatsapp'      => 'nullable|string',
             // 'address'       => 'nullable|string',
@@ -36,6 +37,7 @@ class DealerController extends Controller
         $dealer->company_name    = $request->company_name;
         $dealer->city_id         = $request->city_id;
         $dealer->opening_balance = $request->opening_balance ?? 0;
+        $dealer->transaction_type = $request->transaction_type;
         // $dealer->email = $request->email;
         // $dealer->whatsapp = $request->whatsapp;
         // $dealer->address = $request->address;
@@ -61,6 +63,7 @@ class DealerController extends Controller
             'company_name'    => 'nullable|string|max:255',
             'city_id'         => 'nullable|exists:cities,id',
             'opening_balance' => 'nullable|numeric|min:0',
+            'transaction_type' => 'required|in:debit,credit',
             // 'email'         => 'nullable|email|unique:dealers,email,' . $dealer->id,
             // 'whatsapp'      => 'nullable|string',
             // 'address'       => 'nullable|string',
@@ -71,6 +74,7 @@ class DealerController extends Controller
         $dealer->city_id         = $request->city_id;
         $dealer->contact_no      = $request->contact_no; 
         $dealer->opening_balance = $request->opening_balance ?? 0;
+        $dealer->transaction_type = $request->transaction_type;
         // $dealer->email = $request->email;
         // $dealer->whatsapp = $request->whatsapp;
         // $dealer->address = $request->address;

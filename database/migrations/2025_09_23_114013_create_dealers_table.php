@@ -19,6 +19,7 @@ return new class extends Migration
         $table->string('email')->nullable();
         $table->string('whatsapp')->nullable();
         $table->text('address')->nullable();
+        $table->enum('transaction_type', ['debit', 'credit'])->default('debit');
         $table->timestamps();
         $table->softDeletes();
         $table->foreign('city_id')->references('id')->on('cities')->onDelete('set null');

@@ -10,18 +10,18 @@
                     <div class="card-header d-flex justify-content-between align-items-center bg-light">
                         <h4 class="card-title mb-0">Suppliers List</h4>
                         <div class="d-flex gap-2">
-                           @can('supplier_create')
-                            <a href="{{ route('suppliers.create') }}" class="btn btn-sm btn-primary">
-                                <i class="mdi mdi-plus"></i> Add Supplier
-                            </a>
+                            @can('supplier_create')
+                                <a href="{{ route('suppliers.create') }}" class="btn btn-sm btn-primary">
+                                    <i class="mdi mdi-plus"></i> Add Supplier
+                                </a>
                             @endcan
                             @can('supplier_trash_view')
-                            <a href="{{ route('suppliers.trash') }}"
-                                class="btn btn-sm btn-danger d-flex align-items-center gap-2" title="Deleted Suppliers">
-                                <i class="bi bi-trash-fill"></i>
-                                <span>Trash</span>
-                                <span class="badge bg-light text-dark">{{ $trashSuppliers ?? 0 }}</span>
-                            </a>
+                                <a href="{{ route('suppliers.trash') }}"
+                                    class="btn btn-sm btn-danger d-flex align-items-center gap-2" title="Deleted Suppliers">
+                                    <i class="bi bi-trash-fill"></i>
+                                    <span>Trash</span>
+                                    <span class="badge bg-light text-dark">{{ $trashSuppliers ?? 0 }}</span>
+                                </a>
                             @endcan
                         </div>
                     </div>
@@ -33,6 +33,7 @@
                                         <th style="width:5%">#</th>
                                         <th>Supplier Company Name</th>
                                         <th>Opening balance</th>
+                                        <th>Transaction Type</th>
                                         {{-- <th>Company</th>
                                     <th>City</th>
                                     <th>Email</th>
@@ -50,26 +51,27 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $supplier->supplier_name ?? '-' }}</td>
                                             <td>{{ $supplier->opening_balance ?? '-' }}</td>
+                                            <td>{{ $supplier->transaction_type ?? '-' }}</td>
                                             <td>
                                                 @can('supplier_edit')
-                                                <div class="d-flex justify-content-center gap-1">
-                                                    <a href="{{ route('suppliers.edit', $supplier->id) }}"
-                                                        class="btn btn-sm btn-soft-warning" title="Edit">
-                                                        <i class="mdi mdi-pencil"></i>
-                                                    </a>
-                                                @endcan
-                                                @can('supplier_trash')
-                                                    <form action="{{ route('suppliers.delete', $supplier->id) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('Are you sure you want to delete this supplier?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-soft-danger"
-                                                            title="Delete">
-                                                            <i class="mdi mdi-trash-can"></i>
-                                                        </button>
-                                                    </form>
-                                                @endcan
+                                                    <div class="d-flex justify-content-center gap-1">
+                                                        <a href="{{ route('suppliers.edit', $supplier->id) }}"
+                                                            class="btn btn-sm btn-soft-warning" title="Edit">
+                                                            <i class="mdi mdi-pencil"></i>
+                                                        </a>
+                                                    @endcan
+                                                    @can('supplier_trash')
+                                                        <form action="{{ route('suppliers.delete', $supplier->id) }}"
+                                                            method="POST"
+                                                            onsubmit="return confirm('Are you sure you want to delete this supplier?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-soft-danger"
+                                                                title="Delete">
+                                                                <i class="mdi mdi-trash-can"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endcan
                                                 </div>
                                             </td>
                                         </tr>

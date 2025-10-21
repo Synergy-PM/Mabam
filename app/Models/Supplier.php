@@ -22,11 +22,6 @@ class Supplier extends Model
         'contact_email'
     ];
 
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
-    
     public function payments()
     {
         return $this->hasMany(Payment::class, 'reference_id')->where('type', 'supplier');

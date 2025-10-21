@@ -192,7 +192,88 @@ class ReceivablePaymentController extends Controller
     //     ));
     // }
 
-       public function ledgerReport(Request $request)
+//        public function ledgerReport(Request $request)
+// {
+//     $request->validate([
+//         'dealer_id' => 'nullable|exists:dealers,id',
+//         'start_date' => 'nullable|date',
+//         'end_date'   => 'nullable|date|after_or_equal:start_date',
+//     ]);
+
+//     $dealerId = $request->input('dealer_id');
+//     $startDate = $request->input('start_date');
+//     $endDate = $request->input('end_date');
+
+//     // MAIN QUERY (FILTERED)
+//     $receivablePaymentsQuery = \App\Models\ReceivablePayment::with('dealer')
+//         ->when($dealerId, function ($q) use ($dealerId) {
+//             return $q->where('dealer_id', $dealerId);
+//         })
+//         ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+//             return $q->whereBetween('transaction_date', [$startDate, $endDate]);
+//         })
+//         ->when($startDate && !$endDate, function ($q) use ($startDate) {
+//             return $q->whereDate('transaction_date', $startDate);
+//         });
+
+//     $receivablePayments = $receivablePaymentsQuery->get();
+
+//     // Individual Transactions List
+//     $transactions = $receivablePayments->map(function ($payment) {
+//         return [
+//             'dealer' => $payment->dealer,
+//             'transaction_date' => $payment->transaction_date,
+//             'amount' => $payment->amount_received ?? 0,
+//             'payment_mode' => $payment->payment_mode ?? 'N/A',
+//             'transaction_type' => $payment->transaction_type ?? 'N/A',
+//             'freight' => 0,
+//         ];
+//     })->sortBy('transaction_date')->values();
+
+//     $totalAmount = $transactions->sum('amount');
+//     $selectedDealer = $dealerId ? \App\Models\Dealer::find($dealerId) : null;
+
+//     // Set opening balance for the selected dealer
+//     $openBalance = $selectedDealer ? $selectedDealer->opening_balance : 0;
+
+//     // Dealer Summary (when no dealer selected)
+//     $dealerSummaries = [];
+//     if (!$dealerId) {
+//         $dealerSummaries = \DB::table('receivable_payments')
+//             ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
+//             ->leftJoin('receivables', 'receivables.dealer_id', '=', 'dealers.id')
+//             ->selectRaw('
+//                 receivable_payments.dealer_id,
+//                 dealers.dealer_name,
+//                 COALESCE(SUM(receivables.tons), 0) as tons,
+//                 SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) + dealers.opening_balance as total_credit,
+//                 SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as total_debit
+//             ')
+//             ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name', 'dealers.opening_balance')
+//             ->get()
+//             ->map(function ($item) {
+//                 return [
+//                     'dealer_name'    => $item->dealer_name ?? 'N/A',
+//                     'tons'           => $item->tons ?? 0,
+//                     'total_credit'   => $item->total_credit ?? 0,
+//                     'total_debit'    => $item->total_debit ?? 0,
+//                     'closing_balance' => ($item->total_credit ?? 0) - ($item->total_debit ?? 0),
+//                 ];
+//             });
+//     }
+
+//     return view('admin.receivable_payments.report', compact(
+//         'transactions',
+//         'selectedDealer',
+//         'openBalance',
+//         'dealerSummaries',
+//         'startDate',
+//         'endDate',
+//         'totalAmount'
+//     ));
+// }
+
+public function ledgerReport(Request $request)
 {
     $request->validate([
         'dealer_id' => 'nullable|exists:dealers,id',
@@ -233,8 +314,9 @@ class ReceivablePaymentController extends Controller
     $totalAmount = $transactions->sum('amount');
     $selectedDealer = $dealerId ? \App\Models\Dealer::find($dealerId) : null;
 
-    // Set opening balance for the selected dealer
+    // ✅ Opening Balance aur uska type set karna
     $openBalance = $selectedDealer ? $selectedDealer->opening_balance : 0;
+    $openingType = $selectedDealer ? strtolower($selectedDealer->transaction_type ?? 'credit') : 'credit';
 
     // Dealer Summary (when no dealer selected)
     $dealerSummaries = [];
@@ -266,11 +348,13 @@ class ReceivablePaymentController extends Controller
         'transactions',
         'selectedDealer',
         'openBalance',
+        'openingType',
         'dealerSummaries',
         'startDate',
         'endDate',
         'totalAmount'
     ));
 }
+
 
 }

@@ -15,6 +15,7 @@
                         @endif
 
                         <div class="row">
+                            <!-- Supplier Name -->
                             <div class="col-md-6 mb-3">
                                 <label><b>Supplier Company Name</b></label>
                                 <input type="text" name="supplier_name" class="form-control" 
@@ -22,22 +23,28 @@
                                     value="{{ $supplier->supplier_name ?? old('supplier_name') }}">
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <!-- Opening Balance -->
+                            <div class="col-md-3 mb-3">
                                 <label><b>Opening Balance</b></label>
                                 <input type="number" step="0.01" name="opening_balance" class="form-control" 
                                     placeholder="Enter Opening Balance"
                                     value="{{ $supplier->opening_balance ?? old('opening_balance') }}">
                             </div>
 
-                            {{-- Uncomment more fields if needed --}}
-                            {{-- 
-                            <div class="col-md-6 mb-3">
-                                <label><b>Company Name</b></label>
-                                <input type="text" name="company_name" class="form-control" 
-                                    placeholder="Enter Company Name"
-                                    value="{{ $supplier->company_name ?? old('company_name') }}">
+                            <!-- Transaction Type -->
+                            <div class="col-md-3 mb-3">
+                                <label><b>Transaction Type</b></label>
+                                <select name="transaction_type" class="form-control">
+                                    <option value="debit" 
+                                        {{ (isset($supplier) && $supplier->transaction_type == 'debit') || old('transaction_type') == 'debit' ? 'selected' : '' }}>
+                                        Debit
+                                    </option>
+                                    <option value="credit" 
+                                        {{ (isset($supplier) && $supplier->transaction_type == 'credit') || old('transaction_type') == 'credit' ? 'selected' : '' }}>
+                                        Credit
+                                    </option>
+                                </select>
                             </div>
-                            --}}
                         </div>
 
                         <div class="d-flex gap-2">

@@ -81,7 +81,7 @@
       "autoWidth": false,
       "order": [[1, "desc"]], 
       "columnDefs": [
-        { "orderable": false, "targets": [0, 5] } 
+        { "orderable": false, "targets": [0, 6] } 
       ]
     });
   });
