@@ -49,6 +49,19 @@
 <!-- DataTable Init -->
 <script>
   $(document).ready(function () {
+    $('#suppilerTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 3] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
     $('#payablesTable').DataTable({
       "pageLength": 10,
       "responsive": true,
@@ -76,6 +89,19 @@
 <script>
   $(document).ready(function () {
     $('#receivablePaymentsTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 5] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#payablePaymentsTable').DataTable({
       "pageLength": 10,
       "responsive": true,
       "autoWidth": false,

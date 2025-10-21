@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
-    public function index()
-    {
-        $trashSuppliers = Supplier::onlyTrashed()->count();
-        $suppliers = Supplier::with('city')->latest()->paginate(10);
-        return view('admin.suppliers.index', compact('suppliers','trashSuppliers'));
-    }
+   public function index()
+{
+    $trashSuppliers = Supplier::onlyTrashed()->count();
+    $suppliers = Supplier::with('city')->latest()->get(); 
+    return view('admin.suppliers.index', compact('suppliers','trashSuppliers'));
+}
+
 
     public function create()
     {

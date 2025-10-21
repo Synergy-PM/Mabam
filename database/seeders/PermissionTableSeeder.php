@@ -28,6 +28,20 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'role_trash', 'guard_name' => 'web', 'group_name' => 'Role'],
             ['name' => 'role_trash_view', 'guard_name' => 'web', 'group_name' => 'Role'],
             ['name' => 'role_restore', 'guard_name' => 'web', 'group_name' => 'Role'],
+            
+            ['name' => 'supplier_view', 'guard_name' => 'web', 'group_name' => 'Supplier'],
+            ['name' => 'supplier_create', 'guard_name' => 'web', 'group_name' => 'Supplier'],
+            ['name' => 'supplier_edit', 'guard_name' => 'web', 'group_name' => 'Supplier'],
+            ['name' => 'supplier_trash', 'guard_name' => 'web', 'group_name' => 'Supplier'],
+            ['name' => 'supplier_trash_view', 'guard_name' => 'web', 'group_name' => 'Supplier'],
+            ['name' => 'supplier_restore', 'guard_name' => 'web', 'group_name' => 'Supplier'],
+
+            ['name' => 'dealer_view', 'guard_name' => 'web', 'group_name' => 'Dealers'],
+            ['name' => 'dealer_create', 'guard_name' => 'web', 'group_name' => 'Dealers'],
+            ['name' => 'dealer_edit', 'guard_name' => 'web', 'group_name' => 'Dealers'],
+            ['name' => 'dealer_trash', 'guard_name' => 'web', 'group_name' => 'Dealers'],
+            ['name' => 'dealer_trash_view', 'guard_name' => 'web', 'group_name' => 'Dealers'],
+            ['name' => 'dealer_restore', 'guard_name' => 'web', 'group_name' => 'Dealers'],
              
             ['name' => 'user_activity_view', 'guard_name' => 'web', 'group_name' => 'User Activity'],
 
