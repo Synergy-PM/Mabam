@@ -140,6 +140,10 @@ Route::middleware('auth')->prefix('admin')->group(function () {
     Route::controller(BiltiReportController::class)->prefix('daily')->group(function () {
         Route::get('/report/filter', 'showDailyReportFilter')->name('daily.report.filter');
         Route::get('/report', 'dailyReport')->name('daily.report');
+        Route::get('/profit/filter', 'filter')->name('profit.filter');
+        Route::get('/profit/report', 'profitReport')->name('profit.report');
+
+
     });
 
 Route::controller(ReceivablePaymentController::class)->prefix('receivable-payments')->group(function () {
@@ -154,5 +158,6 @@ Route::controller(ReceivablePaymentController::class)->prefix('receivable-paymen
     Route::get('ledger-report-filter', 'ledgerReportFilter')->name('receivable-payments.ledger-report-filter');
     Route::get('ledger-report', 'ledgerReport')->name('receivable-payments.ledger-report');
 });
+
 });
  

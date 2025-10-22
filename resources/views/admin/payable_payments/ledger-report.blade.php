@@ -58,7 +58,7 @@
                             </div>
                         </div>
 
-                        {{-- Opening Balance --}}
+                        {{-- Opening Balance Initialization --}}
                         @php
                             $openingBalance = $openBalance ?? 0;
                             $balance = $openingBalance;
@@ -67,17 +67,10 @@
 
                             if (isset($selectedSupplier) && $selectedSupplier->transaction_type === 'credit') {
                                 $totalCredit += $openingBalance;
-                                $openingLabel = 'Opening Balance (Credit)';
                             } else {
                                 $totalDebit += abs($openingBalance);
-                                $openingLabel = 'Opening Balance (Debit)';
                             }
                         @endphp
-
-                        <p class="d-flex justify-content-between align-items-center mb-3" style="font-size: 16px;">
-                            <strong>{{ $openingLabel }}:</strong> {{ number_format(abs($openingBalance), 2) }}
-                        </p>
-
 
                         {{-- Results Table --}}
                         <div class="table-responsive shadow-sm rounded-3">
@@ -86,6 +79,8 @@
                                     <tr>
                                         <th>S.No</th>
                                         <th>Supplier</th>
+                                        <th>Tons</th>
+                                        <th>Rate</th>
                                         <th>Credit</th>
                                         <th>Debit</th>
                                         <th>Payment Mode</th>
@@ -94,12 +89,40 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {{-- Opening Balance Row --}}
+                                    @if ($openingBalance != 0)
+                                        <tr>
+                                            <td>1</td>
+                                            <td>{{ $selectedSupplier->supplier_name ?? 'N/A' }}</td>
+                                            <td>-</td>
+                                            <td>-</td>
+                                            <td>
+                                                @if (isset($selectedSupplier) && $selectedSupplier->transaction_type === 'credit')
+                                                    {{ number_format($openingBalance, 2) }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (isset($selectedSupplier) && $selectedSupplier->transaction_type !== 'credit')
+                                                    {{ number_format(abs($openingBalance), 2) }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>Opening</td>
+                                            <td>-</td>
+                                            <td>{{ number_format($openingBalance, 2) }}</td>
+                                        </tr>
+                                    @endif
+
+                                    {{-- Payment Rows --}}
                                     @forelse($payments as $payment)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $loop->iteration + ($openingBalance != 0 ? 1 : 0) }}</td>
                                             <td>{{ $payment->supplier->supplier_name ?? 'N/A' }}</td>
-
-                                            {{-- Credit Column --}}
+                                            <td>{{ $payment->payable ? number_format($payment->payable->tons, 2) : '-' }}</td>
+                                            <td>{{ $payment->payable ? number_format($payment->payable->amount_per_bag, 2) : '-' }}</td>
                                             <td>
                                                 @if ($payment->transaction_type == 'credit')
                                                     {{ number_format($payment->amount, 2) }}
@@ -111,8 +134,6 @@
                                                     -
                                                 @endif
                                             </td>
-
-                                            {{-- Debit Column --}}
                                             <td>
                                                 @if ($payment->transaction_type == 'debit')
                                                     {{ number_format($payment->amount, 2) }}
@@ -124,23 +145,24 @@
                                                     -
                                                 @endif
                                             </td>
-
                                             <td>{{ ucfirst($payment->payment_mode) }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}
-                                            </td>
-                                            <td>{{ number_format($totalCredit - $totalDebit, 2) }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($payment->transaction_date)->format('d M, Y') }}</td>
+                                            <td>{{ number_format($balance, 2) }}</td>
                                         </tr>
                                     @empty
-                                        <tr>
-                                            <td colspan="9" class="text-center text-muted py-4">
-                                                <i class="fas fa-folder-open me-2"></i> No records found
-                                            </td>
-                                        </tr>
+                                        @if ($openingBalance == 0)
+                                            <tr>
+                                                <td colspan="9" class="text-center text-muted py-4">
+                                                    <i class="fas fa-folder-open me-2"></i> No records found
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforelse
 
-                                    {{-- Totals Row --}}
                                     <tr class="table-secondary">
                                         <td colspan="2"><strong>Total</strong></td>
+                                        <td><strong>{{ number_format($payments->sum(fn($p) => $p->payable->tons ?? 0), 2) }}</strong></td>
+                                        <td><strong>{{ number_format($payments->sum(fn($p) => $p->payable->amount_per_bag ?? 0), 2) }}</strong></td>
                                         <td><strong>{{ number_format($totalCredit, 2) }}</strong></td>
                                         <td><strong>{{ number_format($totalDebit, 2) }}</strong></td>
                                         <td colspan="3"></td>
@@ -187,8 +209,7 @@
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $supplier['supplier_name'] }}</td>
                                                     <td>{{ $supplier['tons'] ?? '-' }}</td>
-                                                    <td><strong>{{ number_format($supplier['closing_balance'], 2) }}</strong>
-                                                    </td>
+                                                    <td><strong>{{ number_format($supplier['closing_balance'], 2) }}</strong></td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -208,9 +229,7 @@
 
         <script>
             document.getElementById('exportPDF').addEventListener('click', function() {
-                const {
-                    jsPDF
-                } = window.jspdf;
+                const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('landscape');
                 doc.text("Payable Ledger Report", 14, 15);
                 doc.autoTable({
@@ -225,7 +244,7 @@
                 const content = document.getElementById('ledger-section').innerHTML;
                 const printWin = window.open('', '_blank');
                 printWin.document.write(
-                `<html><head><title>Ledger Report</title></head><body>${content}</body></html>`);
+                    `<html><head><title>Ledger Report</title></head><body>${content}</body></html>`);
                 printWin.document.close();
                 printWin.print();
             });
@@ -233,9 +252,7 @@
             const supplierPDFBtn = document.getElementById('exportSupplierPDF');
             if (supplierPDFBtn) {
                 supplierPDFBtn.addEventListener('click', function() {
-                    const {
-                        jsPDF
-                    } = window.jspdf;
+                    const { jsPDF } = window.jspdf;
                     const doc = new jsPDF('landscape');
                     doc.text("Supplier-wise Closing Balances", 14, 15);
                     doc.autoTable({

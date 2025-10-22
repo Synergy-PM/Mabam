@@ -137,7 +137,7 @@
                                             <td>{{ ucfirst($t['payment_mode'] ?? '') }}</td>
                                             <td>{{ ucfirst($transactionType) }}</td>
                                             <td>
-                                                <span class="fw-bold">{{ number_format($balance, 2) }}</span>
+                                                <span class="fw-bold">{{ number_format($totalCredit - $totalDebit, 2) }}</span>
                                             </td>
                                         </tr>
                                     @endforeach

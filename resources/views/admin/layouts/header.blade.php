@@ -61,8 +61,9 @@
 
                     <!-- start page title -->
                     <div class="page-title-box align-self-center d-none d-md-block">
-                        <h4 class="page-title mb-0">Dashboard</h4>
+                        <h4 class="page-title mb-0">@yield('header-title', 'Dashboard')</h4>
                     </div>
+
                     <!-- end page title -->
                 </div>
 
@@ -138,69 +139,97 @@
                 <div id="sidebar-menu">
                     <ul class="metismenu list-unstyled" id="side-menu">
                         <li class="menu-title">Menu</li>
+
                         <li>
                             <a href="{{ route('dashboard') }}" class="waves-effect">
                                 <i class="uim uim-airplay"></i>
                                 <span>Dashboard</span>
                             </a>
                         </li>
+                        @canany(['user_view', 'role_view', 'user_activity_view'])
+                            <li>
+                                <a href="javascript:void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-admin-line"></i>
+                                    <span>User Management</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+
+                                    @can('role_view')
+                                        <li><a href="{{ route('role.index') }}">Roles</a></li>
+                                    @endcan
+
+                                    @can('user_view')
+                                        <li><a href="{{ route('user.index') }}">Users</a></li>
+                                    @endcan
+
+                                    @can('user_activity_view')
+                                        <li><a href="{{ route('user_activity.index') }}">User Activity</a></li>
+                                    @endcan
+                                </ul>
+                            </li>
+                        @endcanany
+                        @canany(['supplier_view', 'dealer_view', 'payable_view'])
+                            <li>
+                                <a href="javascript:void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-building-4-line"></i>
+                                    <span>Dealer Management</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+
+                                    <li><a href="{{ route('cities.index') }}">Add Cities</a></li>
+
+                                    @can('supplier_view')
+                                        <li><a href="{{ route('suppliers.index') }}">Add Suppliers</a></li>
+                                    @endcan
+
+                                    @can('dealer_view')
+                                        <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
+                                    @endcan
+
+                                    <li><a href="{{ route('payables.index') }}">Bilti Entry</a></li>
+                                </ul>
+                            </li>
+                        @endcanany
+                        @canany(['payable_payment_view', 'receivable_payment_view', 'expense_view'])
+                            <li>
+                                <a href="javascript:void(0);" class="has-arrow waves-effect">
+                                    <i class="ri-exchange-dollar-line"></i>
+                                    <span>Transactions</span>
+                                </a>
+                                <ul class="sub-menu" aria-expanded="false">
+                                    <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li>
+                                    <li><a href="{{ route('receivable-payments.index') }}">Receivable Payment</a></li>
+                                    <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li>
+                                </ul>
+                            </li>
+                        @endcanany
                         <li>
                             <a href="javascript:void(0);" class="has-arrow waves-effect">
-                                <i class="ri-admin-line"></i>
-                                <span>User Management</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <li><a href="{{ route('role.index') }}">Roles</a></li>
-                                <li><a href="{{ route('user.index') }}">Users</a></li>
-                                <li><a href="{{ route('user_activity.index') }}">User Activity</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" class="has-arrow waves-effect">
-                                <i class="ri-building-4-line"></i>
-                                <span>Dealer Management</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <li><a href="{{ route('cities.index') }}">Add Cities</a></li>
-                                <li><a href="{{ route('suppliers.index') }}">Add Suppliers</a></li>
-                                <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
-                                <li><a href="{{ route('payables.index') }}">Bilti Entry</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" class="has-arrow waves-effect">
-                                <i class="ri-exchange-dollar-line"></i>
-                                <span>Transactions</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li>
-                                <li><a href="{{route('receivable-payments.index')}}">Receivable Payment</a></li>
-                                 <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li>
-                            </ul>
-                        </li>
-                        <li class="menu-item">
-                            <a href="#" class="waves-effect">
                                 <i class="uim uim-airplay"></i>
                                 <span>Report</span>
-                                <span class="menu-arrow"></span> 
+                                <span class="menu-arrow"></span>
                             </a>
                             <ul class="submenu">
-                                <li>
-                                    <a href="{{ route('payable-payments.ledger-filter') }}">Ledger Payable</a>
-                                </li>
-                                <li>
-                                    <a href="{{route('receivable-payments.ledger-report-filter')}}">Ledger Receivable </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('bilti.report.filter') }}">Stock Report</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('daily.report.filter') }}">Daily Report</a>
-                                </li>
+                                @can('ledger_payable_view')
+                                    <li><a href="{{ route('payable-payments.ledger-filter') }}">Ledger Payable</a></li>
+                                @endcan
+
+                                @can('ledger_receivable_view')
+                                    <li><a href="{{ route('receivable-payments.ledger-report-filter') }}">Ledger Receivable</a></li>
+                                @endcan
+                                @can('stock_report_view')
+                                    <li><a href="{{ route('bilti.report.filter') }}">Stock Report</a></li>
+                                @endcan
+
+                                @can('daily_report_view')
+                                    <li><a href="{{ route('daily.report.filter') }}">Daily Report</a></li>
+                                @endcan
+
+                                {{-- <li><a href="{{ route('profit.filter') }}">Profit Report</a></li> --}}
                             </ul>
                         </li>
-
                     </ul>
+
                 </div>
             </div>
         </div>

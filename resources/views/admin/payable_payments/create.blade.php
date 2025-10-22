@@ -109,12 +109,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const firstRow = document.querySelector('.payment-row');
         const newRow = firstRow.cloneNode(true);
 
+        // Get the transaction date from the first row
+        const firstTransactionDate = document.querySelector('input[name="payments[0][transaction_date]"]').value;
+
         newRow.querySelectorAll('input, select, textarea').forEach(function (element) {
             const name = element.getAttribute('name');
             if (name) {
                 element.setAttribute('name', name.replace(/\[\d+\]/, '[' + rowIndex + ']'));
                 if (element.type !== 'hidden') {
-                    element.value = '';
+                    // Set transaction date to the first row's value, else clear other fields
+                    if (element.name.includes('transaction_date')) {
+                        element.value = firstTransactionDate;
+                    } else {
+                        element.value = '';
+                    }
                 }
             }
             if (element.tagName === 'SELECT') {

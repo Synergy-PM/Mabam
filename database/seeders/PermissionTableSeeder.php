@@ -42,7 +42,40 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'dealer_trash', 'guard_name' => 'web', 'group_name' => 'Dealers'],
             ['name' => 'dealer_trash_view', 'guard_name' => 'web', 'group_name' => 'Dealers'],
             ['name' => 'dealer_restore', 'guard_name' => 'web', 'group_name' => 'Dealers'],
+
+            ['name' => 'payable_view', 'guard_name' => 'web', 'group_name' => 'Payables'],
+            ['name' => 'payable_create', 'guard_name' => 'web', 'group_name' => 'Payables'],
+            ['name' => 'payable_edit', 'guard_name' => 'web', 'group_name' => 'Payables'],
+            ['name' => 'payable_trash', 'guard_name' => 'web', 'group_name' => 'Payables'],
+            ['name' => 'payable_trash_view', 'guard_name' => 'web', 'group_name' => 'Payables'],
+            ['name' => 'payable_restore', 'guard_name' => 'web', 'group_name' => 'Payables'],
+
+            ['name' => 'payable_payment_view', 'guard_name' => 'web', 'group_name' => 'Payable Payments'],
+            ['name' => 'payable_payment_create', 'guard_name' => 'web', 'group_name' => 'Payable Payments'],
+            ['name' => 'payable_payment_edit', 'guard_name' => 'web', 'group_name' => 'Payable Payments'],
+            ['name' => 'payable_payment_trash', 'guard_name' => 'web', 'group_name' => 'Payable Payments'],
+            ['name' => 'payable_payment_trash_view', 'guard_name' => 'web', 'group_name' => 'Payable Payments'],
+            ['name' => 'payable_payment_restore', 'guard_name' => 'web', 'group_name' => 'Payable Payments'],
+            
+            ['name' => 'receivable_payment_view', 'guard_name' => 'web', 'group_name' => 'Receivable Payments'],
+            ['name' => 'receivable_payment_create', 'guard_name' => 'web', 'group_name' => 'Receivable Payments'],
+            ['name' => 'receivable_payment_edit', 'guard_name' => 'web', 'group_name' => 'Receivable Payments'],
+            ['name' => 'receivable_payment_trash', 'guard_name' => 'web', 'group_name' => 'Receivable Payments'],
+            ['name' => 'receivable_payment_trash_view', 'guard_name' => 'web', 'group_name' => 'Receivable Payments'],
+            ['name' => 'receivable_payment_restore', 'guard_name' => 'web', 'group_name' => 'Receivable Payments'],
+
+            ['name' => 'expense_view', 'guard_name' => 'web', 'group_name' => 'Expenses'],
+            ['name' => 'expense_create', 'guard_name' => 'web', 'group_name' => 'Expenses'],
+            ['name' => 'expense_edit', 'guard_name' => 'web', 'group_name' => 'Expenses'],
+            ['name' => 'expense_trash', 'guard_name' => 'web', 'group_name' => 'Expenses'],
+            ['name' => 'expense_trash_view', 'guard_name' => 'web', 'group_name' => 'Expenses'],
+            ['name' => 'expense_restore', 'guard_name' => 'web', 'group_name' => 'Expenses'],
              
+            ['name' => 'ledger_payable_view', 'guard_name' => 'web', 'group_name' => 'Reports'],
+            ['name' => 'ledger_receivable_view', 'guard_name' => 'web', 'group_name' => 'Reports'],
+            ['name' => 'stock_report_view', 'guard_name' => 'web', 'group_name' => 'Reports'],
+            ['name' => 'daily_report_view', 'guard_name' => 'web', 'group_name' => 'Reports'],
+
             ['name' => 'user_activity_view', 'guard_name' => 'web', 'group_name' => 'User Activity'],
 
              ];

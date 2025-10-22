@@ -10,15 +10,20 @@
                 <div class="card-header d-flex justify-content-between align-items-center bg-light">
                     <h4 class="card-title mb-0">Expenses List</h4>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('expenses.create') }}" class="btn btn-sm btn-primary">
-                            <i class="mdi mdi-plus"></i> Add Expense
-                        </a>
-                        <a href="{{ route('expenses.trash') }}" class="btn btn-sm btn-danger d-flex align-items-center gap-2"
-                            title="Deleted Expenses">
-                            <i class="bi bi-trash-fill"></i>
-                            <span>Trash</span>
-                            <span class="badge bg-light text-dark">{{ $trashExpenses ?? 0 }}</span>
-                        </a>
+                        @can('expense_create')
+                            <a href="{{ route('expenses.create') }}" class="btn btn-sm btn-primary">
+                                <i class="mdi mdi-plus"></i> Add Expense
+                            </a>
+                        @endcan
+
+                        @can('expense_trash')
+                            <a href="{{ route('expenses.trash') }}" class="btn btn-sm btn-danger d-flex align-items-center gap-2"
+                                title="Deleted Expenses">
+                                <i class="bi bi-trash-fill"></i>
+                                <span>Trash</span>
+                                <span class="badge bg-light text-dark">{{ $trashExpenses ?? 0 }}</span>
+                            </a>
+                        @endcan
                     </div>
                 </div>
 
@@ -42,15 +47,26 @@
                                         <td>{{ $expense->expense_description }}</td>
                                         <td>{{ number_format($expense->amount, 2) }}</td>
                                         <td class="text-center">
-                                            <a href="{{ route('expenses.edit', $expense->id) }}"
-                                                class="btn btn-sm btn-soft-warning"><i class="mdi mdi-pencil"></i></a>
-                                            <form action="{{ route('expenses.delete', $expense->id) }}" method="POST" style="display:inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-soft-danger">
-                                                    <i class="mdi mdi-trash-can"></i>
-                                                </button>
-                                            </form>
+                                            <div class="d-flex justify-content-center gap-1">
+                                                @can('expense_edit')
+                                                    <a href="{{ route('expenses.edit', $expense->id) }}"
+                                                        class="btn btn-sm btn-soft-warning" title="Edit">
+                                                        <i class="mdi mdi-pencil"></i>
+                                                    </a>
+                                                @endcan
+
+                                                @can('expense_trash')
+                                                    <form action="{{ route('expenses.delete', $expense->id) }}" method="POST" 
+                                                        style="display:inline-block;" 
+                                                        onsubmit="return confirm('Move to trash?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete">
+                                                            <i class="mdi mdi-trash-can"></i>
+                                                        </button>
+                                                    </form>
+                                                @endcan
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -72,9 +88,9 @@ $(document).ready(function() {
         pageLength: 10,
         responsive: true,
         autoWidth: false,
-        order: [[1, 'desc']], // Sort by Date
+        order: [[1, 'desc']],
         columnDefs: [
-            { orderable: false, targets: [0, 4] } // # and Actions
+            { orderable: false, targets: [0, 4] }
         ]
     });
 });

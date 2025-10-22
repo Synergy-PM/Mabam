@@ -11,13 +11,17 @@
         <div class="card-header d-flex justify-content-between align-items-center bg-light">
           <h4 class="card-title mb-0">Payables</h4>
           <div class="d-flex gap-2">
+            @can('payable_create')
             <a href="{{ route('payables.create') }}" class="btn btn-sm btn-primary">
               <i class="mdi mdi-plus"></i> Add
             </a>
+            @endcan
+            @can('payable_trash_view')
             <a href="{{ route('payables.trash') }}" class="btn btn-sm btn-danger d-flex align-items-center gap-2">
               <i class="bi bi-trash-fill"></i> Trash
               <span class="badge bg-light text-dark ms-1">{{ $trashCount ?? 0 }}</span>
             </a>
+            @endcan
           </div>
         </div>
 
@@ -54,13 +58,14 @@
                     <td class="text-center">{{ \Carbon\Carbon::parse($p->transaction_date)->format('d-m-Y') }}</td>
                     <td class="text-center">
                       <div class="d-flex justify-content-center gap-1">
-                        <!-- Edit -->
+                        @can('payable_edit')
                         <a href="{{ route('payables.edit', $p->id) }}"
                            class="btn btn-sm btn-soft-warning"
                            title="Edit">
                           <i class="mdi mdi-pencil"></i>
                         </a>
-                        <!-- Delete -->
+                        @endcan
+                        @can('payable_trash')
                         <form action="{{ route('payables.delete', $p->id) }}" method="POST"
                               onsubmit="return confirm('Move to trash?');">
                           @csrf
@@ -69,6 +74,7 @@
                             <i class="mdi mdi-trash-can"></i>
                           </button>
                         </form>
+                        @endcan
                       </div>
                     </td>
                   </tr>

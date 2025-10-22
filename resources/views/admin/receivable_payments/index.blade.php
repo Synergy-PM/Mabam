@@ -11,13 +11,18 @@
         <div class="card-header d-flex justify-content-between align-items-center bg-light">
           <h4 class="card-title mb-0">Receivable Payments</h4>
           <div class="d-flex gap-2">
-            <a href="{{ route('receivable-payments.create') }}" class="btn btn-sm btn-primary">
-              <i class="mdi mdi-plus"></i> Add
-            </a>
-            <a href="{{ route('receivable-payments.trash') }}" class="btn btn-sm btn-danger d-flex align-items-center gap-2">
-              <i class="bi bi-trash-fill"></i> Trash
-              <span class="badge bg-light text-dark ms-1">{{ $trashCount ?? 0 }}</span>
-            </a>
+            @can('receivable_payment_create')
+              <a href="{{ route('receivable-payments.create') }}" class="btn btn-sm btn-primary">
+                <i class="mdi mdi-plus"></i> Add
+              </a>
+            @endcan
+
+            @can('receivable_payment_trash')
+              <a href="{{ route('receivable-payments.trash') }}" class="btn btn-sm btn-danger d-flex align-items-center gap-2">
+                <i class="bi bi-trash-fill"></i> Trash
+                <span class="badge bg-light text-dark ms-1">{{ $trashCount ?? 0 }}</span>
+              </a>
+            @endcan
           </div>
         </div>
 
@@ -52,7 +57,6 @@
               <tbody>
                 @forelse($payments as $payment)
                   <tr>
-                    <!-- Pagination-wise numbering -->
                     <td class="text-center">
                       {{ $loop->iteration + ($payments->currentPage() - 1) * $payments->perPage() }}
                     </td>
@@ -62,28 +66,31 @@
                     <td class="text-center">{{ ucfirst($payment->payment_mode) ?? '-' }}</td>
                     <td class="text-center">
                       <div class="d-flex justify-content-center gap-1">
-                        <!-- Edit -->
-                        <a href="{{ route('receivable-payments.edit', $payment->id) }}" 
-                           class="btn btn-sm btn-soft-warning" 
-                           title="Edit">
-                          <i class="mdi mdi-pencil"></i>
-                        </a>
-                        <!-- Delete -->
-                        <form action="{{ route('receivable-payments.delete', $payment->id) }}" method="POST" 
-                              onsubmit="return confirm('Move to trash?');">
-                          @csrf
-                          @method('DELETE')
-                          <button class="btn btn-sm btn-soft-danger" title="Delete">
-                            <i class="mdi mdi-trash-can"></i>
-                          </button>
-                        </form>
+                        @can('receivable_payment_edit')
+                          <a href="{{ route('receivable-payments.edit', $payment->id) }}" 
+                             class="btn btn-sm btn-soft-warning" 
+                             title="Edit">
+                            <i class="mdi mdi-pencil"></i>
+                          </a>
+                        @endcan
+
+                        @can('receivable_payment_trash')
+                          <form action="{{ route('receivable-payments.delete', $payment->id) }}" method="POST" 
+                                onsubmit="return confirm('Move to trash?');">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm btn-soft-danger" title="Delete">
+                              <i class="mdi mdi-trash-can"></i>
+                            </button>
+                          </form>
+                        @endcan
                       </div>
                     </td>
                   </tr>
                 @empty
-                  {{-- <tr>
+                  <tr>
                     <td colspan="6" class="text-center text-muted">No records found.</td>
-                  </tr> --}}
+                  </tr>
                 @endforelse
               </tbody>
             </table>

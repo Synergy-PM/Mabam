@@ -579,5 +579,86 @@ public function dailyReport(Request $request)
     ));
 }
 
+     public function filter()
+    {
+        return view('admin.reports.profit_filter');
+    }
+
+public function profitReport(Request $request)
+{
+    $reportType = $request->input('report_type', 'daily'); // default daily
+    $startDate = $request->input('start_date') ?? now()->startOfMonth()->toDateString();
+    $endDate = $request->input('end_date') ?? now()->endOfMonth()->toDateString();
+    $year = $request->input('year') ?? now()->year;
+
+    $report = collect();
+
+    if ($reportType === 'daily') {
+        $dailyReceivables = \DB::table('receivable_payments')
+            ->selectRaw('DATE(transaction_date) as date, SUM(amount_received) as total_income')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->groupBy('date')
+            ->get();
+
+        $dailyPayables = \DB::table('payable_payments')
+            ->selectRaw('DATE(transaction_date) as date, SUM(amount) as total_expense')
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->groupBy('date')
+            ->get();
+
+        $allDates = $dailyReceivables->pluck('date')->merge($dailyPayables->pluck('date'))->unique()->sort();
+
+        foreach ($allDates as $date) {
+            $income = $dailyReceivables->firstWhere('date', $date)->total_income ?? 0;
+            $expense = $dailyPayables->firstWhere('date', $date)->total_expense ?? 0;
+            $profit = $income - $expense;
+
+            $report->push([
+                'label' => $date,
+                'income' => $income,
+                'expense' => $expense,
+                'profit' => $profit,
+            ]);
+        }
+    } else {
+        // 🔹 MONTHLY REPORT LOGIC
+        $monthlyReceivables = \DB::table('receivable_payments')
+            ->selectRaw('YEAR(transaction_date) as year, MONTH(transaction_date) as month, SUM(amount_received) as total_income')
+            ->whereYear('transaction_date', $year)
+            ->groupBy('year', 'month')
+            ->get();
+
+        $monthlyPayables = \DB::table('payable_payments')
+            ->selectRaw('YEAR(transaction_date) as year, MONTH(transaction_date) as month, SUM(amount) as total_expense')
+            ->whereYear('transaction_date', $year)
+            ->groupBy('year', 'month')
+            ->get();
+
+        $months = collect(range(1, 12));
+
+        foreach ($months as $month) {
+            $income = $monthlyReceivables->firstWhere('month', $month)->total_income ?? 0;
+            $expense = $monthlyPayables->firstWhere('month', $month)->total_expense ?? 0;
+            $profit = $income - $expense;
+
+            $report->push([
+                'label' => \Carbon\Carbon::createFromDate($year, $month, 1)->format('F'),
+                'income' => $income,
+                'expense' => $expense,
+                'profit' => $profit,
+            ]);
+        }
+    }
+
+    $totalIncome = $report->sum('income');
+    $totalExpense = $report->sum('expense');
+    $totalProfit = $totalIncome - $totalExpense;
+
+    return view('admin.reports.profit-report', compact(
+        'report', 'reportType', 'startDate', 'endDate', 'year',
+        'totalIncome', 'totalExpense', 'totalProfit'
+    ));
+}
+
 
 }
