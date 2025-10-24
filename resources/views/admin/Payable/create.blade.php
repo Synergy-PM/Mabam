@@ -1,118 +1,153 @@
 @extends('admin.layouts.shared')
 @section('title', 'Create Payable & Receivable')
-@section('header-title', 'Create Payable & Receivable')
+@section('header-title', 'Bilti Entry')
 @section('content')
     <div class="row">
         <div class="col-12">
             <!-- PAYABLE FORM -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h4 class="mb-3">Create Payable</h4>
+                    <h4 class="mb-3">Create Bilti Entry</h4>
                     <form action="{{ route('payables.store') }}" method="POST" id="payableForm" enctype="multipart/form-data">
                         @csrf
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label><b>Transaction Date</b><span class="text-danger">*</span></label>
-                                <input type="date" name="transaction_date" class="form-control"
-                                    value="{{ old('transaction_date') }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3 position-relative">
-                                <label><b>Supplier</b><span class="text-danger">*</span></label>
-                                <input type="text" id="supplier_search" class="form-control mb-1"
-                                    placeholder="Type supplier name..." value="{{ old('supplier_name') }}">
-                                <ul id="supplier_suggestion_list" class="list-group position-absolute w-100 shadow-sm"
-                                    style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
-                                    @foreach ($suppliers as $s)
-                                        <li class="list-group-item list-group-item-action" data-id="{{ $s->id }}"
-                                            style="cursor: pointer;">
-                                            {{ $s->supplier_name }}
-                                        </li>
-                                    @endforeach
-                                    <li class="list-group-item list-group-item-action text-muted not-found"
-                                        style="display: none;">
-                                        Not Found
-                                    </li>
-                                </ul>
-                                <input type="hidden" name="supplier_id" id="supplier_id" value="{{ old('supplier_id') }}"
-                                    required>
-                              </div>
-                            <div class="col-md-6 mb-3">
-                                <label><b>Tons</b></label>
-                                <input type="text" id="tons" class="form-control">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label><b>No of Bags</b><span class="text-danger">*</span></label>
-                                <input type="number" name="no_of_bags" id="no_of_bags" class="form-control"
-                                    value="{{ old('no_of_bags') }}" readonly>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label><b>Amount per Ton</b><span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" name="amount_per_bag" id="amount_per_bag"
-                                    class="form-control" value="{{ old('amount_per_bag') }}" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label><b>Total Amount</b></label>
-                                <input type="text" id="total_amount" class="form-control" readonly>
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label><b>Bilti No</b></label>
-                                <input type="text" name="bilti_no" id="payable_bilti_no" class="form-control"
-                                    value="{{ old('bilti_no') }}">
-                            </div>
+                        <div class="excel-grid">
+                            <table class="excel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction Date<span class="text-danger">*</span></th>
+                                        <th>Supplier<span class="text-danger">*</span></th>
+                                        <th>Tons</th>
+                                        <th>No of Bags<span class="text-danger">*</span></th>
+                                        <th>Amount per Ton<span class="text-danger">*</span></th>
+                                        <th>Total Amount</th>
+                                        <th>Bilti No</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="date" name="transaction_date" class="form-control excel-input"
+                                                value="{{ old('transaction_date') }}" required>
+                                        </td>
+                                        <td class="position-relative">
+                                            <input type="text" id="supplier_search" class="form-control excel-input"
+                                                placeholder="Type supplier name..." value="{{ old('supplier_name') }}">
+                                            <ul id="supplier_suggestion_list" class="list-group position-absolute w-100 shadow-sm"
+                                                style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
+                                                @foreach ($suppliers as $s)
+                                                    <li class="list-group-item list-group-item-action" data-id="{{ $s->id }}"
+                                                        style="cursor: pointer;">
+                                                        {{ $s->supplier_name }}
+                                                    </li>
+                                                @endforeach
+                                                <li class="list-group-item list-group-item-action text-muted not-found"
+                                                    style="display: none;">
+                                                    Not Found
+                                                </li>
+                                            </ul>
+                                            <input type="hidden" name="supplier_id" id="supplier_id" value="{{ old('supplier_id') }}"
+                                                required>
+                                        </td>
+                                        <td>
+                                            <input type="text" id="tons" class="form-control excel-input">
+                                        </td>
+                                        <td>
+                                            <input type="number" name="no_of_bags" id="no_of_bags" class="form-control excel-input"
+                                                value="{{ old('no_of_bags') }}" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="amount_per_bag" id="amount_per_bag"
+                                                class="form-control excel-input" value="{{ old('amount_per_bag') }}" required>
+                                        </td>
+                                        <td>
+                                            <input type="text" id="total_amount" class="form-control excel-input" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="bilti_no" id="payable_bilti_no" class="form-control excel-input"
+                                                value="{{ old('bilti_no') }}">
+                                        </td>
+                                         <td>
+                                            <input type="text" id="truck_no" class="form-control excel-input">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- RECEIVABLE FORM -->
-                        <h4 class="mb-3 mt-5">Create Receivable</h4>
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label><b>Bilti No</b></label>
-                                <input type="text" name="bilti_no" id="bilti_no" class="form-control" readonly>
-                            </div>
-                            <div class="col-md-4">
-                                <label><b>Total Bags (From Bilti)</b></label>
-                                <input type="number" id="total_bags" class="form-control" readonly>
-                            </div>
-                            <div class="col-md-4">
-                                <label><b>Remaining Bags</b></label>
-                                <input type="number" id="remaining_bags" class="form-control" readonly>
-                            </div>
+                        <h4 class="mb-3 mt-4">Create Receivable</h4>
+                        <div class="excel-grid">
+                            <table class="excel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Bilti No</th>
+                                        <th>Total Bags (From Bilti)</th>
+                                        <th>Remaining Bags</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="bilti_no" id="bilti_no" class="form-control excel-input" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" id="total_bags" class="form-control excel-input" readonly>
+                                        </td>
+                                        <td>
+                                            <input type="number" id="remaining_bags" class="form-control excel-input" readonly>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!-- Dealers Forms -->
-                        <div id="dealersContainer"></div>
+                        <div id="dealersContainer" class="excel-grid"></div>
                         <div class="mb-3">
-                            <button type="button" class="btn btn-success" id="addDealerForm">+ Add Dealer</button>
+                            <button type="button" class="btn btn-success btn-sm" id="addDealerForm">+ Add Dealer</button>
                         </div>
                         <!-- Summary -->
                         <div class="mb-3">
                             <label><b>Summary</b></label>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <input type="text" id="summaryBags" class="form-control"
-                                        placeholder="Total Allocated Bags" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="text" id="summaryTons" class="form-control" placeholder="Total Tons"
-                                        readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="text" id="grandTotal" class="form-control" placeholder="Grand Total"
-                                        readonly>
-                                </div>
+                            <div class="excel-grid">
+                                <table class="excel-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Total Allocated Bags</th>
+                                            <th>Total Tons</th>
+                                            <th>Grand Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text" id="summaryBags" class="form-control excel-input"
+                                                    placeholder="Total Allocated Bags" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" id="summaryTons" class="form-control excel-input"
+                                                    placeholder="Total Tons" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" id="grandTotal" class="form-control excel-input"
+                                                    placeholder="Grand Total" readonly>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
                         <small id="bagWarning" class="text-danger fw-bold" style="display:none;">
                             ⚠ The total dealer bags have exceeded the bilti bags!
                         </small>
-
-                        <div class="col-md-12 mt-4">
-                            <button type="submit" class="btn btn-primary" id="saveBtn"><b>Submit</b></button>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm" id="saveBtn"><b>Submit</b></button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const supplierSearch = document.getElementById('supplier_search');
@@ -133,12 +168,12 @@
                     if (name.includes(query)) hasMatches = true;
                 });
                 notFoundItem.style.display = query && !hasMatches ? 'block' : 'none';
-                if (!supplierItems.some(li => li.textContent.toLowerCase().trim() === query)) {
+                if (!query || !supplierItems.some(li => li.textContent.toLowerCase().trim() === query)) {
                     supplierIdInput.value = '';
                 }
             });
 
-            supplierItems.forEach((li, index) => {
+            supplierItems.forEach((li) => {
                 li.addEventListener('click', function() {
                     supplierSearch.value = this.textContent.trim();
                     supplierIdInput.value = this.getAttribute('data-id');
@@ -155,8 +190,7 @@
                     highlightItem(visibleItems, supplierSelectedIndex, supplierItems);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    supplierSelectedIndex = (supplierSelectedIndex - 1 + visibleItems.length) % visibleItems
-                        .length;
+                    supplierSelectedIndex = (supplierSelectedIndex - 1 + visibleItems.length) % visibleItems.length;
                     highlightItem(visibleItems, supplierSelectedIndex, supplierItems);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
@@ -218,7 +252,6 @@
             total.value = (t * r) > 0 ? (t * r).toFixed(2) : '';
         }
 
-
         tons.addEventListener('input', calcFromTons);
         rate.addEventListener('input', calcFromRate);
         window.addEventListener('load', calcFromTons);
@@ -255,74 +288,79 @@
 
         document.getElementById('addDealerForm').addEventListener('click', function() {
             let newForm = `
-        <div class="border p-3 mt-3 rounded bg-light dealer-form" data-index="${dealerIndex}">
-          <div class="row">
-              <input type="hidden" name="supplier_id" value="${document.querySelector('[name="supplier_id"]').value}">
-              <div class="col-md-4 mb-3 position-relative">
-                  <label>Dealer</label>
-                  <input type="text" class="form-control dealer_search mb-1" placeholder="Type dealer name..." data-index="${dealerIndex}">
-                  <ul class="list-group dealer_suggestion_list position-absolute w-100 shadow-sm"
-                      style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"
-                      data-index="${dealerIndex}">
-                      @foreach ($dealers as $dealer)
-                          <li class="list-group-item list-group-item-action"
-                              data-id="{{ $dealer->id }}"
-                              style="cursor: pointer;">
-                              {{ $dealer->dealer_name }}
-                          </li>
-                      @endforeach
-                      <li class="list-group-item list-group-item-action text-muted not-found" style="display: none;">
-                          Not Found
-                      </li>
-                  </ul>
-                  <input type="hidden" name="dealer_id[${dealerIndex}]" class="dealer_id" required>
-              </div>
-              <div class="col-md-4 mb-3">
-                  <label>Bags</label>
-                  <input type="number" name="bags[${dealerIndex}]" class="form-control bagsInput" value="">
-              </div>
-              <div class="col-md-4 mb-3">
-                  <label>Tons</label>
-                  <input type="number" class="form-control tonsInput" readonly>
-              </div>
-              <div class="col-md-4 mb-3">
-                  <label>Rate Per Bag</label>
-                  <input type="number" step="0.01" name="rate[${dealerIndex}]" class="form-control rate" value="">
-              </div>
-               <div class="col-md-4 mb-3">
-                  <label>Freight</label>
-                  <input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight" value="">
-              </div>
-              <div class="col-md-4 mb-3">
-                  <label>Total</label>
-                  <input type="text" class="form-control dealerTotal" readonly>
-              </div>
-
-              <div class="col-md-4 mb-3">
-                  <label>Payment Type</label>
-                  <select name="payment_type[${dealerIndex}]" class="form-control" required>
-                      <option value="">Select</option>
-                      <option value="credit">Credit</option>
-                      <option value="cash">Cash</option>
-                      <option value="online">Online</option>
-                      <option value="cheque">Cheque</option>
-                  </select>
-              </div>
-              <div class="col-md-4 mb-3">
-                  <label>Proof of Payment</label>
-                  <input type="file" name="proof_of_payment[${dealerIndex}]" class="form-control">
-              </div>
-              <div class="col-md-4 mb-3 d-flex align-items-end">
-                  <button type="button" class="btn btn-danger removeDealer">Remove</button>
-              </div>
-          </div>
-        </div>
-      `;
+                <table class="excel-table dealer-form" data-index="${dealerIndex}">
+                    <thead>
+                        <tr>
+                            <th>Dealer</th>
+                            <th>Bags</th>
+                            <th>Tons</th>
+                            <th>Rate Per Bag</th>
+                            <th>Freight</th>
+                            <th>Total</th>
+                            <th>Payment Type</th>
+                            <th>Proof of Payment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="position-relative">
+                                <input type="hidden" name="supplier_id" value="${document.querySelector('[name="supplier_id"]').value}">
+                                <input type="text" class="form-control dealer_search excel-input" placeholder="Type dealer name..." data-index="${dealerIndex}">
+                                <ul class="list-group dealer_suggestion_list position-absolute w-100 shadow-sm"
+                                    style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"
+                                    data-index="${dealerIndex}">
+                                    @foreach ($dealers as $dealer)
+                                        <li class="list-group-item list-group-item-action"
+                                            data-id="{{ $dealer->id }}"
+                                            style="cursor: pointer;">
+                                            {{ $dealer->dealer_name }}
+                                        </li>
+                                    @endforeach
+                                    <li class="list-group-item list-group-item-action text-muted not-found" style="display: none;">
+                                        Not Found
+                                    </li>
+                                </ul>
+                                <input type="hidden" name="dealer_id[${dealerIndex}]" class="dealer_id" required>
+                            </td>
+                            <td>
+                                <input type="number" name="bags[${dealerIndex}]" class="form-control bagsInput excel-input" value="">
+                            </td>
+                            <td>
+                                <input type="number" class="form-control tonsInput excel-input" readonly>
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" name="rate[${dealerIndex}]" class="form-control rate excel-input" value="">
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight excel-input" value="">
+                            </td>
+                            <td>
+                                <input type="text" class="form-control dealerTotal excel-input" readonly>
+                            </td>
+                            <td>
+                                <select name="payment_type[${dealerIndex}]" class="form-control excel-input">
+                                    <option value="">Select</option>
+                                    <option value="credit">Credit</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="online">Online</option>
+                                    <option value="cheque">Cheque</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="file" name="proof_of_payment[${dealerIndex}]" class="form-control excel-input">
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm removeDealer">Remove</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
             dealersContainer.insertAdjacentHTML('beforeend', newForm);
 
             const dealerSearch = dealersContainer.querySelector(`.dealer_search[data-index="${dealerIndex}"]`);
-            const dealerSuggestionList = dealersContainer.querySelector(
-                `.dealer_suggestion_list[data-index="${dealerIndex}"]`);
+            const dealerSuggestionList = dealersContainer.querySelector(`.dealer_suggestion_list[data-index="${dealerIndex}"]`);
             const dealerIdInput = dealersContainer.querySelector(`.dealer_id[name="dealer_id[${dealerIndex}]"]`);
             const dealerItems = Array.from(dealerSuggestionList.querySelectorAll('li:not(.not-found)'));
             const dealerNotFoundItem = dealerSuggestionList.querySelector('.not-found');
@@ -339,12 +377,12 @@
                     if (name.includes(query)) hasMatches = true;
                 });
                 dealerNotFoundItem.style.display = query && !hasMatches ? 'block' : 'none';
-                if (!dealerItems.some(li => li.textContent.toLowerCase().trim() === query)) {
+                if (!query || !dealerItems.some(li => li.textContent.toLowerCase().trim() === query)) {
                     dealerIdInput.value = '';
                 }
             });
 
-            dealerItems.forEach((li, index) => {
+            dealerItems.forEach((li) => {
                 li.addEventListener('click', function() {
                     dealerSearch.value = this.textContent.trim();
                     dealerIdInput.value = this.getAttribute('data-id');
@@ -352,8 +390,7 @@
                     dealerNotFoundItem.style.display = 'none';
                     dealerSearch.classList.remove('is-invalid');
                     const existingFeedback = dealerSearch.nextElementSibling;
-                    if (existingFeedback && existingFeedback.classList.contains(
-                            'invalid-feedback')) {
+                    if (existingFeedback && existingFeedback.classList.contains('invalid-feedback')) {
                         existingFeedback.remove();
                     }
                 });
@@ -367,8 +404,7 @@
                     highlightItem(visibleItems, dealerSelectedIndex, dealerItems);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    dealerSelectedIndex = (dealerSelectedIndex - 1 + visibleItems.length) % visibleItems
-                        .length;
+                    dealerSelectedIndex = (dealerSelectedIndex - 1 + visibleItems.length) % visibleItems.length;
                     highlightItem(visibleItems, dealerSelectedIndex, dealerItems);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
@@ -427,9 +463,7 @@
                 let tons = bags / 20;
 
                 form.querySelector('.tonsInput').value = bags > 0 ? tons.toFixed(2) : '';
-
                 let dealerTotal = bags * (rate - freight);
-
                 form.querySelector('.dealerTotal').value = dealerTotal > 0 ? dealerTotal.toFixed(2) : '';
                 totalDealerBags += bags;
                 grandTotal += dealerTotal;
@@ -441,23 +475,11 @@
             summaryBags.value = totalDealerBags > 0 ? totalDealerBags : '';
             summaryTons.value = totalTons > 0 ? totalTons.toFixed(2) : '';
             grandTotalInput.value = grandTotal > 0 ? grandTotal.toFixed(2) : '';
-            if (totalDealerBags > totalBags && totalBags > 0) {
-                saveBtn.disabled = true;
-                Swal.fire({
-                    icon: 'warning',
-                    title: '⚠ Limit Exceeded!',
-                    text: 'The total dealer bags have exceeded the bilti bags!',
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'OK'
-                });
-            } else {
-                saveBtn.disabled = false;
-            }
-
+            bagWarning.style.display = totalDealerBags > totalBags && totalBags > 0 ? 'block' : 'none';
+            saveBtn.disabled = totalDealerBags > totalBags && totalBags > 0;
         }
 
-
-        document.getElementById('payableForm').addEventListener('submit', function(e) {
+        payableForm.addEventListener('submit', function(e) {
             let isValid = true;
             document.querySelectorAll('.dealer-form').forEach(form => {
                 const dealerIdInput = form.querySelector('.dealer_id');
@@ -484,15 +506,130 @@
             }
         });
     </script>
+
     <style>
+        .excel-grid {
+            margin-bottom: 1rem;
+        }
+
+        .excel-table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #ffffff;
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 12px;
+        }
+
+        .excel-table th,
+        .excel-table td {
+            border: 1px solid #d3d3d3;
+            padding: 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .excel-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 11px;
+            padding: 6px;
+        }
+
+        .excel-table td {
+            background-color: #ffffff;
+        }
+
+        .excel-input {
+            border: none;
+            width: 100%;
+            padding: 2px 4px;
+            background: transparent;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .excel-input:focus {
+            outline: none;
+            background-color: #e6f3fa;
+        }
+
+        .excel-table .position-relative {
+            position: relative;
+        }
+
+        .list-group {
+            border: 1px solid #d3d3d3;
+            border-radius: 0;
+            background-color: #ffffff;
+        }
+
+        .list-group-item {
+            padding: 4px 8px;
+            font-size: 12px;
+            border: none;
+            border-bottom: 1px solid #d3d3d3;
+        }
+
         .list-group-item.active {
-            background-color: #007bff;
-            color: white;
+            background-color: #0078d4;
+            color: #ffffff;
         }
 
         .list-group-item.not-found {
             cursor: default;
             font-style: italic;
+            color: #888;
+        }
+
+        .excel-table .form-control[readonly] {
+            background-color: #f4f4f4;
+            cursor: not-allowed;
+        }
+
+        .excel-table select.excel-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: transparent;
+            padding-right: 20px;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23333' d='M6 9l4-4H2z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 4px center;
+        }
+
+        .excel-table input[type="file"] {
+            padding: 2px;
+            font-size: 11px;
+        }
+
+        .btn-sm {
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        .invalid-feedback {
+            font-size: 10px;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .excel-table th,
+            .excel-table td {
+                font-size: 10px;
+                padding: 3px;
+            }
+
+            .excel-input {
+                font-size: 10px;
+                padding: 2px;
+            }
+
+            .btn-sm {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
         }
     </style>
 @endsection

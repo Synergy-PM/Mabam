@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->decimal('freight', 12, 2)->default(0);
             $table->decimal('tons', 12, 2)->default(0);
             $table->decimal('total', 14, 2)->default(0);
-            $table->enum('payment_type', ['cash', 'credit'])->default('cash');
+            $table->enum('payment_type', ['cash', 'credit'])->default('cash')->nullable();
             // $table->string('code')->unique();
             $table->softDeletes();
             $table->timestamps();

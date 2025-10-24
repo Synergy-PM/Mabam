@@ -112,7 +112,7 @@
         {{-- Row 2 - 2 Cards --}}
         <div class="row g-3 mt-1">
             <div class="col-xl-6 col-md-6">
-                <a href="#" class="text-decoration-none text-dark">
+                <a href="{{ route('receivable-payments.supplier-summary')}}" class="text-decoration-none text-dark">
                     <div class="card shadow-sm text-center">
                         <div class="card-body">
                             <div class="icon-box bg-gradient-purple shadow-sm mb-2">
@@ -126,7 +126,7 @@
             </div>
 
             <div class="col-xl-6 col-md-6">
-                <a href="#" class="text-decoration-none text-dark">
+                <a href="{{route('payable-payments.supplier-summary')}}" class="text-decoration-none text-dark">
                     <div class="card shadow-sm text-center">
                         <div class="card-body">
                             <div class="icon-box bg-gradient-red shadow-sm mb-2">

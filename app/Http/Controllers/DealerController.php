@@ -36,6 +36,7 @@ class DealerController extends Controller
         $dealer->dealer_name     = $request->dealer_name;
         $dealer->company_name    = $request->company_name;
         $dealer->city_id         = $request->city_id;
+        $dealer->contact_no      = $request->contact_no; 
         $dealer->opening_balance = $request->opening_balance ?? 0;
         $dealer->transaction_type = $request->transaction_type;
         // $dealer->email = $request->email;

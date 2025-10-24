@@ -57,11 +57,11 @@
                                     value="{{ old('contact_person', $dealer->contact_person) }}">
                             </div> --}}
 
-                            {{-- <div class="col-md-3 mb-3">
+                            <div class="col-md-3 mb-3">
                                 <label><b>Contact No</b></label>
                                 <input type="text" name="contact_no" class="form-control"
                                     value="{{ old('contact_no', $dealer->contact_no) }}">
-                            </div> --}}
+                            </div>
 
                               <div class="col-md-6 mb-3">
                                 <label><b>Opening Balance</b></label>

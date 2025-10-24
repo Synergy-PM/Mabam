@@ -20,8 +20,7 @@
                             </button>
 
                             <div class="dropdown-menu p-2 w-100 shadow" aria-labelledby="dealerDropdownBtn"
-                                style="max-height: 250px; overflow-y: auto;">
-
+                                style="max-height: 250px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 0.25rem;">
                                 <!-- Search Box -->
                                 <input type="text" class="form-control mb-2" id="dealerSearchInput" placeholder="Search dealer...">
 
@@ -72,25 +71,37 @@ document.addEventListener("DOMContentLoaded", function () {
     const dropdownBtn = document.getElementById("dealerDropdownBtn");
     const dealerIdInput = document.getElementById("dealer_id");
     const noResult = document.querySelector(".no-result");
+    const originalTexts = Array.from(items).map(item => item.textContent.trim());
 
     searchInput.addEventListener("keyup", function () {
         const filter = this.value.toLowerCase();
         let found = false;
-        items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            if (text.includes(filter)) {
-                item.style.display = "";
+
+        items.forEach((item, index) => {
+            const text = originalTexts[index].toLowerCase();
+            const originalText = originalTexts[index];
+
+            if (text.includes(filter) && filter !== '') {
+                const startIndex = text.indexOf(filter);
+                const endIndex = startIndex + filter.length;
+                const before = originalText.slice(0, startIndex);
+                const match = originalText.slice(startIndex, endIndex);
+                const after = originalText.slice(endIndex);
+                item.innerHTML = `${before}<span class="highlight">${match}</span>${after}`;
+                item.style.display = '';
                 found = true;
             } else {
-                item.style.display = "none";
+                item.innerHTML = originalText;
+                item.style.display = text.includes(filter) ? '' : 'none';
             }
         });
-        noResult.style.display = found ? "none" : "block";
+
+        noResult.style.display = found ? 'none' : 'block';
     });
 
     items.forEach(item => {
         item.addEventListener("click", function () {
-            const name = this.textContent.trim();
+            const name = originalTexts[Array.from(items).indexOf(this)];
             const id = this.getAttribute("data-id");
             dropdownBtn.textContent = name;
             dealerIdInput.value = id;
@@ -98,4 +109,51 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
+
+<style>
+    .dropdown-menu {
+        background-color: #fff;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.25rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .dropdown-item.dealer-option {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: #000000; 
+        transition: background-color 0.2s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .dropdown-item.dealer-option .highlight {
+        color: #4dabf7; 
+    }
+
+    .dropdown-item.dealer-option:hover {
+        background-color: #f8f9fa;
+        color: #000000; 
+    }
+
+    .dropdown-item.dealer-option:hover .highlight {
+        color: #4dabf7; 
+    }
+
+    .dropdown-item.dealer-option.active {
+        background-color: #007bff;
+        color: white; 
+    }
+
+    .dropdown-item.dealer-option.active .highlight {
+        color: white; 
+    }
+
+    .dropdown-item.no-result {
+        font-style: italic;
+        color: #6c757d;
+    }
+</style>
 @endsection

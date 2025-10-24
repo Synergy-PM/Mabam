@@ -36,30 +36,11 @@
                                     @endforeach
                                 </select>
                             </div>
-
-                            {{-- <div class="col-md-6 mb-3">
-                                <label><b>Email</b></label>
-                                <input type="email" name="email" class="form-control" 
-                                    value="{{ old('email') }}">
-                            </div> --}}
-
-                            {{-- <div class="col-md-6 mb-3">
-                                <label><b>WhatsApp</b></label>
-                                <input type="text" name="whatsapp" class="form-control" 
-                                    value="{{ old('whatsapp') }}">
-                            </div>
-
                             <div class="col-md-6 mb-3">
-                                <label><b>Contact Person</b></label>
-                                <input type="text" name="contact_person" class="form-control" 
-                                    value="{{ old('contact_person') }}">
-                            </div> --}}
-
-                            {{-- <div class="col-md-6 mb-3">
                                 <label><b>Contact No</b></label>
                                 <input type="text" name="contact_no" class="form-control" 
                                     value="{{ old('contact_no') }}">
-                            </div> --}}
+                            </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label><b>Opening Balance</b></label>
@@ -75,16 +56,6 @@
                                     <option value="credit" {{ old('transaction_type') == 'credit' ? 'selected' : '' }}>Credit</option>
                                 </select>
                             </div>
-                            {{-- <div class="col-md-6 mb-3">
-                                <label><b>Contact Email</b></label>
-                                <input type="email" name="contact_email" class="form-control" 
-                                    value="{{ old('contact_email') }}">
-                            </div> --}}
-
-                            {{-- <div class="col-md-12 mb-3">
-                                <label><b>Address</b></label>
-                                <textarea name="address" class="form-control" rows="3">{{ old('address') }}</textarea>
-                            </div> --}}
                         </div>
 
                         <div class="d-flex gap-2">

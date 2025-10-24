@@ -1,12 +1,11 @@
 @extends('admin.layouts.shared')
 @section('title', 'Edit Payable & Receivable')
-@section('header-title', 'Edit Payable & Receivable')
 @section('content')
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
                 <div class="card-body">
-                    <h4 class="mb-3">Edit Payable</h4>
+                    <h4 class="mb-3">Edit Bilti</h4>
 
                     <script>
                         const allDealers = @json(

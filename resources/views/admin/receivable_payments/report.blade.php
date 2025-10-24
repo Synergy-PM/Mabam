@@ -20,8 +20,7 @@
                 <div class="card shadow border-0 rounded-4 overflow-hidden">
 
                     {{-- Card Header --}}
-                    <div
-                        class="card-header d-flex justify-content-between align-items-center bg-gradient bg-primary text-white p-3">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-gradient bg-primary text-white p-3">
                         <h5 class="mb-0 text-white">
                             <i class="fas fa-file-invoice-dollar me-2"></i> Receivable Ledger Report
                         </h5>
@@ -32,8 +31,7 @@
                             <button id="exportPDF" class="btn btn-light btn-sm shadow-sm">
                                 <i class="fas fa-file-pdf text-danger me-1"></i> Export PDF
                             </button>
-                            <a href="{{ route('receivable-payments.ledger-report-filter') }}"
-                                class="btn btn-light btn-sm shadow-sm">
+                            <a href="{{ route('receivable-payments.ledger-report-filter') }}" class="btn btn-light btn-sm shadow-sm">
                                 <i class="fas fa-arrow-left text-primary me-1"></i> Back
                             </a>
                         </div>
@@ -49,8 +47,7 @@
                             </h6>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Dealer:</strong> {{ $selectedDealer->dealer_name ?? 'All' }}
-                                    </p>
+                                    <p class="mb-1"><strong>Dealer:</strong> {{ $selectedDealer->dealer_name ?? 'All' }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1">
@@ -62,26 +59,6 @@
                             </div>
                         </div>
 
-                        {{-- Opening Balance --}}
-                        @php
-                            $openingBalance = $openBalance ?? 0;
-                            $balance = $openingBalance;
-                            $totalCredit = 0;
-                            $totalDebit = 0;
-
-                            if (isset($openingType) && $openingType === 'credit') {
-                                $totalCredit += $openingBalance;
-                                $openingLabel = 'Opening Balance (Credit)';
-                            } else {
-                                $totalDebit += abs($openingBalance);
-                                $openingLabel = 'Opening Balance (Debit)';
-                            }
-                        @endphp
-
-                        <p class="d-flex justify-content-between align-items-center mb-3" style="font-size: 16px;">
-                            <strong>{{ $openingLabel }}:</strong>
-                            <span class="fw-bold">{{ number_format(abs($openingBalance), 2) }}</span>
-                        </p>
                         {{-- Results Table --}}
                         <div class="table-responsive shadow-sm rounded-3">
                             <table id="ledgerTable" class="table table-bordered table-hover align-middle text-center mb-0">
@@ -90,6 +67,8 @@
                                         <th>S.No</th>
                                         <th>Dealer</th>
                                         <th>Date</th>
+                                        <th>Tons</th>
+                                        <th>Rate</th>
                                         <th>Credit</th>
                                         <th>Debit</th>
                                         <th>Payment Mode</th>
@@ -98,46 +77,50 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $balance = 0;
+                                        $totalCredit = 0;
+                                        $totalDebit = 0;
+                                    @endphp
                                     @foreach ($transactions as $index => $t)
                                         @php
                                             $amount = $t['amount'] ?? 0;
                                             $transactionType = strtolower($t['transaction_type'] ?? '');
+                                            if ($t['is_opening']) {
+                                                $balance = $amount * ($transactionType === 'credit' ? 1 : -1);
+                                            } else {
+                                                $balance += ($transactionType === 'credit' ? $amount : -$amount);
+                                            }
+                                            if ($transactionType === 'credit') {
+                                                $totalCredit += $amount;
+                                            } elseif ($transactionType === 'debit') {
+                                                $totalDebit += $amount;
+                                            }
                                         @endphp
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $t['dealer']->dealer_name ?? 'N/A' }}</td>
                                             <td>{{ \Carbon\Carbon::parse($t['transaction_date'])->format('d M, Y') }}</td>
-
-                                            {{-- Credit Column --}}
+                                            <td>{{ number_format($t['tons'], 2) }}</td>
+                                            <td>{{ number_format($t['rate'], 2) }}</td>
                                             <td>
                                                 @if ($transactionType == 'credit')
                                                     {{ number_format($amount, 2) }}
-                                                    @php
-                                                        $totalCredit += $amount;
-                                                        $balance += $amount;
-                                                    @endphp
                                                 @else
                                                     -
                                                 @endif
                                             </td>
-
-                                            {{-- Debit Column --}}
                                             <td>
                                                 @if ($transactionType == 'debit')
                                                     {{ number_format($amount, 2) }}
-                                                    @php
-                                                        $totalDebit += $amount;
-                                                        $balance -= $amount;
-                                                    @endphp
                                                 @else
                                                     -
                                                 @endif
                                             </td>
-
                                             <td>{{ ucfirst($t['payment_mode'] ?? '') }}</td>
                                             <td>{{ ucfirst($transactionType) }}</td>
                                             <td>
-                                                <span class="fw-bold">{{ number_format($totalCredit - $totalDebit, 2) }}</span>
+                                                <span class="fw-bold">{{ number_format($balance, 2) }}</span>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -147,6 +130,8 @@
                                         <td colspan="3">
                                             <strong>Total</strong>
                                         </td>
+                                        <td>{{ number_format($transactions->where('is_opening', false)->sum('tons'), 2) }}</td>
+                                        <td>{{ number_format($transactions->where('is_opening', false)->sum('rate'), 2) }}</td>
                                         <td>{{ number_format($totalCredit, 2) }}</td>
                                         <td>{{ number_format($totalDebit, 2) }}</td>
                                         <td colspan="2"></td>
@@ -160,8 +145,7 @@
                         <div class="mt-3 p-3 bg-light rounded border shadow-sm">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <p class="mb-1"><strong>Total Credit:</strong> {{ number_format($totalCredit, 2) }}
-                                    </p>
+                                    <p class="mb-1"><strong>Total Credit:</strong> {{ number_format($totalCredit, 2) }}</p>
                                 </div>
                                 <div class="col-md-4">
                                     <p class="mb-1"><strong>Total Debit:</strong> {{ number_format($totalDebit, 2) }}</p>
@@ -173,7 +157,6 @@
                             </div>
                         </div>
 
-                        {{-- Dealer-wise Closing Balances --}}
                         @if (!$selectedDealer && count($dealerSummaries))
                             <div class="mt-5">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -203,10 +186,10 @@
                                             @foreach ($dealerSummaries as $dealer)
                                                 <tr>
                                                     <td>{{ $count++ }}</td>
-                                                    <td>{{ $dealer['dealer_name'] ?? 'N/A' }}</td>
-                                                    <td>{{ $dealer['tons'] ?? 'N/A' }}</td>
+                                                    <td>{{ $dealer['dealer_name'] }}</td>
+                                                    <td>{{ number_format($dealer['tons'], 2) }}</td>
                                                     <td>
-                                                        <span class="fw-bold">{{ number_format($balance, 2) }}</span>
+                                                        <span class="fw-bold">{{ number_format($dealer['closing_balance'], 2) }}</span>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -215,11 +198,12 @@
                                 </div>
                             </div>
                         @endif
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-folder-open me-2"></i> No transactions found
-                        </div>
-
-                    </div> {{-- End Card Body --}}
+                        @if ($transactions->isEmpty())
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-folder-open me-2"></i> No transactions found
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,9 +214,7 @@
 
         <script>
             document.getElementById('exportPDF').addEventListener('click', function() {
-                const {
-                    jsPDF
-                } = window.jspdf;
+                const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('landscape');
                 doc.text("Receivable Ledger Report", 14, 15);
                 doc.autoTable({
@@ -246,8 +228,7 @@
             document.getElementById('printLedger').addEventListener('click', function() {
                 const content = document.getElementById('ledger-section').innerHTML;
                 const printWin = window.open('', '_blank');
-                printWin.document.write(
-                `<html><head><title>Ledger Report</title></head><body>${content}</body></html>`);
+                printWin.document.write(`<html><head><title>Ledger Report</title></head><body>${content}</body></html>`);
                 printWin.document.close();
                 printWin.print();
             });
@@ -255,9 +236,7 @@
             const dealerPDFBtn = document.getElementById('exportDealerPDF');
             if (dealerPDFBtn) {
                 dealerPDFBtn.addEventListener('click', function() {
-                    const {
-                        jsPDF
-                    } = window.jspdf;
+                    const { jsPDF } = window.jspdf;
                     const doc = new jsPDF('landscape');
                     doc.text("Dealer-wise Closing Balances", 14, 15);
                     doc.autoTable({
@@ -274,8 +253,7 @@
                 dealerPrintBtn.addEventListener('click', function() {
                     const content = document.getElementById('dealer-summary').innerHTML;
                     const printWin = window.open('', '_blank');
-                    printWin.document.write(
-                        `<html><head><title>Dealer Summary</title></head><body>${content}</body></html>`);
+                    printWin.document.write(`<html><head><title>Dealer Summary</title></head><body>${content}</body></html>`);
                     printWin.document.close();
                     printWin.print();
                 });

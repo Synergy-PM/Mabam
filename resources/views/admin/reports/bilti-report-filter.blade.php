@@ -18,15 +18,15 @@
             <input type="text" id="dealer_search" class="form-control mb-1" placeholder="Type dealer name..." value="{{ $selectedDealerName ?? '' }}">
             <ul id="dealer_suggestion_list"
                 class="list-group position-absolute w-100 shadow-sm"
-                style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
+                style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none; border: 1px solid #ced4da; border-radius: 0.25rem;">
               @foreach($dealers as $dealer)
-                <li class="list-group-item list-group-item-action" 
+                <li class="list-group-item list-group-item-action dealer-option" 
                     data-id="{{ $dealer->id }}" 
                     style="cursor: pointer;">
                   {{ $dealer->dealer_name }}
                 </li>
               @endforeach
-              {{-- 👇 Not found message placeholder --}}
+              {{-- No found message placeholder --}}
               <li id="no_result_item" class="list-group-item text-center text-muted" style="display: none;">
                 No dealer found
               </li>
@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const dealerIdInput = document.getElementById('dealer_id');
     const dealerItems = Array.from(dealerSuggestionList.querySelectorAll('li[data-id]'));
     const noResultItem = document.getElementById('no_result_item');
+    const originalTexts = Array.from(dealerItems).map(item => item.textContent.trim());
     let selectedIndex = -1;
 
     dealerSearch.addEventListener('input', function () {
@@ -73,23 +74,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (query) {
             dealerSuggestionList.style.display = 'block';
-            dealerItems.forEach(li => {
-                const name = li.textContent.toLowerCase();
-                const match = name.includes(query);
-                li.style.display = match ? 'block' : 'none';
-                if (match) matchCount++;
+            dealerItems.forEach((item, index) => {
+                const text = originalTexts[index].toLowerCase();
+                const originalText = originalTexts[index];
+
+                if (text.includes(query)) {
+                    const startIndex = text.indexOf(query);
+                    const endIndex = startIndex + query.length;
+                    const before = originalText.slice(0, startIndex);
+                    const match = originalText.slice(startIndex, endIndex);
+                    const after = originalText.slice(endIndex);
+                    item.innerHTML = `${before}<span class="highlight">${match}</span>${after}`;
+                    item.style.display = 'block';
+                    matchCount++;
+                } else {
+                    item.innerHTML = originalText;
+                    item.style.display = 'none';
+                }
             });
 
-            // 👇 Show "No dealer found" if no matches
             noResultItem.style.display = matchCount === 0 ? 'block' : 'none';
         } else {
             dealerSuggestionList.style.display = 'none';
+            dealerItems.forEach((item, index) => {
+                item.innerHTML = originalTexts[index];
+                item.style.display = 'block';
+            });
+            noResultItem.style.display = 'none';
         }
     });
 
-    dealerItems.forEach(li => {
-        li.addEventListener('click', function () {
-            dealerSearch.value = this.textContent.trim();
+    dealerItems.forEach(item => {
+        item.addEventListener('click', function () {
+            const index = Array.from(dealerItems).indexOf(this);
+            dealerSearch.value = originalTexts[index];
             dealerIdInput.value = this.getAttribute('data-id');
             dealerSuggestionList.style.display = 'none';
         });
@@ -108,7 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (e.key === 'Enter') {
             e.preventDefault();
             if (selectedIndex >= 0 && visibleItems[selectedIndex]) {
-                dealerSearch.value = visibleItems[selectedIndex].textContent.trim();
+                const index = Array.from(dealerItems).indexOf(visibleItems[selectedIndex]);
+                dealerSearch.value = originalTexts[index];
                 dealerIdInput.value = visibleItems[selectedIndex].getAttribute('data-id');
                 dealerSuggestionList.style.display = 'none';
             }
@@ -130,9 +149,47 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <style>
-  #dealer_suggestion_list li.active {
-      background-color: #007bff;
-      color: white;
-  }
+    #dealer_suggestion_list {
+        background-color: #fff;
+        border: 1px solid #ced4da !important;
+        border-radius: 0.25rem;
+    }
+
+    #dealer_suggestion_list li.dealer-option {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: #000000; 
+        transition: background-color 0.2s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    #dealer_suggestion_list li.dealer-option .highlight {
+        color: #4dabf7; 
+    }
+
+    #dealer_suggestion_list li.dealer-option:hover {
+        background-color: #f8f9fa;
+        color: #000000; 
+    }
+
+    #dealer_suggestion_list li.dealer-option:hover .highlight {
+        color: #4dabf7; 
+    }
+
+    #dealer_suggestion_list li.active {
+        background-color: #007bff;
+        color: white; 
+    }
+
+    #dealer_suggestion_list li.active .highlight {
+        color: white; 
+    }
+
+    #dealer_suggestion_list li.text-muted {
+        font-style: italic;
+        color: #6c757d;
+    }
 </style>
 @endsection

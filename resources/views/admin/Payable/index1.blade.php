@@ -12,7 +12,7 @@
           <h4 class="card-title mb-0">Bilti</h4>
           <div class="d-flex gap-2">
             @can('payable_create')
-            <a href="{{ route('payables.create1') }}" class="btn btn-sm btn-primary">
+            <a href="{{ route('payables.create') }}" class="btn btn-sm btn-primary">
               <i class="mdi mdi-plus"></i> Add
             </a>
             @endcan
@@ -31,7 +31,7 @@
             <table id="payablesTable" class="table table-hover table-striped table-bordered align-middle">
               <thead class="table-light text-center">
                 <tr>
-                  <th>#1</th>
+                  <th>#</th>
                   <th>Supplier</th>
                   <th>Bags</th>
                   <th>Rate</th>

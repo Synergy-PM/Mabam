@@ -185,8 +185,10 @@
                                     @can('dealer_view')
                                         <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
                                     @endcan
-
-                                    <li><a href="{{ route('payables.index') }}">Bilti Entry</a></li>
+                                    @can('payable_view')
+                                    <li><a href="{{ route('payables.index') }}">Bilti Entry1</a></li>
+                                    @endcan
+                                    <li><a href="{{ route('payables.show') }}">Bilti Entry2</a></li>
                                 </ul>
                             </li>
                         @endcanany
@@ -224,7 +226,6 @@
                                 @can('daily_report_view')
                                     <li><a href="{{ route('daily.report.filter') }}">Daily Report</a></li>
                                 @endcan
-
                                 {{-- <li><a href="{{ route('profit.filter') }}">Profit Report</a></li> --}}
                             </ul>
                         </li>

@@ -94,7 +94,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 
    Route::controller(PayableController::class)->prefix('payables')->group(function () {
         Route::get('/', 'index')->name('payables.index');
+        Route::get('/one', 'show')->name('payables.show');
         Route::get('create', 'create')->name('payables.create');
+        Route::get('create1', 'create1')->name('payables.create1');
         Route::post('store', 'store')->name('payables.store');
         Route::get('edit/{id}', 'edit')->name('payables.edit');
         Route::put('update/{id}', 'update')->name('payables.update');
@@ -116,6 +118,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::put('restore/{id}', 'restore')->name('payable-payments.restore');
         Route::get('ledger-filter', 'ledgerFilter')->name('payable-payments.ledger-filter');
         Route::get('ledger-report', 'ledgerReport')->name('payable-payments.ledger-report');
+        Route::get('summary', 'supplierSummary')->name('payable-payments.supplier-summary');
     });
 
 
@@ -157,6 +160,8 @@ Route::controller(ReceivablePaymentController::class)->prefix('receivable-paymen
     Route::get('restore/{id}', 'restore')->name('receivable-payments.restore');
     Route::get('ledger-report-filter', 'ledgerReportFilter')->name('receivable-payments.ledger-report-filter');
     Route::get('ledger-report', 'ledgerReport')->name('receivable-payments.ledger-report');
+    Route::get('summary', 'supplierSummary')->name('receivable-payments.supplier-summary');
+
 });
 
 });

@@ -75,9 +75,9 @@
                     </td>
                   </tr>
                 @empty
-                  <tr>
+                  {{-- <tr>
                     <td colspan="8" class="text-center text-muted">No records found.</td>
-                  </tr>
+                  </tr> --}}
                 @endforelse
               </tbody>
             </table>
