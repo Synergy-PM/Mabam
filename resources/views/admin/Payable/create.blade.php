@@ -21,6 +21,7 @@
                                         <th>Amount per Ton<span class="text-danger">*</span></th>
                                         <th>Total Amount</th>
                                         <th>Bilti No</th>
+                                        <th>Truck No</th>
                                     </tr>
                                 </thead>
                                 <tbody>
