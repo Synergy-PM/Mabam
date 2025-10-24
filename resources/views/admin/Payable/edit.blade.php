@@ -80,6 +80,14 @@
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="col-md-12 mb-3">
+                                <label><b>Truck No</b></label>
+                                <input type="text" name="truck_no" id="truck_no" class="form-control"
+                                    value="{{ old('truck_no', $payable->truck_no) }}">
+                                @error('truck_no')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <h4 class="mb-3 mt-5">Edit Receivables</h4>
@@ -156,8 +164,7 @@
                                         </div> --}}
                                             <div class="col-md-4 mb-3">
                                                 <label>Payment Type <span class="text-danger">*</span></label>
-                                                <select name="payment_type[{{ $index }}]" class="form-control"
-                                                    required>
+                                                <select name="payment_type[{{ $index }}]" class="form-control">
                                                     <option value="">Select</option>
                                                     <option value="credit"
                                                         {{ old('payment_type.' . $index, $receivable->payment_type) == 'credit' ? 'selected' : '' }}>
@@ -437,7 +444,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label>Payment Type <span class="text-danger">*</span></label>
-                            <select name="payment_type[${dealerIndex}]" class="form-control" required>
+                            <select name="payment_type[${dealerIndex}]" class="form-control">
                                 <option value="">Select</option>
                                 <option value="credit">Credit</option>
                                 <option value="cash">Cash</option>

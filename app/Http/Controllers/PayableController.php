@@ -71,6 +71,7 @@ class PayableController extends Controller
             'total_amount'     => $tons * $request->amount_per_bag,
             'tons'             => $tons,
             'bilti_no'         => $request->bilti_no,
+            'truck_no'         => $request->truck_no,
         ]);
 
         PayablePayment::create([
@@ -160,7 +161,6 @@ class PayableController extends Controller
             'bags.*'             => 'nullable|integer|min:0',
             'rate.*'             => 'nullable|numeric|min:0',
             'freight.*'          => 'nullable|numeric|min:0',
-            'payment_type.*'     => 'nullable|string',
             'proof_of_payment.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
@@ -181,6 +181,7 @@ class PayableController extends Controller
             'total_amount'     => $tons * $request->amount_per_bag,
             'tons'             => $tons,
             'bilti_no'         => $request->bilti_no,
+            'truck_no'         => $request->truck_no,
         ]);
 
         PayablePayment::updateOrCreate(

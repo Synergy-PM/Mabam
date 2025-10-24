@@ -21,6 +21,7 @@ class Payable extends Model
         'total_amount',
         'tons',
         'bilti_no',
+        'Truck_no',
     ];
 
     public function supplier()
