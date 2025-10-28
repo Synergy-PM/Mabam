@@ -55,7 +55,7 @@
                     <td class="text-end">{{ number_format($p->amount_per_bag,2) }}</td>
                     <td class="text-end">{{ number_format($p->total_amount,2) }}</td>
                     <td>{{ $p->bilti_no ?? '-' }}</td>
-                    <td>{{ $p->Truck_no ?? '-' }}</td>
+                    <td>{{ $p->truck_no ?? '-' }}</td>
                     <td class="text-end">{{ $p->tons }}</td>
                     <td class="text-center">{{ \Carbon\Carbon::parse($p->transaction_date)->format('d-m-Y') }}</td>
                     <td class="text-center">

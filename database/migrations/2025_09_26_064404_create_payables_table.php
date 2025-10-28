@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->decimal('amount_per_bag', 12, 2)->default(0);
             $table->decimal('total_amount', 14, 2)->default(0);
             $table->string('bilti_no')->nullable();
-            $table->string('Truck_no')->nullable();
+            $table->string('truck_no')->nullable();
             $table->decimal('tons', 12, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();

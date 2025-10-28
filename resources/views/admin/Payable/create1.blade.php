@@ -33,9 +33,9 @@
                                         Not Found
                                     </li>
                                 </ul>
-                                <input type="hidden" name="supplier_id" id="supplier_id" value="{{('supplier_id') }}"
+                                <input type="hidden" name="supplier_id" id="supplier_id" value="{{ 'supplier_id' }}"
                                     required>
-                              </div>
+                            </div>
                             <div class="col-md-6 mb-3">
                                 <label><b>Tons</b></label>
                                 <input type="text" id="tons" class="form-control">
@@ -61,7 +61,8 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label><b>Truck No</b></label>
-                                <input type="text"id="truck_no" class="form-control">
+                                <input type="text" id="truck_no" name="truck_no" class="form-control"
+                                    value="{{ old('truck_no') }}">
                             </div>
                         </div>
                         <!-- RECEIVABLE FORM -->
