@@ -94,9 +94,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 
    Route::controller(PayableController::class)->prefix('payables')->group(function () {
         Route::get('/', 'index')->name('payables.index');
-        Route::get('/one', 'show')->name('payables.show');
+        // Route::get('/one', 'show')->name('payables.show');
         Route::get('create', 'create')->name('payables.create');
-        Route::get('create1', 'create1')->name('payables.create1');
+        // Route::get('create1', 'create1')->name('payables.create1');
         Route::post('store', 'store')->name('payables.store');
         Route::get('edit/{id}', 'edit')->name('payables.edit');
         Route::put('update/{id}', 'update')->name('payables.update');

@@ -19,12 +19,12 @@ class PayableController extends Controller
         return view('admin.Payable.index', compact('payables', 'trashCount'));
     }
 
-     public function show()
-    {
-        $payables = Payable::with('supplier')->latest()->paginate(10);
-        $trashCount = Payable::onlyTrashed()->count();
-        return view('admin.Payable.index1', compact('payables', 'trashCount'));
-    }
+    //  public function show()
+    // {
+    //     $payables = Payable::with('supplier')->latest()->paginate(10);
+    //     $trashCount = Payable::onlyTrashed()->count();
+    //     return view('admin.Payable.index1', compact('payables', 'trashCount'));
+    // }
 
     public function create()
     {
@@ -35,13 +35,13 @@ class PayableController extends Controller
     }
 
     
-    public function create1()
-    {
-        $suppliers = Supplier::all();
-        $dealers = Dealer::all();
-        $biltis = Receivable::all();
-        return view('admin.Payable.create1', compact('suppliers', 'biltis', 'dealers'));
-    }
+    // public function create1()
+    // {
+    //     $suppliers = Supplier::all();
+    //     $dealers = Dealer::all();
+    //     $biltis = Receivable::all();
+    //     return view('admin.Payable.create1', compact('suppliers', 'biltis', 'dealers'));
+    // }
 
 
 

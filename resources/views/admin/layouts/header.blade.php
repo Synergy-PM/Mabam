@@ -186,9 +186,9 @@
                                         <li><a href="{{ route('dealers.index') }}">Add Dealers</a></li>
                                     @endcan
                                     @can('payable_view')
-                                    <li><a href="{{ route('payables.index') }}">Bilti Entry1</a></li>
+                                    <li><a href="{{ route('payables.index') }}">Bilti Entry</a></li>
                                     @endcan
-                                    <li><a href="{{ route('payables.show') }}">Bilti Entry2</a></li>
+                                    {{-- <li><a href="{{ route('payables.show') }}">Bilti Entry2</a></li> --}}
                                 </ul>
                             </li>
                         @endcanany
