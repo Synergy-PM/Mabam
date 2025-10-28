@@ -7,12 +7,10 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h4 class="mb-3">Edit Bilti Entry</h4>
-
                 <form action="{{ route('payables.update', $payable->id) }}" method="POST"
                       id="payableForm" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-
                     <div class="excel-grid">
                         <table class="excel-table">
                             <thead>
@@ -87,7 +85,6 @@
                             </tbody>
                         </table>
                     </div>
-
                     <h4 class="mb-3 mt-4">Receivable</h4>
                     <div class="excel-grid">
                         <table class="excel-table">
@@ -107,9 +104,7 @@
                             </tbody>
                         </table>
                     </div>
-
                     <div id="dealersContainer" class="excel-grid"></div>
-
                     <div class="mb-3">
                         <button type="button" class="btn btn-success btn-sm" id="addDealerForm">+ Add Dealer</button>
                     </div>
@@ -134,11 +129,9 @@
                             </table>
                         </div>
                     </div>
-
                     <small id="bagWarning" class="text-danger fw-bold" style="display:none;">
                         Warning: The total dealer bags have exceeded the bilti bags!
                     </small>
-
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary btn-sm" id="saveBtn"><b>Update</b></button>
                         <a href="{{ route('payables.index') }}" class="btn btn-secondary btn-sm ms-2">Cancel</a>
@@ -158,13 +151,11 @@
         const supplierItems = Array.from(supplierSuggestionList.querySelectorAll('li:not(.not-found)'));
         const notFoundItem = supplierSuggestionList.querySelector('.not-found');
         let supplierSelectedIndex = -1;
-
         const noBags = document.getElementById('no_of_bags');
         const rate = document.getElementById('amount_per_bag');
         const total = document.getElementById('total_amount');
         const tons = document.getElementById('tons');
         const payableBiltiInput = document.getElementById('payable_bilti_no');
-
         const biltiInput = document.getElementById('bilti_no');
         const totalBagsInput = document.getElementById('total_bags');
         const remainingBagsInput = document.getElementById('remaining_bags');
@@ -174,10 +165,10 @@
         const grandTotalInput = document.getElementById('grandTotal');
         const bagWarning = document.getElementById('bagWarning');
         const saveBtn = document.getElementById('saveBtn');
-
         let totalBags = 0;
         let dealerIndex = {{ $receivables->count() ?? 0 }};
 
+        // Supplier Search Logic
         supplierSearch.addEventListener('input', function () {
             const query = this.value.toLowerCase().trim();
             supplierSelectedIndex = -1;
@@ -231,6 +222,7 @@
             }
         });
 
+        // Calculations
         function calcFromTons() {
             let t = parseFloat(tons.value) || 0;
             let r = parseFloat(rate.value) || 0;
@@ -266,15 +258,16 @@
             allItems.forEach((li, i) => li.classList.toggle('active', i === index));
         }
 
+        // Add Dealer Form
         document.getElementById('addDealerForm').addEventListener('click', function () {
             const newRow = `
                 <table class="excel-table dealer-form" data-index="${dealerIndex}">
                     <thead>
                         <tr>
                             <th>Dealer</th>
-                            <th>Bags</th>
+                            <th>Bags<span class="text-danger">*</span></th>
                             <th>Tons</th>
-                            <th>Rate Per Bag</th>
+                            <th>Rate Per Bag<span class="text-danger">*</span></th>
                             <th>Freight</th>
                             <th>Total</th>
                             <th>Payment Type</th>
@@ -309,8 +302,8 @@
                             <td><input type="number" step="0.01" name="freight[${dealerIndex}]" class="form-control dealerFreight excel-input" value="0"></td>
                             <td><input type="text" class="form-control dealerTotal excel-input" readonly></td>
                             <td>
-                                <select name="payment_type[${dealerIndex}]" class="form-control excel-input">
-                                    <option value="">Select</option>
+                                <select name="payment_type[${dealerIndex}]" class="form-control excel-input payment-type-select">
+                                    <option value="">-- Select --</option>
                                     <option value="credit">Credit</option>
                                     <option value="cash">Cash</option>
                                     <option value="online">Online</option>
@@ -328,6 +321,7 @@
             calculateTotals();
         });
 
+        // Remove Dealer
         dealersContainer.addEventListener('click', e => {
             if (e.target.classList.contains('removeDealer')) {
                 e.target.closest('.dealer-form').remove();
@@ -335,6 +329,7 @@
             }
         });
 
+        // Calculate on input
         dealersContainer.addEventListener('input', e => {
             if (e.target.classList.contains('bagsInput')) {
                 const form = e.target.closest('.dealer-form');
@@ -350,7 +345,6 @@
             }
         });
 
-        /* ---------- GRAND CALCULATION (summary, warning, disable submit) ---------- */
         function calculateTotals() {
             let totalDealerBags = 0, grandTotal = 0, totalTons = 0;
             document.querySelectorAll('.dealer-form').forEach(form => {
@@ -365,13 +359,11 @@
                 grandTotal += dealerTotal;
                 totalTons += tons;
             });
-
             const remaining = totalBags - totalDealerBags;
             remainingBagsInput.value = remaining >= 0 ? remaining : '';
             summaryBags.value = totalDealerBags > 0 ? totalDealerBags : '';
             summaryTons.value = totalTons > 0 ? totalTons.toFixed(2) : '';
             grandTotalInput.value = grandTotal > 0 ? grandTotal.toFixed(2) : '';
-
             const over = totalDealerBags > totalBags && totalBags > 0;
             bagWarning.style.display = over ? 'block' : 'none';
             saveBtn.disabled = over;
@@ -388,9 +380,9 @@
                             <table class="excel-table dealer-form" data-index="${idx}">
                                 <thead>
                                     <tr>
-                                        <th>Dealer</th><th>Bags</th><th>Tons</th><th>Rate Per Bag</th>
-                                        <th>Freight</th><th>Total</th><th>Payment Type</th>
-                                        <th>Proof of Payment</th><th>Action</th>
+                                        <th>Dealer</th><th>Bags<span class="text-danger">*</span></th><th>Tons</th>
+                                        <th>Rate Per Bag<span class="text-danger">*</span></th><th>Freight</th>
+                                        <th>Total</th><th>Payment Type</th><th>Proof of Payment</th><th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -427,11 +419,12 @@
                                         <td><input type="text" class="form-control dealerTotal excel-input"
                                                    value="${(rec.bags * (rec.rate - (rec.freight ?? 0))).toFixed(2)}" readonly></td>
                                         <td>
-                                            <select name="payment_type[${idx}]" class="form-control excel-input">
-                                                <option value="">Select</option>
-                                                @foreach(['credit','cash','online','cheque'] as $pt)
-                                                    <option value="{{ $pt }}" {{ $rec->payment_type == $pt ? 'selected' : '' }}>{{ ucfirst($pt) }}</option>
-                                                @endforeach
+                                            <select name="payment_type[${idx}]" class="form-control excel-input payment-type-select">
+                                                <option value="">-- Select --</option>
+                                                <option value="credit" ${rec.payment_type === 'credit' ? 'selected' : ''}>Credit</option>
+                                                <option value="cash" ${rec.payment_type === 'cash' ? 'selected' : ''}>Cash</option>
+                                                <option value="online" ${rec.payment_type === 'online' ? 'selected' : ''}>Online</option>
+                                                <option value="cheque" ${rec.payment_type === 'cheque' ? 'selected' : ''}>Cheque</option>
                                             </select>
                                         </td>
                                         <td>
@@ -509,10 +502,11 @@
             });
         }
 
+        // FORM SUBMIT WITH DEFAULT CASH
         document.getElementById('payableForm').addEventListener('submit', e => {
             let ok = true;
 
-            // supplier
+            // Supplier validation
             if (!supplierIdInput.value) {
                 ok = false;
                 supplierSearch.classList.add('is-invalid');
@@ -526,12 +520,12 @@
                 if (fb && fb.classList.contains('invalid-feedback')) fb.remove();
             }
 
+            // Dealer validations
             document.querySelectorAll('.dealer-form').forEach(form => {
                 const dealerId = form.querySelector('.dealer_id');
                 const dealerSearch = form.querySelector('.dealer_search');
                 const bags = form.querySelector('.bagsInput');
                 const rate = form.querySelector('.rate');
-                const payType = form.querySelector('select[name*="payment_type"]');
 
                 if (!dealerId.value) {
                     ok = false;
@@ -546,14 +540,26 @@
                     if (fb && fb.classList.contains('invalid-feedback')) fb.remove();
                 }
 
-                if (!bags.value || parseInt(bags.value) <= 0) { ok = false; bags.classList.add('is-invalid'); }
-                else bags.classList.remove('is-invalid');
+                if (!bags.value || parseInt(bags.value) <= 0) { 
+                    ok = false; 
+                    bags.classList.add('is-invalid'); 
+                } else { 
+                    bags.classList.remove('is-invalid'); 
+                }
 
-                if (!rate.value || parseFloat(rate.value) <= 0) { ok = false; rate.classList.add('is-invalid'); }
-                else rate.classList.remove('is-invalid');
+                if (!rate.value || parseFloat(rate.value) <= 0) { 
+                    ok = false; 
+                    rate.classList.add('is-invalid'); 
+                } else { 
+                    rate.classList.remove('is-invalid'); 
+                }
+            });
 
-                if (!payType.value) { ok = false; payType.classList.add('is-invalid'); }
-                else payType.classList.remove('is-invalid');
+            // DEFAULT TO CASH IF EMPTY
+            document.querySelectorAll('.payment-type-select').forEach(select => {
+                if (!select.value) {
+                    select.value = 'cash';
+                }
             });
 
             if (!ok) {
@@ -581,9 +587,12 @@
     .excel-table .form-control[readonly]{background:#f4f4f4;cursor:not-allowed;}
     .excel-table select.excel-input{
         appearance:none;-webkit-appearance:none;-moz-appearance:none;
-        background:transparent;padding-right:20px;
-        background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23333' d='M6 9l4-4H2z'/></svg>");
-        background-repeat:no-repeat;background-position:right 4px center;
+        background:transparent url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23333' d='M6 9l4-4H2z'/></svg>") no-repeat right 4px center;
+        padding-right:20px;
+    }
+    .payment-type-select option[value=""] {
+        color: #999;
+        font-style: italic;
     }
     .excel-table input[type=file]{padding:2px;font-size:11px;}
     .btn-sm{font-size:11px;padding:4px 8px;}

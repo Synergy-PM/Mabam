@@ -9,7 +9,7 @@
       <div class="card shadow-sm border-0">
         <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center bg-light">
-          <h4 class="card-title mb-0">Bilti</h4>
+          <h4 class="card-title mb-0"></h4>
           <div class="d-flex gap-2">
             @can('payable_create')
             <a href="{{ route('payables.create') }}" class="btn btn-sm btn-primary">
