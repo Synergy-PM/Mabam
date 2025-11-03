@@ -172,6 +172,7 @@ Route::controller(ChequeBookController::class)
         Route::get('/edit/{id}', 'edit')->name('cheque.edit');
         Route::put('/update/{id}', 'update')->name('cheque.update');
         Route::delete('/destroy/{id}', 'destroy')->name('cheque.destroy');
+         Route::get('/print', 'print')->name('cheque.print');
     });
 
 
