@@ -36,8 +36,8 @@
                         <button id="exportPDF" class="btn btn-light btn-sm shadow-sm me-2">
                             <i class="fas fa-file-pdf text-danger me-1"></i> Export PDF
                         </button>
-                        <a href="{{ route('receivable-payments.ledger-report-filter') }}" class="btn btn-outline-light btn-sm">
-                            Back to Filter
+                        <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm">
+                            Back
                         </a>
                     </div>
                 </div>

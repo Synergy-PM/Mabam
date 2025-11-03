@@ -299,17 +299,20 @@ class PayableController extends Controller
         return redirect()->route('payables.index')
                         ->with('success', 'Payable, Receivable & ReceivablePayment updated successfully.');
     }
+public function destroy($id)
+{
+    $payable = Payable::findOrFail($id);
 
-    public function destroy($id)
-    {
-        $payable = Payable::findOrFail($id);
-        ReceivablePayment::where('payable_id', $payable->id)->delete();
-        Receivable::where('payable_id', $payable->id)->delete();
-        PayablePayment::where('payable_id', $payable->id)->delete();
-        $payable->delete();
+    ReceivablePayment::where('payable_id', $payable->id)->delete();
+    Receivable::where('payable_id', $payable->id)->delete();
+    PayablePayment::where('supplier_id', $payable->supplier_id)
+                  ->where('transaction_date', $payable->transaction_date)
+                  ->delete();
 
-        return redirect()->route('payables.index')->with('success', 'Payable and all related records moved to trash successfully.');
-    }
+    $payable->delete();
+
+    return redirect()->route('payables.index')->with('success', 'Payable and related records deleted successfully.');
+}
 
     public function trash()
     {
@@ -318,10 +321,28 @@ class PayableController extends Controller
     }
 
     public function restore($id)
-    {
-        Payable::onlyTrashed()->findOrFail($id)->restore();
-        return redirect()->route('payables.trash')->with('success', 'Restored.');
-    }
+{
+    $payable = Payable::onlyTrashed()->findOrFail($id);
+
+    $payable->restore();
+
+    Receivable::onlyTrashed()
+        ->where('payable_id', $payable->id)
+        ->restore();
+
+    ReceivablePayment::onlyTrashed()
+        ->where('payable_id', $payable->id)
+        ->restore();
+
+    PayablePayment::onlyTrashed()
+        ->where('supplier_id', $payable->supplier_id)
+        ->where('transaction_date', $payable->transaction_date)
+        ->restore();
+
+    return redirect()->route('payables.trash')
+                     ->with('success', 'Payable and all related records restored successfully.');
+}
+
     public function getLastPayable($id)
     {
         $payable = \App\Models\Payable::where('supplier_id', $id)

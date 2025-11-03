@@ -46,7 +46,6 @@
               <tbody>
                 @forelse($payables as $p)
                   <tr>
-                    <!-- Proper numbering with pagination -->
                     <td class="text-center">
                       {{ $loop->iteration + ($payables->currentPage()-1)*$payables->perPage() }}
                     </td>

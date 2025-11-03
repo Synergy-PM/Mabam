@@ -15,6 +15,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PayablePaymentController;
 use App\Http\Controllers\ReceivablePaymentController;
 use App\Http\Controllers\BiltiReportController;
+use App\Http\Controllers\ChequeBookController;
 
 
 Route::middleware('guest')->group(function () {
@@ -145,8 +146,6 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('/report', 'dailyReport')->name('daily.report');
         Route::get('/profit/filter', 'filter')->name('profit.filter');
         Route::get('/profit/report', 'profitReport')->name('profit.report');
-
-
     });
 
 Route::controller(ReceivablePaymentController::class)->prefix('receivable-payments')->group(function () {
@@ -157,12 +156,24 @@ Route::controller(ReceivablePaymentController::class)->prefix('receivable-paymen
     Route::put('update/{id}', 'update')->name('receivable-payments.update');
     Route::delete('delete/{id}', 'destroy')->name('receivable-payments.delete');
     Route::get('trash', 'trash')->name('receivable-payments.trash');
-    Route::get('restore/{id}', 'restore')->name('receivable-payments.restore');
+    Route::post('restore/{id}', 'restore')->name('receivable-payments.restore');
     Route::get('ledger-report-filter', 'ledgerReportFilter')->name('receivable-payments.ledger-report-filter');
     Route::get('ledger-report', 'ledgerReport')->name('receivable-payments.ledger-report');
     Route::get('summary', 'supplierSummary')->name('receivable-payments.supplier-summary');
 
 });
+
+Route::controller(ChequeBookController::class)
+    ->prefix('cheque')
+    ->group(function () {
+        Route::get('/index', 'index')->name('cheque.index');
+        Route::get('/create', 'create')->name('cheque.create');
+        Route::post('/store', 'store')->name('cheque.store');
+        Route::get('/edit/{id}', 'edit')->name('cheque.edit');
+        Route::put('/update/{id}', 'update')->name('cheque.update');
+        Route::delete('/destroy/{id}', 'destroy')->name('cheque.destroy');
+    });
+
 
 });
  

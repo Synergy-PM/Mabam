@@ -104,22 +104,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     initializeDealerSearch(0);
 
-    // Add More Button
     document.getElementById('addMoreBtn').addEventListener('click', function () {
         const container = document.getElementById('paymentRows');
         const firstRow = document.querySelector('.payment-row');
         const newRow = firstRow.cloneNode(true);
 
-        // Get the transaction date from the first row
         const firstTransactionDate = document.querySelector('input[name="payments[0][transaction_date]"]').value;
 
-        // Update names and reset values
         newRow.querySelectorAll('input, select, textarea').forEach(function (element) {
             const name = element.getAttribute('name');
             if (name) {
                 element.setAttribute('name', name.replace(/\[\d+\]/, '[' + rowIndex + ']'));
                 if (element.type !== 'hidden') {
-                    // Set transaction date to the first row's value, else clear other fields
                     if (element.name.includes('transaction_date')) {
                         element.value = firstTransactionDate;
                     } else {

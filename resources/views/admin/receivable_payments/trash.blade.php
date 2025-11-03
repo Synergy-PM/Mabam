@@ -67,14 +67,14 @@
                           </button>
                         </form>
                         <!-- Permanent Delete -->
-                        <form action="{{ route('receivable-payments.forceDelete', $payment->id) }}" method="POST" 
+                        {{-- <form action="{{ route('receivable-payments.forceDelete', $payment->id) }}" method="POST" 
                               onsubmit="return confirm('Permanently delete this payment? This action cannot be undone.');">
                           @csrf
                           @method('DELETE')
                           <button class="btn btn-sm btn-soft-danger" title="Delete Permanently">
                             <i class="mdi mdi-delete-forever"></i>
                           </button>
-                        </form>
+                        </form> --}}
                       </div>
                     </td>
                   </tr>

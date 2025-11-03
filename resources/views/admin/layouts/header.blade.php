@@ -199,9 +199,10 @@
                                     <span>Transactions</span>
                                 </a>
                                 <ul class="sub-menu" aria-expanded="false">
-                                    <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li>
-                                    <li><a href="{{ route('receivable-payments.index') }}">Receivable Payment</a></li>
-                                    <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li>
+                                    {{-- <li><a href="{{ route('payable-payments.index') }}">Payable Payment</a></li> --}}
+                                    {{-- <li><a href="{{ route('receivable-payments.index') }}">Receivable Payment</a></li> --}}
+                                    {{-- <li><a href="{{ route('expenses.index') }}">Expenses Type</a></li> --}}
+                                    <li><a href="{{ route('cheque.index') }}">Cash Book</a></li>
                                 </ul>
                             </li>
                         @endcanany

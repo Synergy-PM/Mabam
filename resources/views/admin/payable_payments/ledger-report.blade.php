@@ -31,6 +31,9 @@
                             <button id="exportPDF" class="btn btn-light btn-sm shadow-sm">
                                 <i class="fas fa-file-pdf text-danger me-1"></i> Export PDF
                             </button>
+                             <a href="{{ route('payable-payments.ledger-filter') }}" class="btn btn-light btn-sm shadow-sm">
+                                <i class="fas fa-arrow-left text-primary me-1"></i> Back
+                            </a>
                         </div>
                     </div>
 
@@ -167,7 +170,8 @@
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $supplier['supplier_name'] }}</td>
-                                                    <td>{{ number_format($supplier['tons'], 2) }}</td>
+                                                    <td>{{ $t['is_opening'] ? '' : number_format($t['tons'] ?? 0, 2) }}</td>
+
                                                     <td><strong>{{ number_format($supplier['closing_balance'], 2) }}</strong></td>
                                                 </tr>
                                             @endforeach

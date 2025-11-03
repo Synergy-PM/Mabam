@@ -69,7 +69,7 @@ $(document).ready(function() {
         pageLength: 10,
         responsive: true,
         autoWidth: false,
-        order: [[1, 'asc']], // Name column
+        // order: [[1, 'asc']], // Name column
         columnDefs: [
             { orderable: false, targets: [0, 2] } // # and Actions
         ]

@@ -331,42 +331,87 @@ public function ledgerReport(Request $request)
     ));
 }
 
+// public function supplierSummary(Request $request)
+// {
+//     $dealerId = $request->dealer_id;
+
+//     $dealerSummaries = [];
+
+//     if (!$dealerId) {
+//         $dealerSummaries = \DB::table('receivable_payments')
+//             ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
+//             ->leftJoin('receivables', 'receivables.dealer_id', '=', 'dealers.id')
+//             ->selectRaw('
+//                 receivable_payments.dealer_id,
+//                 dealers.dealer_name,
+//                 COALESCE(SUM(receivables.bags) / 20, 0) as tons,
+//                 SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) as transaction_credit,
+//                 SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as transaction_debit
+//             ')
+//             ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name')
+//             ->get()
+//             ->map(function ($item) {
+//                 $dealer = \App\Models\Dealer::find($item->dealer_id);
+//                 $openingBalance = $dealer ? $dealer->opening_balance : 0;
+//                 $openingType = $dealer ? strtolower($dealer->transaction_type ?? 'credit') : 'credit';
+
+//                 $totalCredit = ($openingType === 'credit' ? $openingBalance : 0) + ($item->transaction_credit ?? 0);
+//                 $totalDebit  = ($openingType === 'debit' ? $openingBalance : 0) + ($item->transaction_debit ?? 0);
+
+//                 return [
+//                     'dealer_name'      => $item->dealer_name ?? 'N/A',
+//                     'tons'             => $item->tons ?? 0,
+//                     'total_credit'     => $totalCredit,
+//                     'total_debit'      => $totalDebit,
+//                     'closing_balance'  => $totalCredit - $totalDebit,
+//                 ];
+//             });
+//     }
+
+//     return view('admin.receivable_payments.summary', compact('dealerSummaries'));
+// }
 public function supplierSummary(Request $request)
 {
     $dealerId = $request->dealer_id;
 
-    $dealerSummaries = [];
+    // Base query: only active (non-deleted) records
+    $query = \DB::table('receivable_payments')
+        ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
+        ->leftJoin('receivables', 'receivables.dealer_id', '=', 'dealers.id')
+        ->whereNull('receivable_payments.deleted_at') // 🔥 Hide trashed payments
+        ->selectRaw('
+            receivable_payments.dealer_id,
+            dealers.dealer_name,
+            COALESCE(SUM(receivables.bags) / 20, 0) as tons,
+            SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) as transaction_credit,
+            SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as transaction_debit
+        ')
+        ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name');
 
-    if (!$dealerId) {
-        $dealerSummaries = \DB::table('receivable_payments')
-            ->join('dealers', 'receivable_payments.dealer_id', '=', 'dealers.id')
-            ->leftJoin('receivables', 'receivables.dealer_id', '=', 'dealers.id')
-            ->selectRaw('
-                receivable_payments.dealer_id,
-                dealers.dealer_name,
-                COALESCE(SUM(receivables.bags) / 20, 0) as tons,
-                SUM(CASE WHEN receivable_payments.transaction_type = "credit" THEN receivable_payments.amount_received ELSE 0 END) as transaction_credit,
-                SUM(CASE WHEN receivable_payments.transaction_type = "debit" THEN receivable_payments.amount_received ELSE 0 END) as transaction_debit
-            ')
-            ->groupBy('receivable_payments.dealer_id', 'dealers.dealer_name')
-            ->get()
-            ->map(function ($item) {
-                $dealer = \App\Models\Dealer::find($item->dealer_id);
-                $openingBalance = $dealer ? $dealer->opening_balance : 0;
-                $openingType = $dealer ? strtolower($dealer->transaction_type ?? 'credit') : 'credit';
-
-                $totalCredit = ($openingType === 'credit' ? $openingBalance : 0) + ($item->transaction_credit ?? 0);
-                $totalDebit  = ($openingType === 'debit' ? $openingBalance : 0) + ($item->transaction_debit ?? 0);
-
-                return [
-                    'dealer_name'      => $item->dealer_name ?? 'N/A',
-                    'tons'             => $item->tons ?? 0,
-                    'total_credit'     => $totalCredit,
-                    'total_debit'      => $totalDebit,
-                    'closing_balance'  => $totalCredit - $totalDebit,
-                ];
-            });
+    // If specific dealer selected, filter by that
+    if ($dealerId) {
+        $query->where('receivable_payments.dealer_id', $dealerId);
     }
+
+    // Get all dealer summaries
+    $dealerSummaries = $query->get()->map(function ($item) {
+        $dealer = \App\Models\Dealer::find($item->dealer_id);
+
+        $openingBalance = $dealer ? $dealer->opening_balance : 0;
+        $openingType    = $dealer ? strtolower($dealer->transaction_type ?? 'credit') : 'credit';
+
+        // Adjust opening balance based on its type
+        $totalCredit = ($openingType === 'credit' ? $openingBalance : 0) + ($item->transaction_credit ?? 0);
+        $totalDebit  = ($openingType === 'debit' ? $openingBalance : 0) + ($item->transaction_debit ?? 0);
+
+        return [
+            'dealer_name'      => $item->dealer_name ?? 'N/A',
+            'tons'             => $item->tons ?? 0,
+            'total_credit'     => $totalCredit,
+            'total_debit'      => $totalDebit,
+            'closing_balance'  => $totalCredit - $totalDebit,
+        ];
+    });
 
     return view('admin.receivable_payments.summary', compact('dealerSummaries'));
 }

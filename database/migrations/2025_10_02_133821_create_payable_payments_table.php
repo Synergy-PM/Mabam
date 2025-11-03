@@ -19,9 +19,6 @@ return new class extends Migration
             $table->enum('transaction_type', ['debit', 'credit']);
             $table->decimal('amount', 15, 2);
             $table->enum('payment_mode', ['debit', 'cash', 'bank', 'cheque', 'online']);
-            $table->string('proof_of_payment')->nullable();
-            $table->text('notes')->nullable();
-
             $table->softDeletes();
             $table->timestamps();
         });
