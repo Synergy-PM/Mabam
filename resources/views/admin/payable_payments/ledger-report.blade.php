@@ -31,7 +31,7 @@
                             <button id="exportPDF" class="btn btn-light btn-sm shadow-sm">
                                 <i class="fas fa-file-pdf text-danger me-1"></i> Export PDF
                             </button>
-                             <a href="{{ route('payable-payments.ledger-filter') }}" class="btn btn-light btn-sm shadow-sm">
+                            <a href="{{ route('payable-payments.ledger-filter') }}" class="btn btn-light btn-sm shadow-sm">
                                 <i class="fas fa-arrow-left text-primary me-1"></i> Back
                             </a>
                         </div>
@@ -100,8 +100,8 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $t['supplier']->supplier_name ?? 'N/A' }}</td>
-                                            <td>{{ number_format($t['tons'], 2) }}</td>
-                                            <td>{{ number_format($t['rate'], 2) }}</td>
+                                            <td>{{ $t['is_opening'] || $transactionType === 'credit' ? '-' : number_format($t['tons'], 2) }}</td>
+                                            <td>{{ $t['is_opening'] || $transactionType === 'credit' ? '-' : number_format($t['rate'], 2) }}</td>
                                             <td>
                                                 @if ($transactionType == 'credit')
                                                     {{ number_format($amount, 2) }}
@@ -124,8 +124,8 @@
 
                                     <tr class="table-secondary">
                                         <td colspan="2"><strong>Total</strong></td>
-                                        <td><strong>{{ number_format($transactions->where('is_opening', false)->sum('tons'), 2) }}</strong></td>
-                                        <td><strong>{{ number_format($transactions->where('is_opening', false)->sum('rate'), 2) }}</strong></td>
+                                        <td><strong>{{ number_format($transactions->where('is_opening', false)->where('transaction_type', 'debit')->sum('tons'), 2) }}</strong></td>
+                                        <td><strong>{{ number_format($transactions->where('is_opening', false)->where('transaction_type', 'debit')->sum('rate'), 2) }}</strong></td>
                                         <td><strong>{{ number_format($totalCredit, 2) }}</strong></td>
                                         <td><strong>{{ number_format($totalDebit, 2) }}</strong></td>
                                         <td colspan="3"></td>
@@ -170,8 +170,7 @@
                                                 <tr>
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $supplier['supplier_name'] }}</td>
-                                                    <td>{{ $t['is_opening'] ? '' : number_format($t['tons'] ?? 0, 2) }}</td>
-
+                                                    <td>{{ number_format($supplier['tons'], 2) }}</td>
                                                     <td><strong>{{ number_format($supplier['closing_balance'], 2) }}</strong></td>
                                                 </tr>
                                             @endforeach

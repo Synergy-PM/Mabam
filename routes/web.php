@@ -175,6 +175,5 @@ Route::controller(ChequeBookController::class)
          Route::get('/print', 'print')->name('cheque.print');
     });
 
-
 });
  

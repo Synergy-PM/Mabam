@@ -33,11 +33,12 @@
                                         <td class="position-relative">
                                             <input type="text" id="supplier_search" class="form-control excel-input"
                                                 placeholder="Type supplier name..." value="{{ old('supplier_name') }}">
-                                            <ul id="supplier_suggestion_list" class="list-group position-absolute w-100 shadow-sm"
+                                            <ul id="supplier_suggestion_list"
+                                                class="list-group position-absolute w-100 shadow-sm"
                                                 style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;">
                                                 @foreach ($suppliers as $s)
-                                                    <li class="list-group-item list-group-item-action" data-id="{{ $s->id }}"
-                                                        style="cursor: pointer;">
+                                                    <li class="list-group-item list-group-item-action"
+                                                        data-id="{{ $s->id }}" style="cursor: pointer;">
                                                         {{ $s->supplier_name }}
                                                     </li>
                                                 @endforeach
@@ -46,29 +47,32 @@
                                                     Not Found
                                                 </li>
                                             </ul>
-                                            <input type="hidden" name="supplier_id" id="supplier_id" value="{{ old('supplier_id') }}"
-                                                required>
+                                            <input type="hidden" name="supplier_id" id="supplier_id"
+                                                value="{{ old('supplier_id') }}" required>
                                         </td>
                                         <td>
                                             <input type="text" id="tons" class="form-control excel-input">
                                         </td>
                                         <td>
-                                            <input type="number" name="no_of_bags" id="no_of_bags" class="form-control excel-input"
-                                                value="{{ old('no_of_bags') }}" readonly>
+                                            <input type="number" name="no_of_bags" id="no_of_bags"
+                                                class="form-control excel-input" value="{{ old('no_of_bags') }}" readonly>
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" name="amount_per_bag" id="amount_per_bag"
-                                                class="form-control excel-input" value="{{ old('amount_per_bag') }}" required>
+                                                class="form-control excel-input" value="{{ old('amount_per_bag') }}"
+                                                required>
                                         </td>
                                         <td>
-                                            <input type="text" id="total_amount" class="form-control excel-input" readonly>
+                                            <input type="text" id="total_amount" class="form-control excel-input"
+                                                readonly>
                                         </td>
                                         <td>
-                                            <input type="text" name="bilti_no" id="payable_bilti_no" class="form-control excel-input"
-                                                value="{{ old('bilti_no') }}">
+                                            <input type="text" name="bilti_no" id="payable_bilti_no"
+                                                class="form-control excel-input" value="{{ old('bilti_no') }}">
                                         </td>
-                                         <td>
-                                            <input type="text" id="truck_no" class="form-control excel-input">
+                                        <td>
+                                            <input type="text" name="truck_no" id="truck_no"
+                                                class="form-control excel-input" value="{{ old('truck_no') }}">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -88,13 +92,15 @@
                                 <tbody>
                                     <tr>
                                         <td>
-                                            <input type="text" name="bilti_no" id="bilti_no" class="form-control excel-input" readonly>
+                                            <input type="text" name="bilti_no" id="bilti_no"
+                                                class="form-control excel-input" readonly>
                                         </td>
                                         <td>
                                             <input type="number" id="total_bags" class="form-control excel-input" readonly>
                                         </td>
                                         <td>
-                                            <input type="number" id="remaining_bags" class="form-control excel-input" readonly>
+                                            <input type="number" id="remaining_bags" class="form-control excel-input"
+                                                readonly>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -191,7 +197,8 @@
                     highlightItem(visibleItems, supplierSelectedIndex, supplierItems);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    supplierSelectedIndex = (supplierSelectedIndex - 1 + visibleItems.length) % visibleItems.length;
+                    supplierSelectedIndex = (supplierSelectedIndex - 1 + visibleItems.length) % visibleItems
+                        .length;
                     highlightItem(visibleItems, supplierSelectedIndex, supplierItems);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
@@ -361,7 +368,8 @@
             dealersContainer.insertAdjacentHTML('beforeend', newForm);
 
             const dealerSearch = dealersContainer.querySelector(`.dealer_search[data-index="${dealerIndex}"]`);
-            const dealerSuggestionList = dealersContainer.querySelector(`.dealer_suggestion_list[data-index="${dealerIndex}"]`);
+            const dealerSuggestionList = dealersContainer.querySelector(
+                `.dealer_suggestion_list[data-index="${dealerIndex}"]`);
             const dealerIdInput = dealersContainer.querySelector(`.dealer_id[name="dealer_id[${dealerIndex}]"]`);
             const dealerItems = Array.from(dealerSuggestionList.querySelectorAll('li:not(.not-found)'));
             const dealerNotFoundItem = dealerSuggestionList.querySelector('.not-found');
@@ -391,7 +399,8 @@
                     dealerNotFoundItem.style.display = 'none';
                     dealerSearch.classList.remove('is-invalid');
                     const existingFeedback = dealerSearch.nextElementSibling;
-                    if (existingFeedback && existingFeedback.classList.contains('invalid-feedback')) {
+                    if (existingFeedback && existingFeedback.classList.contains(
+                        'invalid-feedback')) {
                         existingFeedback.remove();
                     }
                 });
@@ -405,7 +414,8 @@
                     highlightItem(visibleItems, dealerSelectedIndex, dealerItems);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    dealerSelectedIndex = (dealerSelectedIndex - 1 + visibleItems.length) % visibleItems.length;
+                    dealerSelectedIndex = (dealerSelectedIndex - 1 + visibleItems.length) % visibleItems
+                        .length;
                     highlightItem(visibleItems, dealerSelectedIndex, dealerItems);
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
@@ -616,6 +626,7 @@
         }
 
         @media (max-width: 768px) {
+
             .excel-table th,
             .excel-table td {
                 font-size: 10px;

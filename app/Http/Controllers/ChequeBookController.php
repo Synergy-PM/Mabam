@@ -76,7 +76,6 @@ class ChequeBookController extends Controller
         ]);
     }
 
-    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -99,11 +98,9 @@ class ChequeBookController extends Controller
                     continue;
                 }
 
-                // ✅ Define credit and debit first
                 $credit = $entry['credit'] ?? 0;
                 $debit = $entry['debit'] ?? 0;
 
-                // ✅ Extract party details
                 $rawPartyId = $entry['party_id'] ?? null;
                 $partyType = $entry['party_type'] ?? null;
                 $partyId = null;
@@ -120,7 +117,6 @@ class ChequeBookController extends Controller
                     throw new \Exception("Cannot have both Credit and Debit in the same entry.");
                 }
 
-                // ✅ Save cheque entry
                 $cheque = ChequeEntry::create([
                     'date' => $entry['date'],
                     'party_type' => $partyType,
@@ -131,10 +127,8 @@ class ChequeBookController extends Controller
                     'payment_type' => $isExpense ? null : ($entry['payment_type'] ?? null),
                 ]);
 
-                // ✅ Payable (Supplier)
                 if ($partyType === 'supplier' && $partyId) {
                     if ($credit > 0) {
-                        // Paying to supplier → supplier payable decreases → CREDIT
                         PayablePayment::create([
                             'supplier_id' => $partyId,
                             'transaction_date' => $entry['date'],
@@ -143,7 +137,6 @@ class ChequeBookController extends Controller
                             'payment_mode' => $entry['payment_type'] ?? null,
                         ]);
                     } elseif ($debit > 0) {
-                        // Supplier refund → payable increases → DEBIT
                         PayablePayment::create([
                             'supplier_id' => $partyId,
                             'transaction_date' => $entry['date'],
@@ -154,23 +147,20 @@ class ChequeBookController extends Controller
                     }
                 }
 
-                // ✅ Receivable (Dealer)
                 if ($partyType === 'dealer' && $partyId) {
                     if ($credit > 0) {
-                        // Money received from dealer
                         ReceivablePayment::create([
                             'dealer_id' => $partyId,
                             'transaction_date' => $entry['date'],
-                            'transaction_type' => 'debit', // dealer receivable decreases
+                            'transaction_type' => 'debit', 
                             'amount_received' => $credit,
                             'payment_mode' => $entry['payment_type'] ?? null,
                         ]);
                     } elseif ($debit > 0) {
-                        // Money paid to dealer
                         ReceivablePayment::create([
                             'dealer_id' => $partyId,
                             'transaction_date' => $entry['date'],
-                            'transaction_type' => 'credit', // dealer receivable increases
+                            'transaction_type' => 'credit', 
                             'amount_received' => $debit,
                             'payment_mode' => $entry['payment_type'] ?? null,
                         ]);
@@ -187,154 +177,181 @@ class ChequeBookController extends Controller
         }
     }
 
-    public function edit($id)
-    {
-        $entries  = ChequeEntry::where('id', $id)->get();
-        if (!$entries) {
-            $entries = ChequeEntry::all()->get();
-        }
+   public function edit($id)
+{
+    $entry = ChequeEntry::findOrFail($id);
 
-        $suppliers = Supplier::select('id', 'supplier_name as name')->get();
-        $dealers = Dealer::select('id', 'dealer_name as name')->get();
+    $suppliers = Supplier::select('id', 'supplier_name as name')->get();
+    $dealers = Dealer::select('id', 'dealer_name as name')->get();
 
-        $parties = collect();
-        foreach ($suppliers as $s) {
-            $parties[$s->id] = [
-                'name' => $s->name,
-                'type' => 'supplier'
-            ];
-        }
-        foreach ($dealers as $d) {
-            $parties['D' . $d->id] = [
-                'name' => $d->name,
-                'type' => 'dealer'
-            ];
-        }
-
-        $paymentTypes = [
-            'cash' => 'Cash',
-            'online' => 'Online',
-            'cheque' => 'Cheque'
+    $parties = collect();
+    foreach ($suppliers as $s) {
+        $parties[$s->id] = [
+            'name' => $s->name,
+            'type' => 'supplier'
         ];
-
-        return view('admin.cheque-book.edit', [
-            'entries' => $entries,
-            'parties' => $parties,
-            'paymentTypes' => $paymentTypes,
-            'entry' => $entries->first() // For the form action route
-        ]);
+    }
+    foreach ($dealers as $d) {
+        $parties['D' . $d->id] = [
+            'name' => $d->name,
+            'type' => 'dealer'
+        ];
     }
 
+    $paymentTypes = [
+        'cash' => 'Cash',
+        'online' => 'Online',
+        'cheque' => 'Cheque'
+    ];
+
+    return view('admin.cheque-book.edit', [
+        'entries' => collect([$entry]), 
+        'parties' => $parties,
+        'paymentTypes' => $paymentTypes,
+        'entry' => $entry 
+    ]);
+}
+
     public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'entries' => 'required|array|min:1',
-            'entries.*.date' => 'required|date',
-            'entries.*.party_type' => 'required|string|in:supplier,dealer,expense',
-            'entries.*.party_id' => 'nullable',
-            'entries.*.expense_description' => 'nullable|string|max:255',
-            'entries.*.credit' => 'nullable|numeric|min:0',
-            'entries.*.debit' => 'nullable|numeric|min:0',
-            'entries.*.payment_type' => 'nullable|string|in:cash,online,cheque',
-        ]);
+{
+    $validated = $request->validate([
+        'entries' => 'required|array|min:1',
+        'entries.*.date' => 'required|date',
+        'entries.*.party_type' => 'required|string|in:supplier,dealer,expense',
+        'entries.*.party_id' => 'nullable',
+        'entries.*.expense_description' => 'nullable|string|max:255',
+        'entries.*.credit' => 'nullable|numeric|min:0',
+        'entries.*.debit' => 'nullable|numeric|min:0',
+        'entries.*.payment_type' => 'nullable|string|in:cash,online,cheque',
+    ]);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
-            ChequeEntry::where('id', $id)->delete();
+    try {
+        $existingEntry = ChequeEntry::findOrFail($id);
 
-            foreach ($validated['entries'] as $entry) {
-                if (empty($entry['credit']) && empty($entry['debit']) && empty($entry['expense_description'])) {
-                    continue;
-                }
+        if ($existingEntry->party_type === 'supplier' && $existingEntry->party_id) {
+            PayablePayment::where('supplier_id', $existingEntry->party_id)
+                ->where('transaction_date', $existingEntry->date)
+                ->where('amount', $existingEntry->credit ?: $existingEntry->debit)
+                ->where('payment_mode', $existingEntry->payment_type)
+                ->delete();
+        } elseif ($existingEntry->party_type === 'dealer' && $existingEntry->party_id) {
+            ReceivablePayment::where('dealer_id', $existingEntry->party_id)
+                ->where('transaction_date', $existingEntry->date)
+                ->where('amount_received', $existingEntry->credit ?: $existingEntry->debit)
+                ->where('payment_mode', $existingEntry->payment_type)
+                ->delete();
+        }
 
-                $credit = $entry['credit'] ?? 0;
-                $debit = $entry['debit'] ?? 0;
+        ChequeEntry::where('id', $id)->delete();
 
-                $rawPartyId = $entry['party_id'] ?? null;
-                $partyType = $entry['party_type'] ?? null;
-                $partyId = null;
+        foreach ($validated['entries'] as $entry) {
+            if (empty($entry['credit']) && empty($entry['debit']) && empty($entry['expense_description'])) {
+                continue;
+            }
 
-                if ($partyType === 'dealer' && is_string($rawPartyId) && str_starts_with($rawPartyId, 'D')) {
-                    $partyId = (int) substr($rawPartyId, 1);
-                } elseif ($partyType === 'supplier') {
-                    $partyId = (int) $rawPartyId;
-                }
+            $credit = $entry['credit'] ?? 0;
+            $debit = $entry['debit'] ?? 0;
 
-                $isExpense = $partyType === 'expense';
+            $rawPartyId = $entry['party_id'] ?? null;
+            $partyType = $entry['party_type'] ?? null;
+            $partyId = null;
 
-                if ($credit > 0 && $debit > 0) {
-                    throw new \Exception("Cannot have both Credit and Debit in the same entry.");
-                }
+            if ($partyType === 'dealer' && is_string($rawPartyId) && str_starts_with($rawPartyId, 'D')) {
+                $partyId = (int) substr($rawPartyId, 1);
+            } elseif ($partyType === 'supplier') {
+                $partyId = (int) $rawPartyId;
+            }
 
-                $cheque = ChequeEntry::create([
-                    'date' => $entry['date'],
-                    'party_type' => $partyType,
-                    'party_id' => $isExpense ? null : $partyId,
-                    'expense_description' => $isExpense ? ($entry['expense_description'] ?? null) : null,
-                    'credit' => $credit,
-                    'debit' => $debit,
-                    'payment_type' => $isExpense ? null : ($entry['payment_type'] ?? null),
-                ]);
+            $isExpense = $partyType === 'expense';
 
-                if ($partyType === 'supplier' && $partyId) {
-                    if ($credit > 0) {
-                        PayablePayment::create([
-                            'supplier_id' => $partyId,
-                            'transaction_date' => $entry['date'],
-                            'transaction_type' => 'credit',
-                            'amount' => $credit,
-                            'payment_mode' => $entry['payment_type'] ?? null,
-                        ]);
-                    } elseif ($debit > 0) {
-                        PayablePayment::create([
-                            'supplier_id' => $partyId,
-                            'transaction_date' => $entry['date'],
-                            'transaction_type' => 'debit',
-                            'amount' => $debit,
-                            'payment_mode' => $entry['payment_type'] ?? null,
-                        ]);
-                    }
-                }
+            if ($credit > 0 && $debit > 0) {
+                throw new \Exception("Cannot have both Credit and Debit in the same entry.");
+            }
 
-                if ($partyType === 'dealer' && $partyId) {
-                    if ($credit > 0) {
-                        ReceivablePayment::create([
-                            'dealer_id' => $partyId,
-                            'transaction_date' => $entry['date'],
-                            'transaction_type' => 'debit',
-                            'amount_received' => $credit,
-                            'payment_mode' => $entry['payment_type'] ?? null,
-                        ]);
-                    } elseif ($debit > 0) {
-                        ReceivablePayment::create([
-                            'dealer_id' => $partyId,
-                            'transaction_date' => $entry['date'],
-                            'transaction_type' => 'credit',
-                            'amount_received' => $debit,
-                            'payment_mode' => $entry['payment_type'] ?? null,
-                        ]);
-                    }
+            $cheque = ChequeEntry::create([
+                'date' => $entry['date'],
+                'party_type' => $partyType,
+                'party_id' => $isExpense ? null : $partyId,
+                'expense_description' => $isExpense ? ($entry['expense_description'] ?? null) : null,
+                'credit' => $credit,
+                'debit' => $debit,
+                'payment_type' => $isExpense ? null : ($entry['payment_type'] ?? null),
+            ]);
+
+            if ($partyType === 'supplier' && $partyId) {
+                if ($credit > 0) {
+                    PayablePayment::create([
+                        'supplier_id' => $partyId,
+                        'transaction_date' => $entry['date'],
+                        'transaction_type' => 'credit',
+                        'amount' => $credit,
+                        'payment_mode' => $entry['payment_type'] ?? null,
+                    ]);
+                } elseif ($debit > 0) {
+                    PayablePayment::create([
+                        'supplier_id' => $partyId,
+                        'transaction_date' => $entry['date'],
+                        'transaction_type' => 'debit',
+                        'amount' => $debit,
+                        'payment_mode' => $entry['payment_type'] ?? null,
+                    ]);
                 }
             }
 
-            DB::commit();
-            return redirect()->route('cheque.index')->with('success', 'Cash Book entries updated successfully!');
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to update entries: ' . $th->getMessage())->withInput();
+            if ($partyType === 'dealer' && $partyId) {
+                if ($credit > 0) {
+                    ReceivablePayment::create([
+                        'dealer_id' => $partyId,
+                        'transaction_date' => $entry['date'],
+                        'transaction_type' => 'debit',
+                        'amount_received' => $credit,
+                        'payment_mode' => $entry['payment_type'] ?? null,
+                    ]);
+                } elseif ($debit > 0) {
+                    ReceivablePayment::create([
+                        'dealer_id' => $partyId,
+                        'transaction_date' => $entry['date'],
+                        'transaction_type' => 'credit',
+                        'amount_received' => $debit,
+                        'payment_mode' => $entry['payment_type'] ?? null,
+                    ]);
+                }
+            }
         }
-    }
 
+        DB::commit();
+        return redirect()->route('cheque.index')->with('success', 'Cash Book entries updated successfully!');
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        return back()->with('error', 'Failed to update entries: ' . $th->getMessage())->withInput();
+    }
+}
 
     public function destroy($id)
     {
-        $entry = ChequeEntry::findOrFail($id);
-        $entry->delete();
+        DB::beginTransaction();
 
-        return redirect()->route('cheque.index')->with('success', 'Entry deleted successfully.');
+        try {
+            $entry = ChequeEntry::findOrFail($id);
+
+            if ($entry->payable_payment_id) {
+                PayablePayment::where('id', $entry->payable_payment_id)->delete();
+            }
+
+            if ($entry->receivable_payment_id) {
+                ReceivablePayment::where('id', $entry->receivable_payment_id)->delete();
+            }
+
+            $entry->delete();
+
+            DB::commit();
+            return redirect()->route('cheque.index')->with('success', 'Entry deleted successfully.');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return redirect()->route('cheque.index')->with('error', 'Failed to delete entry: ' . $th->getMessage());
+        }
     }
-
-   
 
 }

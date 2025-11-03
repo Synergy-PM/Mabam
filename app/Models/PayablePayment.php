@@ -13,7 +13,7 @@ class PayablePayment extends Model
     'payable_id',
     'supplier_id',
     'transaction_date',
-    'amount',   // yeh correct hoga
+    'amount',   
     'transaction_type',
     'payment_mode',
     'proof_of_payment',

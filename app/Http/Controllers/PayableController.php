@@ -53,6 +53,7 @@ class PayableController extends Controller
             'no_of_bags'         => 'required|numeric|min:0',
             'amount_per_bag'     => 'required|numeric|min:0', 
             'bilti_no'           => 'required|string',
+            'truck_no'           => 'required|string', 
             'dealer_id.*'        => 'nullable|exists:dealers,id',
             'bags.*'             => 'nullable|integer|min:0',
             'rate.*'             => 'nullable|numeric|min:0',
