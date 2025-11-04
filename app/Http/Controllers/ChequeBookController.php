@@ -15,7 +15,7 @@ class ChequeBookController extends Controller
 
      public function index(Request $request)
     {
-        $query = ChequeEntry::orderBy('date', 'asc'); 
+        $query = ChequeEntry::query();
 
         if ($request->filled('from_date')) {
             $query->whereDate('date', '>=', $request->from_date);
@@ -23,25 +23,21 @@ class ChequeBookController extends Controller
         if ($request->filled('to_date')) {
             $query->whereDate('date', '<=', $request->to_date);
         }
+
         if ($request->filled('party_type')) {
             $query->where('party_type', $request->party_type);
         }
 
-        $entries = $query->get();
+        $entries = $query->orderBy('date', 'asc')->orderBy('id', 'asc')->get();
 
-        $cashTotal = 0;
-        $accTotal = 0;
+        $groupedEntries = $entries->groupBy(function($entry) {
+            return \Carbon\Carbon::parse($entry->date)->format('Y-m-d');
+        })->map(function($dayEntries) {
+            return $dayEntries->groupBy('party_name');
+        });
 
-        foreach ($entries as $entry) {
-            $diff = ($entry->credit ?? 0) - ($entry->debit ?? 0);
-
-            if ($entry->payment_type === 'cash') $cashTotal += $diff;
-            if (in_array($entry->payment_type, ['online','cheque'])) $accTotal += $diff;
-        }
-
-        return view('admin.cheque-book.index', compact('entries', 'cashTotal','accTotal'));
+        return view('admin.cheque-book.index', compact('groupedEntries'));
     }
-
 
     public function create()
     {
@@ -172,7 +168,7 @@ class ChequeBookController extends Controller
             return redirect()->route('cheque.index')->with('success', 'Cash Book entries saved successfully!');
         } catch (\Throwable $th) {
             DB::rollBack();
-            dd('Error:', $th->getMessage());
+            // dd('Error:', $th->getMessage());
             return back()->with('error', 'Failed to save entries: ' . $th->getMessage())->withInput();
         }
     }

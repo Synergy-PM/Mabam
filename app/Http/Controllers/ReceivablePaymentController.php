@@ -11,15 +11,15 @@ use Illuminate\Support\Facades\DB;
 
 class ReceivablePaymentController extends Controller
 {
-   public function index()
-{
-    $payments = ReceivablePayment::with('dealer')
-    ->latest()
-        ->paginate(10);
-    $trashCount = ReceivablePayment::onlyTrashed()->count(); // optional if you use soft deletes
+     public function index()
+    {
+        $payments = ReceivablePayment::with('dealer')
+        ->latest()
+            ->paginate(10);
+        $trashCount = ReceivablePayment::onlyTrashed()->count(); // optional if you use soft deletes
 
-    return view('admin.receivable_payments.index', compact('payments', 'trashCount'));
-}
+        return view('admin.receivable_payments.index', compact('payments', 'trashCount'));
+    }
 
     public function create()
     {
@@ -50,6 +50,7 @@ class ReceivablePaymentController extends Controller
             return redirect()->back()->with('error', 'Failed to save payments: ' . $e->getMessage());
         }
     }
+    
     public function edit($id)
     {
         $payment = ReceivablePayment::findOrFail($id);
