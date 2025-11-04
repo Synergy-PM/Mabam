@@ -142,127 +142,7 @@ public function restore($id)
         return view('admin.payable_payments.ledger-filter', compact('suppliers'));
     }
 
-    // public function ledgerReport(Request $request)
-    // {
-    //     $request->validate([
-    //         'supplier_id' => 'nullable|exists:suppliers,id',
-    //         'start_date'  => 'nullable|date',
-    //         'end_date'    => 'nullable|date|after_or_equal:start_date',
-    //     ]);
-
-    //     $query = \App\Models\PayablePayment::with('supplier')
-    //         ->when($request->supplier_id, fn($q) => $q->where('supplier_id', $request->supplier_id))
-    //         ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
-    //         ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
-    //         ->orderBy('transaction_date', 'asc');
-
-    //     $payments = $query->get();
-
-    //     foreach ($payments as $payment) {
-    //         $payable = \App\Models\Payable::where('supplier_id', $payment->supplier_id)
-    //             ->where('transaction_date', $payment->transaction_date)
-    //             ->first();
-    //         $payment->payable = $payable; 
-    //     }
-
-    //     $selectedSupplier = \App\Models\Supplier::find($request->supplier_id);
-
-    //     $transactions = [];
-    //     $regularPayments = $payments->map(function ($payment) {
-    //         return [
-    //             'supplier' => $payment->supplier,
-    //             'transaction_date' => $payment->transaction_date,
-    //             'amount' => $payment->amount,
-    //             'payment_mode' => $payment->payment_mode ?? 'N/A',
-    //             'transaction_type' => $payment->transaction_type ?? 'N/A',
-    //             'tons' => $payment->payable ? $payment->payable->tons ?? 0 : 0,
-    //             'rate' => $payment->payable ? $payment->payable->amount_per_bag ?? 0 : 0,
-    //             'is_opening' => false,
-    //         ];
-    //     })->sortBy('transaction_date')->values();
-
-    //     if ($selectedSupplier) {
-    //         if ($selectedSupplier->opening_balance != 0) {
-    //             $transactions[] = [
-    //                 'supplier' => $selectedSupplier,
-    //                 'transaction_date' => now()->format('Y-m-d'),
-    //                 'amount' => $selectedSupplier->opening_balance,
-    //                 'payment_mode' => 'Opening Balance',
-    //                 'transaction_type' => $selectedSupplier->transaction_type ?? 'credit',
-    //                 'tons' => 0,
-    //                 'rate' => 0,
-    //                 'is_opening' => true,
-    //             ];
-    //         }
-    //     }
-
-    //     if (!$selectedSupplier) {
-    //         $suppliers = \App\Models\Supplier::where('opening_balance', '!=', 0)->get();
-    //         foreach ($suppliers as $supplier) {
-    //             $transactions[] = [
-    //                 'supplier' => $supplier,
-    //                 'transaction_date' => now()->format('Y-m-d'),
-    //                 'amount' => $supplier->opening_balance,
-    //                 'payment_mode' => 'Opening Balance',
-    //                 'transaction_type' => $supplier->transaction_type ?? 'credit',
-    //                 'tons' => 0,
-    //                 'rate' => 0,
-    //                 'is_opening' => true,
-    //             ];
-    //         }
-    //     }
-
-    //     $transactions = collect(array_merge($transactions, $regularPayments->all()));
-
-    //     $openBalance = 0;
-    //     if ($selectedSupplier) {
-    //         $openBalance = $selectedSupplier->transaction_type === 'credit' ? ($selectedSupplier->opening_balance ?? 0) : -($selectedSupplier->opening_balance ?? 0);
-    //     }
-
-    //     $supplierSummaries = [];
-    //     if (!$selectedSupplier) {
-    //         $suppliers = \App\Models\Supplier::with(['payablePayments' => function ($q) use ($request) {
-    //             $q->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
-    //             ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
-    //             ->orderBy('transaction_date', 'asc');
-    //         }])->get();
-
-    //         foreach ($suppliers as $supplier) {
-    //             $payables = \App\Models\Payable::where('supplier_id', $supplier->id)
-    //                 ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
-    //                 ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
-    //                 ->get();
-
-    //             $totalCredit = $supplier->payablePayments->where('transaction_type', 'credit')->sum('amount');
-    //             $totalDebit = $supplier->payablePayments->where('transaction_type', 'debit')->sum('amount');
-    //             if ($supplier->transaction_type === 'credit') {
-    //                 $totalCredit += $supplier->opening_balance ?? 0;
-    //             } else {
-    //                 $totalDebit += $supplier->opening_balance ?? 0;
-    //             }
-
-    //             $supplierSummaries[] = [
-    //                 'supplier_name'    => $supplier->supplier_name,
-    //                 'tons'             => $payables->sum('tons') ?? 0,
-    //                 'total_credit'     => $totalCredit,
-    //                 'total_debit'      => $totalDebit,
-    //                 'closing_balance'  => $totalCredit - $totalDebit,
-    //             ];
-    //         }
-    //     }
-
-    //     return view('admin.payable_payments.ledger-report', compact(
-    //         'transactions',
-    //         'selectedSupplier',
-    //         'supplierSummaries',
-    //         'openBalance'
-    //     ))->with([
-    //         'startDate' => $request->start_date,
-    //         'endDate'   => $request->end_date,
-    //     ]);
-    // }
-
-     public function ledgerReport(Request $request)
+    public function ledgerReport(Request $request)
     {
         $request->validate([
             'supplier_id' => 'nullable|exists:suppliers,id',
@@ -270,7 +150,6 @@ public function restore($id)
             'end_date'    => 'nullable|date|after_or_equal:start_date',
         ]);
 
-        // Fetch PayablePayments with supplier relationship
         $query = \App\Models\PayablePayment::with('supplier')
             ->when($request->supplier_id, fn($q) => $q->where('supplier_id', $request->supplier_id))
             ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
@@ -279,30 +158,44 @@ public function restore($id)
 
         $payments = $query->get();
 
-        // Associate Payable data using payable_id
         foreach ($payments as $payment) {
-            $payable = $payment->payable_id ? \App\Models\Payable::find($payment->payable_id) : null;
-            $payment->payable = $payable;
+            $payable = \App\Models\Payable::where('supplier_id', $payment->supplier_id)
+                ->where('transaction_date', $payment->transaction_date)
+                ->first();
+            $payment->payable = $payable; 
         }
 
         $selectedSupplier = \App\Models\Supplier::find($request->supplier_id);
 
         $transactions = [];
-        // Add opening balance for selected supplier
-        if ($selectedSupplier && $selectedSupplier->opening_balance != 0) {
-            $transactions[] = [
-                'supplier' => $selectedSupplier,
-                'transaction_date' => now()->format('Y-m-d'),
-                'amount' => $selectedSupplier->opening_balance,
-                'payment_mode' => 'Opening Balance',
-                'transaction_type' => $selectedSupplier->transaction_type ?? 'credit',
-                'tons' => 0,
-                'rate' => 0,
-                'is_opening' => true,
+        $regularPayments = $payments->map(function ($payment) {
+            return [
+                'supplier' => $payment->supplier,
+                'transaction_date' => $payment->transaction_date,
+                'amount' => $payment->amount,
+                'payment_mode' => $payment->payment_mode ?? 'N/A',
+                'transaction_type' => $payment->transaction_type ?? 'N/A',
+                'tons' => $payment->payable ? $payment->payable->tons ?? 0 : 0,
+                'rate' => $payment->payable ? $payment->payable->amount_per_bag ?? 0 : 0,
+                'is_opening' => false,
             ];
+        })->sortBy('transaction_date')->values();
+
+        if ($selectedSupplier) {
+            if ($selectedSupplier->opening_balance != 0) {
+                $transactions[] = [
+                    'supplier' => $selectedSupplier,
+                    'transaction_date' => now()->format('Y-m-d'),
+                    'amount' => $selectedSupplier->opening_balance,
+                    'payment_mode' => 'Opening Balance',
+                    'transaction_type' => $selectedSupplier->transaction_type ?? 'credit',
+                    'tons' => 0,
+                    'rate' => 0,
+                    'is_opening' => true,
+                ];
+            }
         }
 
-        // Add opening balances for all suppliers if no specific supplier is selected
         if (!$selectedSupplier) {
             $suppliers = \App\Models\Supplier::where('opening_balance', '!=', 0)->get();
             foreach ($suppliers as $supplier) {
@@ -319,20 +212,6 @@ public function restore($id)
             }
         }
 
-        // Map regular payments, only include tons and rate for debit transactions
-        $regularPayments = $payments->map(function ($payment) {
-            return [
-                'supplier' => $payment->supplier,
-                'transaction_date' => $payment->transaction_date,
-                'amount' => $payment->amount,
-                'payment_mode' => $payment->payment_mode ?? 'N/A',
-                'transaction_type' => $payment->transaction_type ?? 'N/A',
-                'tons' => $payment->transaction_type === 'debit' && $payment->payable ? $payment->payable->tons ?? 0 : 0,
-                'rate' => $payment->transaction_type === 'debit' && $payment->payable ? $payment->payable->amount_per_bag ?? 0 : 0,
-                'is_opening' => false,
-            ];
-        })->sortBy('transaction_date')->values();
-
         $transactions = collect(array_merge($transactions, $regularPayments->all()));
 
         $openBalance = 0;
@@ -340,7 +219,6 @@ public function restore($id)
             $openBalance = $selectedSupplier->transaction_type === 'credit' ? ($selectedSupplier->opening_balance ?? 0) : -($selectedSupplier->opening_balance ?? 0);
         }
 
-        // Supplier summaries for all suppliers
         $supplierSummaries = [];
         if (!$selectedSupplier) {
             $suppliers = \App\Models\Supplier::with(['payablePayments' => function ($q) use ($request) {
@@ -364,11 +242,11 @@ public function restore($id)
                 }
 
                 $supplierSummaries[] = [
-                    'supplier_name' => $supplier->supplier_name,
-                    'tons' => $payables->sum('tons') ?? 0,
-                    'total_credit' => $totalCredit,
-                    'total_debit' => $totalDebit,
-                    'closing_balance' => $totalCredit - $totalDebit,
+                    'supplier_name'    => $supplier->supplier_name,
+                    'tons'             => $payables->sum('tons') ?? 0,
+                    'total_credit'     => $totalCredit,
+                    'total_debit'      => $totalDebit,
+                    'closing_balance'  => $totalCredit - $totalDebit,
                 ];
             }
         }
@@ -380,9 +258,131 @@ public function restore($id)
             'openBalance'
         ))->with([
             'startDate' => $request->start_date,
-            'endDate' => $request->end_date,
+            'endDate'   => $request->end_date,
         ]);
     }
+
+    //  public function ledgerReport(Request $request)
+    // {
+    //     $request->validate([
+    //         'supplier_id' => 'nullable|exists:suppliers,id',
+    //         'start_date'  => 'nullable|date',
+    //         'end_date'    => 'nullable|date|after_or_equal:start_date',
+    //     ]);
+
+    //     // Fetch PayablePayments with supplier relationship
+    //     $query = \App\Models\PayablePayment::with('supplier')
+    //         ->when($request->supplier_id, fn($q) => $q->where('supplier_id', $request->supplier_id))
+    //         ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
+    //         ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
+    //         ->orderBy('transaction_date', 'asc');
+
+    //     $payments = $query->get();
+
+    //     // Associate Payable data using payable_id
+    //     foreach ($payments as $payment) {
+    //         $payable = $payment->payable_id ? \App\Models\Payable::find($payment->payable_id) : null;
+    //         $payment->payable = $payable;
+    //     }
+
+    //     $selectedSupplier = \App\Models\Supplier::find($request->supplier_id);
+
+    //     $transactions = [];
+    //     // Add opening balance for selected supplier
+    //     if ($selectedSupplier && $selectedSupplier->opening_balance != 0) {
+    //         $transactions[] = [
+    //             'supplier' => $selectedSupplier,
+    //             'transaction_date' => now()->format('Y-m-d'),
+    //             'amount' => $selectedSupplier->opening_balance,
+    //             'payment_mode' => 'Opening Balance',
+    //             'transaction_type' => $selectedSupplier->transaction_type ?? 'credit',
+    //             'tons' => 0,
+    //             'rate' => 0,
+    //             'is_opening' => true,
+    //         ];
+    //     }
+
+    //     // Add opening balances for all suppliers if no specific supplier is selected
+    //     if (!$selectedSupplier) {
+    //         $suppliers = \App\Models\Supplier::where('opening_balance', '!=', 0)->get();
+    //         foreach ($suppliers as $supplier) {
+    //             $transactions[] = [
+    //                 'supplier' => $supplier,
+    //                 'transaction_date' => now()->format('Y-m-d'),
+    //                 'amount' => $supplier->opening_balance,
+    //                 'payment_mode' => 'Opening Balance',
+    //                 'transaction_type' => $supplier->transaction_type ?? 'credit',
+    //                 'tons' => 0,
+    //                 'rate' => 0,
+    //                 'is_opening' => true,
+    //             ];
+    //         }
+    //     }
+
+    //     // Map regular payments, only include tons and rate for debit transactions
+    //     $regularPayments = $payments->map(function ($payment) {
+    //         return [
+    //             'supplier' => $payment->supplier,
+    //             'transaction_date' => $payment->transaction_date,
+    //             'amount' => $payment->amount,
+    //             'payment_mode' => $payment->payment_mode ?? 'N/A',
+    //             'transaction_type' => $payment->transaction_type ?? 'N/A',
+    //             'tons' => $payment->transaction_type === 'debit' && $payment->payable ? $payment->payable->tons ?? 0 : 0,
+    //             'rate' => $payment->transaction_type === 'debit' && $payment->payable ? $payment->payable->amount_per_bag ?? 0 : 0,
+    //             'is_opening' => false,
+    //         ];
+    //     })->sortBy('transaction_date')->values();
+
+    //     $transactions = collect(array_merge($transactions, $regularPayments->all()));
+
+    //     $openBalance = 0;
+    //     if ($selectedSupplier) {
+    //         $openBalance = $selectedSupplier->transaction_type === 'credit' ? ($selectedSupplier->opening_balance ?? 0) : -($selectedSupplier->opening_balance ?? 0);
+    //     }
+
+    //     // Supplier summaries for all suppliers
+    //     $supplierSummaries = [];
+    //     if (!$selectedSupplier) {
+    //         $suppliers = \App\Models\Supplier::with(['payablePayments' => function ($q) use ($request) {
+    //             $q->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
+    //             ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
+    //             ->orderBy('transaction_date', 'asc');
+    //         }])->get();
+
+    //         foreach ($suppliers as $supplier) {
+    //             $payables = \App\Models\Payable::where('supplier_id', $supplier->id)
+    //                 ->when($request->start_date, fn($q) => $q->whereDate('transaction_date', '>=', $request->start_date))
+    //                 ->when($request->end_date, fn($q) => $q->whereDate('transaction_date', '<=', $request->end_date))
+    //                 ->get();
+
+    //             $totalCredit = $supplier->payablePayments->where('transaction_type', 'credit')->sum('amount');
+    //             $totalDebit = $supplier->payablePayments->where('transaction_type', 'debit')->sum('amount');
+    //             if ($supplier->transaction_type === 'credit') {
+    //                 $totalCredit += $supplier->opening_balance ?? 0;
+    //             } else {
+    //                 $totalDebit += $supplier->opening_balance ?? 0;
+    //             }
+
+    //             $supplierSummaries[] = [
+    //                 'supplier_name' => $supplier->supplier_name,
+    //                 'tons' => $payables->sum('tons') ?? 0,
+    //                 'total_credit' => $totalCredit,
+    //                 'total_debit' => $totalDebit,
+    //                 'closing_balance' => $totalCredit - $totalDebit,
+    //             ];
+    //         }
+    //     }
+
+    //     return view('admin.payable_payments.ledger-report', compact(
+    //         'transactions',
+    //         'selectedSupplier',
+    //         'supplierSummaries',
+    //         'openBalance'
+    //     ))->with([
+    //         'startDate' => $request->start_date,
+    //         'endDate' => $request->end_date,
+    //     ]);
+    // }
 
     public function supplierSummary(Request $request)
     {

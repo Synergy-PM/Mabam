@@ -44,7 +44,6 @@
                                                 @endforeach
                                                 <li class="list-group-item list-group-item-action text-muted not-found"
                                                     style="display: none;">
-                                                    Not Found
                                                 </li>
                                             </ul>
                                             <input type="hidden" name="supplier_id" id="supplier_id"

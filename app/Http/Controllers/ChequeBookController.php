@@ -152,7 +152,7 @@ class ChequeBookController extends Controller
                         ReceivablePayment::create([
                             'dealer_id' => $partyId,
                             'transaction_date' => $entry['date'],
-                            'transaction_type' => 'debit', 
+                            'transaction_type' => 'credit', 
                             'amount_received' => $credit,
                             'payment_mode' => $entry['payment_type'] ?? null,
                         ]);
@@ -160,7 +160,7 @@ class ChequeBookController extends Controller
                         ReceivablePayment::create([
                             'dealer_id' => $partyId,
                             'transaction_date' => $entry['date'],
-                            'transaction_type' => 'credit', 
+                            'transaction_type' => 'debit', 
                             'amount_received' => $debit,
                             'payment_mode' => $entry['payment_type'] ?? null,
                         ]);
