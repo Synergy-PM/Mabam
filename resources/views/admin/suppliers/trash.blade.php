@@ -22,15 +22,15 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:5%">#</th>
-                                    <th>Supplier Name</th>
-                                    <th>Company</th>
-                                    <th>City</th>
+                                    <th>Supplier Company Name</th>
+                                    <th>Opening Balance</th>
+                                    {{-- <th>City</th>
                                     <th>Email</th>
                                     <th>WhatsApp</th>
                                     <th>Contact Person</th>
                                     <th>Contact No</th>
                                     <th>Contact Email</th>
-                                    <th>Address</th>
+                                    <th>Address</th> --}}
                                     <th style="width:12%">Actions</th>
                                 </tr>
                             </thead>
@@ -39,14 +39,14 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $supplier->supplier_name ?? '-' }}</td>
-                                        <td>{{ $supplier->company_name ?? '-' }}</td>
-                                        <td>{{ $supplier->city->name ?? '-' }}</td>
+                                        <td>{{ $supplier->opening_balance ?? '-' }}</td>
+                                        {{-- <td>{{ $supplier->city->name ?? '-' }}</td>
                                         <td>{{ $supplier->email ?? '-' }}</td>
                                         <td>{{ $supplier->whatsapp ?? '-' }}</td>
                                         <td>{{ $supplier->contact_person ?? '-' }}</td>
                                         <td>{{ $supplier->contact_no ?? '-' }}</td>
                                         <td>{{ $supplier->contact_email ?? '-' }}</td>
-                                        <td>{{ $supplier->address ?? '-' }}</td>
+                                        <td>{{ $supplier->address ?? '-' }}</td> --}}
                                         <td>
                                             <div class="d-flex justify-content-center gap-1">
                                                 <a href="{{ route('suppliers.restore', $supplier->id) }}" 
@@ -59,9 +59,9 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr>
+                                    {{-- <tr>
                                         <td colspan="11" class="text-center text-muted">No deleted suppliers found.</td>
-                                    </tr>
+                                    </tr> --}}
                                 @endforelse
                             </tbody>
                         </table>

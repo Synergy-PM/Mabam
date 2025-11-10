@@ -9,24 +9,32 @@ class Receivable extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'transaction_date',
+        'payable_id',
+        'supplier_id',
+        'dealer_id',
         'bilti_no',
-        'truck_no',       
-        'no_of_bags',
-        'amount_per_bag',
+        'bags',
+        'rate',
+        'freight',
         'tons',
-        'total_amount',
+        'total',
+        'payment_type',
+        'proof_of_payment',
     ];
 
-    protected $dates = ['transaction_date','deleted_at'];
+    public function payable()
+    {
+        return $this->belongsTo(Payable::class);
+    }
 
     public function dealer()
     {
         return $this->belongsTo(Dealer::class);
     }
 
-    public function payments()
-    {
-        return $this->hasMany(Payment::class, 'transaction_id');
-    }
+    public function payment()
+{
+    return $this->belongsTo(ReceivablePayment::class, 'receivable_payment_id');
+}
+
 }

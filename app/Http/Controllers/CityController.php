@@ -30,13 +30,15 @@ class CityController extends Controller
         return redirect()->route('cities.index')->with('success', 'City created successfully.');
     }
 
-    public function edit(City $city)
+    public function edit($id)
     {
+        $city = city::findOrFail($id);
         return view('admin.cities.edit', compact('city'));
     }
 
-    public function update(Request $request, City $city)
+    public function update(Request $request, $id)
     {
+        $city = city::findOrFail($id);
         $request->validate([
             'name' => 'required|string|max:255'
         ]);

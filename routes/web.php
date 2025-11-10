@@ -11,8 +11,12 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PayableController;
 use App\Http\Controllers\ReceivableController;
-use App\Http\Controllers\PaymentController;
-
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\PayablePaymentController;
+use App\Http\Controllers\ReceivablePaymentController;
+use App\Http\Controllers\BiltiReportController;
+use App\Http\Controllers\ChequeBookController;
+use App\Http\Controllers\PurchasingRateController;
 
 
 Route::middleware('guest')->group(function () {
@@ -78,7 +82,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('trash', 'trash')->name('dealers.trash');
         Route::get('restore/{id}', 'restore')->name('dealers.restore');
     });
-    
+
      Route::controller(SupplierController::class)->prefix('suppliers')->group(function () {
         Route::get('/', 'index')->name('suppliers.index');
         Route::get('create', 'create')->name('suppliers.create');
@@ -92,7 +96,9 @@ Route::middleware('auth')->prefix('admin')->group(function () {
 
    Route::controller(PayableController::class)->prefix('payables')->group(function () {
         Route::get('/', 'index')->name('payables.index');
+        // Route::get('/one', 'show')->name('payables.show');
         Route::get('create', 'create')->name('payables.create');
+        // Route::get('create1', 'create1')->name('payables.create1');
         Route::post('store', 'store')->name('payables.store');
         Route::get('edit/{id}', 'edit')->name('payables.edit');
         Route::put('update/{id}', 'update')->name('payables.update');
@@ -101,29 +107,87 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('restore/{id}', 'restore')->name('payables.restore');
     });
 
-      Route::controller(ReceivableController::class)->prefix('receivables')->group(function () {
-        Route::get('/', 'index')->name('receivables.index');
-        Route::get('create', 'create')->name('receivables.create');
-        Route::post('store', 'store')->name('receivables.store');
-        Route::get('edit/{id}', 'edit')->name('receivables.edit');
-        Route::put('update/{id}', 'update')->name('receivables.update');
-        Route::delete('delete/{id}', 'destroy')->name('receivables.delete');
-        Route::get('trash', 'trash')->name('receivables.trash');
-        Route::put('restore/{id}', 'restore')->name('receivables.restore');
+ Route::controller(PayablePaymentController::class)
+    ->prefix('payable-payments')
+    ->group(function () {
+        Route::get('/', 'index')->name('payable-payments.index');
+        Route::get('create', 'create')->name('payable-payments.create');
+        Route::post('/', 'store')->name('payable-payments.store'); 
+        Route::get('edit/{id}', 'edit')->name('payable-payments.edit');
+        Route::put('{id}', 'update')->name('payable-payments.update');
+        Route::delete('{id}', 'destroy')->name('payable-payments.delete');
+        Route::get('trash', 'trash')->name('payable-payments.trash');
+        Route::put('restore/{id}', 'restore')->name('payable-payments.restore');
+        Route::get('ledger-filter', 'ledgerFilter')->name('payable-payments.ledger-filter');
+        Route::get('ledger-report', 'ledgerReport')->name('payable-payments.ledger-report');
+        Route::get('summary', 'supplierSummary')->name('payable-payments.supplier-summary');
     });
 
-    Route::controller(PaymentController::class)->prefix('payments')->group(function () {
-        Route::get('/', 'index')->name('payments.index');
-        Route::get('create', 'create')->name('payments.create');
-        Route::post('store', 'store')->name('payments.store');
-        Route::get('edit/{id}', 'edit')->name('payments.edit');
-        Route::put('update/{id}', 'update')->name('payments.update');
-        Route::delete('delete/{id}', 'destroy')->name('payments.delete');
-        Route::get('trash', 'trash')->name('payments.trash');
-        Route::put('restore/{id}', 'restore')->name('payments.restore');
+
+    Route::controller(ExpenseController::class)->prefix('expenses')->group(function () {
+        Route::get('/', 'index')->name('expenses.index');
+        Route::get('create', 'create')->name('expenses.create');
+        Route::post('store', 'store')->name('expenses.store');
+        Route::get('edit/{id}', 'edit')->name('expenses.edit');
+        Route::put('update/{id}', 'update')->name('expenses.update');
+        Route::delete('delete/{id}', 'destroy')->name('expenses.delete');
+        Route::get('trash', 'trash')->name('expenses.trash');
+        Route::get('restore/{id}', 'restore')->name('expenses.restore');
     });
-Route::get('/suppliers/{id}/last-payable', [App\Http\Controllers\PayableController::class, 'getLastPayable']);
+
+
+
+    Route::controller(BiltiReportController::class)->prefix('bilti')->group(function () {
+        Route::get('/report/filter', 'showFilter')->name('bilti.report.filter');
+        Route::get('/report', 'index')->name('bilti.report');
+    });
+
+    Route::controller(BiltiReportController::class)->prefix('daily')->group(function () {
+        Route::get('/report/filter', 'showDailyReportFilter')->name('daily.report.filter');
+        Route::get('/report', 'dailyReport')->name('daily.report');
+        Route::get('/profit/filter', 'filter')->name('profit.filter');
+        Route::get('/profit/report', 'profitReport')->name('profit.report');
+    });
+
+Route::controller(ReceivablePaymentController::class)->prefix('receivable-payments')->group(function () {
+    Route::get('/', 'index')->name('receivable-payments.index');
+    Route::get('create', 'create')->name('receivable-payments.create');
+    Route::post('store', 'store')->name('receivable-payments.store');
+    Route::get('edit/{id}', 'edit')->name('receivable-payments.edit');
+    Route::put('update/{id}', 'update')->name('receivable-payments.update');
+    Route::delete('delete/{id}', 'destroy')->name('receivable-payments.delete');
+    Route::get('trash', 'trash')->name('receivable-payments.trash');
+    Route::post('restore/{id}', 'restore')->name('receivable-payments.restore');
+    Route::get('ledger-report-filter', 'ledgerReportFilter')->name('receivable-payments.ledger-report-filter');
+    Route::get('ledger-report', 'ledgerReport')->name('receivable-payments.ledger-report');
+    Route::get('summary', 'supplierSummary')->name('receivable-payments.supplier-summary');
+
+});
+
+Route::controller(ChequeBookController::class)
+    ->prefix('cheque')
+    ->group(function () {
+        Route::get('/index', 'index')->name('cheque.index');
+        Route::get('/create', 'create')->name('cheque.create');
+        Route::post('/store', 'store')->name('cheque.store');
+        Route::get('/edit/{id}', 'edit')->name('cheque.edit');
+        Route::put('/update/{id}', 'update')->name('cheque.update');
+        Route::delete('/destroy/{id}', 'destroy')->name('cheque.destroy');
+         Route::get('/print', 'print')->name('cheque.print');
+    });
+
+    Route::controller(PurchasingRateController::class)->prefix('purchasing_rates')->group(function () {
+    Route::get('/', 'index')->name('purchasing_rates.index');
+    Route::get('create', 'create')->name('purchasing_rates.create');
+    Route::post('/', 'store')->name('purchasing_rates.store');
+    Route::get('{id}/edit', 'edit')->name('purchasing_rates.edit');
+    Route::put('{id}', 'update')->name('purchasing_rates.update');
+    Route::delete('{id}', 'destroy')->name('purchasing_rates.destroy');
+    Route::get('trash', 'trash')->name('purchasing_rates.trash');
+    Route::post('restore/{id}', 'restore')->name('purchasing_rates.restore');
+    Route::delete('force-delete/{id}', 'forceDelete')->name('purchasing_rates.forceDelete');
+});
 
 
 });
-    
+ 

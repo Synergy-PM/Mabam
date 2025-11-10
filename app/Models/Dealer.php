@@ -13,7 +13,7 @@ class Dealer extends Model
         'dealer_name',
         'company_name',
         'city_id',
-        'email',
+        'opening_balance',
         'whatsapp',
         'contact_person',
         'contact_no',
@@ -30,5 +30,8 @@ class Dealer extends Model
     {
         return $this->hasMany(Payment::class, 'reference_id')->where('type', 'dealer');
     }
-
+     public function receivablePayments()
+    {
+        return $this->hasMany(ReceivablePayment::class, 'dealer_id');
+    }
 }

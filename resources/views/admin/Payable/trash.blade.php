@@ -25,12 +25,11 @@
             @forelse($payables as $p)
               <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $p->transaction_date->format('d-m-Y') }}</td>
+                 <td>{{ \Carbon\Carbon::parse($p->transaction_date)->format('d-m-Y') }}</td>
                 <td>{{ $p->supplier->supplier_name ?? '-' }}</td>
                 <td class="text-end">{{ number_format($p->total_amount,2) }}</td>
                 <td>
                   <a href="{{ route('payables.restore', $p->id) }}" class="btn btn-sm btn-success">Restore</a>
-                  {{-- <a href="{{ route('payables.forceDelete', $p->id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Permanently delete?')">Delete</a> --}}
                 </td>
               </tr>
             @empty

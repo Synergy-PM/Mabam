@@ -11,7 +11,7 @@ class Supplier extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'company_name',
+        'opening_balance',
         'supplier_name',
         'city_id',
         'email',
@@ -22,14 +22,13 @@ class Supplier extends Model
         'contact_email'
     ];
 
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
-    
     public function payments()
     {
         return $this->hasMany(Payment::class, 'reference_id')->where('type', 'supplier');
+    }
+        public function payablePayments()
+    {
+        return $this->hasMany(PayablePayment::class, 'supplier_id');
     }
 
 }

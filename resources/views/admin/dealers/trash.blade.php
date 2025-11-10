@@ -20,11 +20,10 @@
                             <thead class="table-light text-center">
                                 <tr>
                                     <th style="width:5%">#</th>
+                                    <th>Dealer Name</th>
                                     <th>Company</th>
                                     <th>City</th>
-                                    <th>Email</th>
-                                    <th>WhatsApp</th>
-                                    <th>Address</th>
+                                    <th>Opening balance</th>
                                     <th style="width:15%">Actions</th>
                                 </tr>
                             </thead>
@@ -32,11 +31,10 @@
                                 @forelse ($dealers as $index => $dealer)
                                     <tr>
                                         <td class="text-center">{{ $index + 1 }}</td>
-                                        <td>{{ $dealer->company->name ?? '-' }}</td>
+                                        <td>{{ $dealer->dealer_name ?? '-' }}</td>
+                                        <td>{{ $dealer->company_name ?? '-' }}</td>
                                         <td>{{ $dealer->city->name ?? '-' }}</td>
-                                        <td>{{ $dealer->email ?? '-' }}</td>
-                                        <td>{{ $dealer->whatsapp ?? '-' }}</td>
-                                        <td>{{ $dealer->address ?? '-' }}</td>
+                                        <td>{{ $dealer->opening_balance ?? '-' }}</td>
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-1">
                                                 <a href="{{ route('dealers.restore', $dealer->id) }}"

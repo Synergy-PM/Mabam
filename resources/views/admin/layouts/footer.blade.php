@@ -4,7 +4,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6">
-                <script>document.write(new Date().getFullYear())</script> © MK TRADERS
+                <script>document.write(new Date().getFullYear())</script> © MABAM ENTERPRIES
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
@@ -49,17 +49,117 @@
 <!-- DataTable Init -->
 <script>
   $(document).ready(function () {
+    $('#suppilerTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      // "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 3] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
     $('#payablesTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      // "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 3] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#DealerTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      // "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 6] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#receivablePaymentsTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      // "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 5] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#payablePaymentsTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      // "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 5] } 
+      ]
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('#cashBookTable').DataTable({
       "pageLength": 10,
       "responsive": true,
       "autoWidth": false,
       "order": [[1, "desc"]], 
       "columnDefs": [
-        { "orderable": false, "targets": [0, 8] } // disable sort on # and Actions column
+        { "orderable": false, "targets": [0, 7] } 
       ]
     });
   });
 </script>
+<script>
+  $(document).ready(function () {
+    $('#purchasingRatesTable').DataTable({
+      "pageLength": 10,
+      "responsive": true,
+      "autoWidth": false,
+      // "order": [[1, "desc"]], 
+      "columnDefs": [
+        { "orderable": false, "targets": [0, 5] } 
+      ]
+    });
+  });
+</script>
+{{-- <script>
+    $(document).ready(function () {
+        if ($.fn.DataTable.isDataTable('#cashBookTable')) {
+            $('#cashBookTable').DataTable().destroy();
+        }
+        $('#cashBookTable').DataTable({
+            "pageLength": 10,
+            "responsive": true,
+            "autoWidth": false,
+            "paging": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "order": [[0, "desc"]], // Sort by Date (latest first)
+            "columnDefs": [
+                { "orderable": false, "targets": [5] }, // Cash, Online, Cheque not sortable
+                { "type": "num", "targets": [2, 3, 4] }        // Proper number sorting
+            ],
+            "dom": '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip'
+        });
+    });
+</script> --}}
 @yield('scripts')
 </body>
 </html>
